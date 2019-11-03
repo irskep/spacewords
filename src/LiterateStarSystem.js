@@ -1,6 +1,9 @@
 import { StarSystem } from 'stellardream';
-import starnames from './starnames';
 import Alea from 'alea';
+import Improv from 'improv';
+
+import starnames from './starnames';
+import starGrammar from './improvgrammar/star.yaml';
 
 function patchingMathDotRandom(fn, code) {
   const oldMR = Math.random;
@@ -8,6 +11,11 @@ function patchingMathDotRandom(fn, code) {
   code();
   Math.random = oldMR;  
 }
+
+const generator = new Improv(starGrammar, {
+  filters: [Improv.filters.mismatchFilter()],
+  reincorporate: true,
+});
 
 export default class LiterateStarSystem {
   constructor(seed) {
@@ -18,5 +26,7 @@ export default class LiterateStarSystem {
     patchingMathDotRandom(this.alea, () => {
       this.name = starnames.flatten('#starname#');
     });
+
+    this.text = generator.gen('root', {});
   }
 }

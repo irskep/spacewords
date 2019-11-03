@@ -1,0 +1,24 @@
+root:
+  groups:
+    -
+      tags: []
+      phrases:
+        - "The [:prefix] [:name] is a [:class] commissioned in 1888"
+prefix:
+  groups:
+    -
+      tags: []
+      phrases:
+        - "HMS"
+name:
+  groups:
+    -
+      tags: []
+      phrases:
+        - "Invincible"
+class:
+  groups:
+    -
+      tags: []
+      phrases:
+        - "cutter"

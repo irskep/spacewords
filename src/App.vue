@@ -1,7 +1,11 @@
 <template>
   <div>
     <button @click="travel">Travel</button>
-    <h1 v-if="system">{{ system.name }}</h1>
+    <div v-if="system">
+      <h1>{{ system.name }}</h1>
+      <p>{{ system.text }}</p>
+    </div>
+
     <pre>{{ systemJSON }}</pre>
   </div>
 </template>
