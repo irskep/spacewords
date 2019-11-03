@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@vue/composition-api": "^0.3.2",
+    "query-string": "^6.8.3",
     "stellardream": "0.2.0",
     "vue": "^2.6.10",
     "vue-hot-reload-api": "^2.3.4"

@@ -8,20 +8,40 @@
 <script>
 import { ref, computed, onMounted } from '@vue/composition-api';
 import { StarSystem } from 'stellardream';
+import queryString from 'query-string';
 
 export default {
   // 1572814796743
   setup() {
+    const parsedHash = queryString.parse(window.location.hash);
+
+    const seed = ref(null);
     const system = ref(null);
     const traveledSystemsCount = ref(0);
     const isStopped = ref(false);
 
-    function travel() {
-      system.value = new StarSystem(Date.now());
+    function deriveSystem() {
+      system.value = new StarSystem(seed.value);
       traveledSystemsCount.value += 1;
+      window.location.hash = `seed=${seed.value}`;
     }
 
-    onMounted(() => travel());
+    function travel() {
+      seed.value = Date.now();
+      deriveSystem();
+    }
+
+    onMounted(() => {
+      if (parsedHash.seed && !isNaN(parseInt(parsedHash.seed, 10))) {
+        seed.value = parseInt(parsedHash.seed, 10)
+        console.log("Set seed:", seed.value);
+      }
+      if (seed.value) {
+        deriveSystem();
+      } else {
+        travel();
+      }
+    });
 
     return {
       system,
