@@ -8,29 +8,8 @@
 
 <script>
 import { ref, computed, onMounted } from '@vue/composition-api';
-import { StarSystem } from 'stellardream';
+import LiterateStarSystem from './LiterateStarSystem';
 import queryString from 'query-string';
-import starnames from './starnames';
-import Alea from 'alea';
-
-function patchingMathDotRandom(fn, code) {
-  const oldMR = Math.random;
-  Math.random = fn;
-  code();
-  Math.random = oldMR;  
-}
-
-class LiterateStarSystem {
-  constructor(seed) {
-    this.seed = seed || Date.now();
-    this.starSystem = new StarSystem(this.seed);
-    this.alea = new Alea(this.seed);
-
-    patchingMathDotRandom(this.alea, () => {
-      this.name = starnames.flatten('#starname#');
-    });
-  }
-}
 
 export default {
   // 1572814796743
