@@ -10,9 +10,11 @@ import { ref, computed, onMounted } from '@vue/composition-api';
 import { StarSystem } from 'stellardream';
 
 export default {
+  // 1572814796743
   setup() {
     const system = ref(null);
     const traveledSystemsCount = ref(0);
+    const isStopped = ref(false);
 
     function travel() {
       system.value = new StarSystem(Date.now());
