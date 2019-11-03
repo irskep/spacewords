@@ -1,6 +1,7 @@
 <template>
   <div>
     <button @click="travel">Travel</button>
+    <h1 v-if="system">{{ system.name }}</h1>
     <pre>{{ systemJSON }}</pre>
   </div>
 </template>
@@ -9,6 +10,27 @@
 import { ref, computed, onMounted } from '@vue/composition-api';
 import { StarSystem } from 'stellardream';
 import queryString from 'query-string';
+import starnames from './starnames';
+import Alea from 'alea';
+
+function patchingMathDotRandom(fn, code) {
+  const oldMR = Math.random;
+  Math.random = fn;
+  code();
+  Math.random = oldMR;  
+}
+
+class LiterateStarSystem {
+  constructor(seed) {
+    this.seed = seed || Date.now();
+    this.starSystem = new StarSystem(this.seed);
+    this.alea = new Alea(this.seed);
+
+    patchingMathDotRandom(this.alea, () => {
+      this.name = starnames.flatten('#starname#');
+    });
+  }
+}
 
 export default {
   // 1572814796743
@@ -17,11 +39,14 @@ export default {
 
     const seed = ref(null);
     const system = ref(null);
+    const systemText = ref(null);
     const traveledSystemsCount = ref(0);
-    const isStopped = ref(false);
+
+    // While traveling, may visit many systems without stopping
+    const isStopped = ref(true);
 
     function deriveSystem() {
-      system.value = new StarSystem(seed.value);
+      system.value = new LiterateStarSystem(seed.value);
       traveledSystemsCount.value += 1;
       window.location.hash = `seed=${seed.value}`;
     }
@@ -44,8 +69,12 @@ export default {
     });
 
     return {
+      seed,
       system,
-      systemJSON: computed(() => JSON.stringify(system.value, null, 2)),
+      systemJSON: computed(() => {
+        if (!system.value) return "null";
+        return JSON.stringify(system.value.starSystem, null, 2);
+      }),
       traveledSystemsCount,
       travel,
     }
