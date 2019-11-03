@@ -10,6 +10,7 @@
     "@vue/composition-api": "^0.3.2",
     "alea": "^1.0.0",
     "improv": "^1.0.0",
+    "number-to-words": "^1.2.4",
     "query-string": "^6.8.3",
     "stellardream": "0.2.0",
     "tracery-grammar": "^2.7.4",

@@ -3,22 +3,102 @@ root:
     -
       tags: []
       phrases:
-        - "The [:prefix] [:name] is a [:class] commissioned in 1888"
-prefix:
+        - "[:starsdesc] [:planetsdesc]"
+
+starsdesc:
   groups:
     -
-      tags: []
+      tags: [['numstars', '1']]
       phrases:
-        - "HMS"
-name:
+        - "The [name] system contains [:star1desc]."
+    -
+      tags: [['numstars', '2']]
+      phrases:
+        - "The [name] system contains [:star1desc] orbited by a smaller [:star2desc]."
+
+star1desc:
   groups:
     -
-      tags: []
+      tags:
+        - ['star1type', 'M']
       phrases:
-        - "Invincible"
-class:
+        - "an M-type star"
+    -
+      tags:
+        - ['star1type', 'K']
+      phrases:
+        - "a K-type star"
+    -
+      tags:
+        - ['star1type', 'G']
+      phrases:
+        - "a G-type star"
+    -
+      tags:
+        - ['star1type', 'F']
+      phrases:
+        - "an F-type star"
+    -
+      tags:
+        - ['star1type', 'A']
+      phrases:
+        - "an A-type star"
+    -
+      tags:
+        - ['star1type', 'B']
+      phrases:
+        - "a B-type star"
+    -
+      tags:
+        - ['star1type', 'O']
+      phrases:
+        - "an O-type star"
+
+star2desc:
   groups:
     -
-      tags: []
+      tags:
+        - ['star2type', 'M']
       phrases:
-        - "cutter"
+        - "M-type star"
+    -
+      tags:
+        - ['star2type', 'K']
+      phrases:
+        - "K-type star"
+    -
+      tags:
+        - ['star2type', 'G']
+      phrases:
+        - "G-type star"
+    -
+      tags:
+        - ['star2type', 'F']
+      phrases:
+        - "F-type star"
+    -
+      tags:
+        - ['star2type', 'A']
+      phrases:
+        - "A-type star"
+    -
+      tags:
+        - ['star2type', 'B']
+      phrases:
+        - "B-type star"
+    -
+      tags:
+        - ['star2type', 'O']
+      phrases:
+        - "O-type star"
+
+planetsdesc:
+  groups:
+    -
+      tags: [['hasPlanets', 'true']]
+      phrases:
+        - "[cap numberword numPlanets] planets orbit between [planetMinAU] AU and [planetMaxAU] AU from the primary star."
+    -
+      tags: [['hasPlanets', 'false']]
+      phrases:
+        - "The system is `empty of planets."
