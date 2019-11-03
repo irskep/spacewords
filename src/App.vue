@@ -1,27 +1,31 @@
 <template>
-  <button @click="increment">
-    Count is: {{ count }}, double is {{ double }}, click to increment.
-  </button>
+  <div>
+    <button @click="travel">Travel</button>
+    <pre>{{ systemJSON }}</pre>
+  </div>
 </template>
 
 <script>
-import { ref, computed, onMounted } from '@vue/composition-api'
+import { ref, computed, onMounted } from '@vue/composition-api';
+import { StarSystem } from 'stellardream';
 
 export default {
   setup() {
-    const count = ref(0)
-    const double = computed(() => count.value * 2)
+    const system = ref(null);
+    const traveledSystemsCount = ref(0);
 
-    function increment() {
-      count.value++
+    function travel() {
+      system.value = new StarSystem(Date.now());
+      traveledSystemsCount.value += 1;
     }
 
-    onMounted(() => console.log('component mounted!'))
+    onMounted(() => travel());
 
     return {
-      count,
-      double,
-      increment
+      system,
+      systemJSON: computed(() => JSON.stringify(system.value, null, 2)),
+      traveledSystemsCount,
+      travel,
     }
   }
 }
