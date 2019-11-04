@@ -20,5 +20,8 @@ Things to describe
 - Gas giant appearance
 - Neptunian appearance
 
+Principles
+- Life, uh, finds a way
+
 Interesting seeds
 1572839065032: two hz rocky planets

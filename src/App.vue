@@ -92,6 +92,7 @@ export default {
       const success = (s) => {
         seed.value = s;
         console.log("Traveling to", seed.value);
+        isStopped.value = true;
         deriveSystem();
         return;
       }
