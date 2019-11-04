@@ -32728,6 +32728,7 @@ var _default = {
       var success = function success(s) {
         seed.value = s;
         console.log("Traveling to", seed.value);
+        isStopped.value = true;
         deriveSystem();
         return;
       };
@@ -32968,7 +32969,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51817" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52173" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
