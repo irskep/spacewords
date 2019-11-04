@@ -19,3 +19,6 @@ Potential corpora
 Things to describe
 - Gas giant appearance
 - Neptunian appearance
+
+Interesting seeds
+1572839065032: two hz rocky planets

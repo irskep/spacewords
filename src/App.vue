@@ -13,7 +13,7 @@
       <p>{{ system.systemText }}</p>
 
       <section v-for="(planetText, i) in system.planetTexts" v-bind:key="i">
-        {{ planetText }}
+        <p>{{ planetText }}</p>
       </section>
     </article>
 
