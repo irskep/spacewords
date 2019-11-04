@@ -1,44 +1,6 @@
 // with apologies to https://www.springhole.net/writing_roleplaying_randomators/greekyish-names.htm
 import tracery from 'tracery-grammar';
 
-/*
-GURPS Aliens
-An Phar
-Banduch
-Cidi
-Crystal Computer
-Engai
-Fasanni
-Garuda
-Gerodian
-Gloworm
-Gormelite
-Irari
-Jaril
-Kaa
-Kinsi
-Kronin
-Liook Sujan
-Malikithi
-Markann
-Memer and Saret
-Mmm
-Nexa
-Pachekki
-Purulu
-Riders
-Sparrials
-Tamile
-Traders
-Treefolk
-Truul
-Verms
-Xenomorph
-Xrex
-Yalkani
-Winterfolk
-*/
-
 const grammar = tracery.createGrammar({
 	'root': [
 		'#simple#',
@@ -93,6 +55,9 @@ const grammar = tracery.createGrammar({
 		"R",
 		"R",
 		"S",
+		"Sc",
+		"Sch",
+		"Sh",
 		"T",
 		"Th",
 		"V",
@@ -100,6 +65,7 @@ const grammar = tracery.createGrammar({
 		"X",
 		"Y",
 		"Z",
+		"Zh",
 	],
 
 	'maybesecondconsonant': [
