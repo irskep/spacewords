@@ -1,19 +1,50 @@
 <template>
   <div>
     <button @click="travel">Travel</button>
-    <div v-if="system">
-      <h1>{{ system.name }}</h1>
-      <p>{{ system.text }}</p>
+    <button @click="search">Search for life</button>
+    <button v-if="!isStopped">Stop</button>
+
+    <div>
+      Visited {{ traveledSystemsCount }} {{ traveledSystemsCount == 1 ? 'system' : 'systems' }}
     </div>
 
-    <pre>{{ systemJSON }}</pre>
+    <article v-if="system">
+      <h1>{{ system.name }}</h1>
+      <p>{{ system.systemText }}</p>
+
+      <section v-for="(planetText, i) in system.planetTexts" v-bind:key="i">
+        {{ planetText }}
+      </section>
+    </article>
+
+    <!-- <pre>{{ systemJSON }}</pre> -->
+
+    <footer>
+      <strong>Tools used to make this site:</strong>
+
+      <div>
+        <a href="https://steveasleep.com/stellardream">Stellar Dream</a> for
+        generating astronomically plausible star systems.
+      </div>
+
+      <div>
+        <a href="https://improv.readthedocs.io/">Improv</a> for generating text
+        based on world models.
+      </div>
+    </footer>
   </div>
 </template>
 
 <script>
 import { ref, computed, onMounted } from '@vue/composition-api';
-import LiterateStarSystem from './LiterateStarSystem';
 import queryString from 'query-string';
+import { StarSystem } from 'stellardream';
+
+import LiterateStarSystem from './LiterateStarSystem';
+
+const defer = (fn) => {
+  setTimeout(fn, 0);
+};
 
 export default {
   // 1572814796743
@@ -27,6 +58,7 @@ export default {
 
     // While traveling, may visit many systems without stopping
     const isStopped = ref(true);
+    function stop() { isStopped.value = true; }
 
     function deriveSystem() {
       system.value = new LiterateStarSystem(seed.value);
@@ -36,7 +68,62 @@ export default {
 
     function travel() {
       seed.value = Date.now();
+      console.log("Traveling to", seed.value);
       deriveSystem();
+    }
+
+    function _iterateSearch(baseSeed) {
+      if (isStopped.value) {
+        seed.value = baseSeed;
+        deriveSystem();
+        return;
+      }
+
+      const batchSize = 13;
+      const allowedStarTypes = {
+        'K': true,
+        'G': true,
+        'F': true,
+      }
+      const minPlanets = 2;
+      const starSystem = system.value;
+
+      const success = (s) => {
+        seed.value = s;
+        console.log("Traveling to", seed.value);
+        deriveSystem();
+        return;
+      }
+
+      for (let s=baseSeed; s<baseSeed+batchSize; s++) {
+        const starSystem = new StarSystem(s);
+
+        if (!allowedStarTypes[starSystem.stars[0].starType]) { continue; }
+
+        if (starSystem.planets.length < minPlanets) { continue; }
+
+        for (let planet of starSystem.planets) {
+          const isCold = planet.distance > starSystem.habitableZoneMax;
+          const isHot = planet.distance < starSystem.habitableZoneMin;
+          const isTidallyLocked = !isCold && starSystem.stars[0].starType == 'M';
+          const isTerran = planet.planetType == 'Terran';
+
+          if (isTerran && !isCold && !isHot && !isTidallyLocked) {
+            success(s);
+            return;
+          }
+        }
+      }
+
+      traveledSystemsCount.value += batchSize;
+      defer(() => {
+        _iterateSearch(baseSeed + batchSize);
+      });
+    }
+
+    function search() {
+      isStopped.value = false;
+      _iterateSearch(Date.now());
     }
 
     onMounted(() => {
@@ -60,6 +147,9 @@ export default {
       }),
       traveledSystemsCount,
       travel,
+      search,
+      stop,
+      isStopped,
     }
   }
 }

@@ -1,0 +1,44 @@
+root:
+  groups:
+    -
+      tags: [['planetType', 'Neptunian']]
+      phrases:
+        - 'The [ordinal planet.number] planet is [a :planetdesc] with [planet.pluralizedMoons].'
+    -
+      tags: [['planetType', 'Jovian']]
+      phrases:
+        - 'The [ordinal planet.number] planet is [a :planetdesc] with [planet.pluralizedMoons].'
+    -
+      tags: [['planetType', 'Terran']]
+      phrases:
+        - 'The [ordinal planet.number] planet is [a :planetdesc] with [planet.pluralizedMoons]. [:terranHzDesc]'
+
+planetdesc:
+  groups:
+    -
+      tags: [['planetType', 'Neptunian']]
+      phrases:
+        - 'Neptunian'
+    -
+      tags: [['planetType', 'Jovian']]
+      phrases:
+        - 'gas giant'
+    -
+      tags: [['planetType', 'Terran']]
+      phrases:
+        - 'rocky planet [planet.earthMasses] times the size of Earth'
+        
+terranHzDesc:
+  groups:
+    -
+      tags: [['hz', 'hot']]
+      phrases:
+        - 'It is too close to the star to support life.'
+    -
+      tags: [['hz', 'cold']]
+      phrases:
+        - 'It is too far from the star to support life.'
+    -
+      tags: [['hz', 'habitable']]
+      phrases:
+        - 'Its orbit is within the habitable zone of the star system.'

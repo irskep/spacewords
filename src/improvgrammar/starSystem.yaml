@@ -95,10 +95,15 @@ star2desc:
 planetsdesc:
   groups:
     -
-      tags: [['hasPlanets', 'true']]
+      tags: [['planetsAmount', 'many']]
       phrases:
         - "[cap numberword numPlanets] planets orbit between [planetMinAU] AU and [planetMaxAU] AU from the primary star."
+        
     -
-      tags: [['hasPlanets', 'false']]
+      tags: [['planetsAmount', 'one']]
       phrases:
-        - "The system is `empty of planets."
+        - "One planet orbits [planetMinAU] AU from the primary star."
+    -
+      tags: [['planetsAmount', 'none']]
+      phrases:
+        - "The system is empty of planets."

@@ -2,9 +2,11 @@ import { StarSystem } from 'stellardream';
 import Alea from 'alea';
 import Improv from 'improv';
 import numberToWords from 'number-to-words';
+import pluralize from 'pluralize';
 
 import starnames from './starnames';
-import starGrammar from './improvgrammar/star.yaml';
+import starSystemGrammar from './improvgrammar/starSystem.yaml';
+import planetGrammar from './improvgrammar/planet.yaml';
 
 function patchingMathDotRandom(fn, code) {
   const oldMR = Math.random;
@@ -13,7 +15,7 @@ function patchingMathDotRandom(fn, code) {
   Math.random = oldMR;  
 }
 
-const generator = new Improv(starGrammar, {
+const starSystemTextGenerator = new Improv(starSystemGrammar, {
   filters: [
     Improv.filters.mismatchFilter(),
     Improv.filters.partialBonus(),
@@ -22,6 +24,19 @@ const generator = new Improv(starGrammar, {
     ],
   reincorporate: true,
   audit: true,
+  persistence: false,
+});
+
+const planetTextGenerator = new Improv(planetGrammar, {
+  filters: [
+    Improv.filters.mismatchFilter(),
+    Improv.filters.partialBonus(),
+    Improv.filters.fullBonus(),
+    Improv.filters.dryness(),
+    ],
+  reincorporate: true,
+  audit: true,
+  persistence: false,
 });
 
 function star2tags(starSystem) {
@@ -37,6 +52,19 @@ function star2tags(starSystem) {
       ['star2type', starSystem.stars[1].starType],
     ];
   }
+}
+
+function planet2tags(planet, hzMin, hzMax) {
+  let hz = 'cold';
+  if (planet.distance < hzMin) {
+    hz = 'hot';
+  } else if (planet.distance < hzMax) {
+    hz = 'habitable';
+  }
+  return [
+    ['planetType', planet.planetType],
+    ['hz', hz],
+  ]
 }
 
 export default class LiterateStarSystem {
@@ -58,15 +86,19 @@ export default class LiterateStarSystem {
       planetMaxAU = planets[planets.length - 1].distance.toPrecision(2);
     }
 
+    let planetsAmount = 'none';
+    if (planets.length == 1) planetsAmount = 'one';
+    if (planets.length > 1) planetsAmount = 'many';
+
     const improvModel = {
-      starSystem: this.starSystem,
+      // starSystem: this.starSystem,
       name: this.name,
       numPlanets: planets.length,
       planetMinAU,
       planetMaxAU,
 
       tags: [
-        ['hasPlanets', planets.length ? 'true' : 'false'],
+        ['planetsAmount', planetsAmount],
       ].concat(
         star2tags(this.starSystem)
       ),
@@ -75,7 +107,29 @@ export default class LiterateStarSystem {
       ordinal: numberToWords.toWordsOrdinal,
     };
 
-    console.log(improvModel);
-    this.text = generator.gen('root', improvModel);
+    this.systemText = starSystemTextGenerator.gen('root', improvModel);
+
+    // TODO: order planets interestingly
+    this.planetTexts = [];
+    const originalTags = improvModel.tags;
+
+    for (let i=0; i<planets.length; i++) {
+      const planet = planets[i];
+
+      let pluralizedMoons = `${planet.moons.length} ${pluralize('moon', planet.moons.length)}`;
+      if (pluralizedMoons === '0 moons') pluralizedMoons = 'no moons';
+
+      improvModel.tags = planet2tags(
+        planet, this.starSystem.habitableZoneMin, this.starSystem.habitableZoneMax
+      ).concat(originalTags)
+      improvModel.planet = Object.assign({
+        number: i + 1,
+        pluralizedMoons,
+        earthMasses: planet.mass.toPrecision(2),
+      }, planet);
+
+      this.planetTexts.push(planetTextGenerator.gen('root', improvModel));
+    }
+    console.log(this);
   }
 }
