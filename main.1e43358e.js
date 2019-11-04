@@ -32073,7 +32073,7 @@ var tracery = function() {
 }();
 
 module.exports = tracery; 
-},{}],"src/starnames.js":[function(require,module,exports) {
+},{}],"src/tracerygrammar/starnames.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -32102,6 +32102,36 @@ var grammar = _traceryGrammar.default.createGrammar({
   'ending': ["#ending-1v#", "#ending-mv#", "#ending-mv#", "#ending-mv#"],
   'ending-1v': ["a", "e", "o"],
   'ending-mv': ["aos", "as", "aeus", "es", "ia", "ia", "ike", "ios", "on", "ys"]
+});
+
+var _default = grammar;
+exports.default = _default;
+},{"tracery-grammar":"../node_modules/tracery-grammar/tracery.js"}],"src/tracerygrammar/speciesnames.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _traceryGrammar = _interopRequireDefault(require("tracery-grammar"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+// with apologies to https://www.springhole.net/writing_roleplaying_randomators/greekyish-names.htm
+var grammar = _traceryGrammar.default.createGrammar({
+  'root': ['#simple#'],
+  'simple': [// "#firstconsonant##ending#",
+  "#firstconsonant##maybesecondconsonant##ending#", "#firstconsonant##maybesecondconsonant##vowel##midletters##ending#", "#firstvowel##midletters##ending#", "#firstvowel##midletters##vowel##midletters##ending#"],
+  'firstvowel': ["A", "Ae", "Ai", "E", "Eio", "Eu", "I", "Ia", "O", "Ou", "U", "Uo", "Oo", "Ee", "Aa", "Uu", "Ii", "Ui"],
+  'firstconsonant': ["B", "C", "D", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Ph", "Ph", "Pr", "Q", "R", "R", "S", "Sc", "Sch", "Sh", "T", "Th", "V", "W", "X", "Y", "Z", "Zh"],
+  'maybesecondconsonant': ["", "", "", "", "", "", "", "", "", "", "l", "r"],
+  'vowel': ["a", "a", "e", "e", "ei", "eo", "eu", "i", "io", "o", "ou", "y"],
+  'midletters': ["b", "b", "b", "g", "g", "g", "gn", "k", "k", "k", "kh", "kh", "kh", "kl", "kr", "l", "l", "l", "lk", "m", "m", "m", "mbr", "mn", "mp", "mph", "n", "n", "n", "nd", "ndr", "nt", "nth", "p", "p", "p", "p", "ph", "phr", "pp", "ps", "r", "r", "r", "rkh", "rg", "rm", "rrh", "rs", "s", "s", "s", "ss", "sp", "st", "sth", "t", "t", "t", "th", "th", "th", "tl", "tr", "x"],
+  'ending': ['#endingvowels#', '#endingvowels##endingconsonants#'],
+  'endingconsonants': ['lite', 's', 's', 's', 's', 's', 's', 'rs', 'rs', 'folk', 'morph', 'don', 'd', 'f', 'g', 'j', 'k', 'ke', 'l', 'lk', 'ls', 'm', 'n', 'n', 'n', 'n', 'p', 'r', 'r', 'r', 'r', 't', 'te', 'v', 'w', 'x', 'y', 'z'],
+  'endingvowels': ["a", "e", "i", "o", "u", "ao", "ia", "io"],
+  'endingvowels-orig': ["a", "e", "i", "o", "aos", "as", "en", "es", "er", "ers", "ia", "idon", "ike", "ite", "ios", "olk", "ol", "ols", "on", "ons", "ul", "us", "ut", "ys"]
 });
 
 var _default = grammar;
@@ -32219,7 +32249,7 @@ module.exports = {
       phrases: ["It is too far from the star to support life."]
     }, {
       tags: [["hz", "habitable"]],
-      phrases: ["Its orbit is within the habitable zone of the star system."]
+      phrases: ["Its orbit is within the habitable zone of the star system. It was once populated by a species called [planet.speciesName]."]
     }]
   }
 };
@@ -32241,7 +32271,9 @@ var _numberToWords = _interopRequireDefault(require("number-to-words"));
 
 var _pluralize = _interopRequireDefault(require("pluralize"));
 
-var _starnames = _interopRequireDefault(require("./starnames"));
+var _starnames = _interopRequireDefault(require("./tracerygrammar/starnames"));
+
+var _speciesnames = _interopRequireDefault(require("./tracerygrammar/speciesnames"));
 
 var _starSystem = _interopRequireDefault(require("./improvgrammar/starSystem.yaml"));
 
@@ -32257,19 +32289,6 @@ function patchingMathDotRandom(fn, code) {
   code();
   Math.random = oldMR;
 }
-
-var starSystemTextGenerator = new _improv.default(_starSystem.default, {
-  filters: [_improv.default.filters.mismatchFilter(), _improv.default.filters.partialBonus(), _improv.default.filters.fullBonus(), _improv.default.filters.dryness()],
-  reincorporate: true,
-  audit: true,
-  persistence: false
-});
-var planetTextGenerator = new _improv.default(_planet.default, {
-  filters: [_improv.default.filters.mismatchFilter(), _improv.default.filters.partialBonus(), _improv.default.filters.fullBonus(), _improv.default.filters.dryness()],
-  reincorporate: true,
-  audit: true,
-  persistence: false
-});
 
 function star2tags(starSystem) {
   if (starSystem.stars.length == 1) {
@@ -32302,6 +32321,22 @@ var LiterateStarSystem = function LiterateStarSystem(seed) {
   patchingMathDotRandom(this.alea, function () {
     _this.name = _starnames.default.flatten('#starname#');
   });
+  /* tools */
+
+  var starSystemTextGenerator = new _improv.default(_starSystem.default, {
+    filters: [_improv.default.filters.mismatchFilter(), _improv.default.filters.partialBonus(), _improv.default.filters.fullBonus(), _improv.default.filters.dryness()],
+    reincorporate: true,
+    audit: true,
+    persistence: false
+  });
+  var planetTextGenerator = new _improv.default(_planet.default, {
+    filters: [_improv.default.filters.mismatchFilter(), _improv.default.filters.partialBonus(), _improv.default.filters.fullBonus(), _improv.default.filters.dryness()],
+    reincorporate: true,
+    audit: true,
+    persistence: false
+  });
+  /* values */
+
   var planets = this.starSystem.planets;
   var planetMinAU = 0;
   var planetMaxAU = 0;
@@ -32314,6 +32349,8 @@ var LiterateStarSystem = function LiterateStarSystem(seed) {
   var planetsAmount = 'none';
   if (planets.length == 1) planetsAmount = 'one';
   if (planets.length > 1) planetsAmount = 'many';
+  /* system model + text */
+
   var improvModel = {
     // starSystem: this.starSystem,
     name: this.name,
@@ -32324,29 +32361,41 @@ var LiterateStarSystem = function LiterateStarSystem(seed) {
     numberword: _numberToWords.default.toWords,
     ordinal: _numberToWords.default.toWordsOrdinal
   };
-  this.systemText = starSystemTextGenerator.gen('root', improvModel); // TODO: order planets interestingly
+  this.systemText = starSystemTextGenerator.gen('root', improvModel);
+  /* planet model + text */
+  // TODO: order planets interestingly
 
   this.planetTexts = [];
   var originalTags = improvModel.tags;
 
   for (var i = 0; i < planets.length; i++) {
     var planet = planets[i];
+    var isHz = planet.distance >= this.starSystem.habitableZoneMin && planet.distance <= this.starSystem.habitableZoneMax;
+    var speciesName = '';
+    patchingMathDotRandom(this.alea, function () {
+      speciesName = _speciesnames.default.flatten('#root#');
+    });
     var pluralizedMoons = "".concat(planet.moons.length, " ").concat((0, _pluralize.default)('moon', planet.moons.length));
     if (pluralizedMoons === '0 moons') pluralizedMoons = 'no moons';
     improvModel.tags = planet2tags(planet, this.starSystem.habitableZoneMin, this.starSystem.habitableZoneMax).concat(originalTags);
     improvModel.planet = Object.assign({
       number: i + 1,
       pluralizedMoons: pluralizedMoons,
+      speciesName: speciesName,
       earthMasses: planet.mass.toPrecision(2)
     }, planet);
     this.planetTexts.push(planetTextGenerator.gen('root', improvModel));
   }
 
   console.log(this);
+
+  for (var _i = 0; _i < 100; _i++) {
+    console.log(_speciesnames.default.flatten('#root#'));
+  }
 };
 
 exports.default = LiterateStarSystem;
-},{"stellardream":"../node_modules/stellardream/lib/index.js","alea":"../node_modules/alea/alea.js","improv":"../node_modules/improv/dist/index.js","number-to-words":"../node_modules/number-to-words/numberToWords.min.js","pluralize":"../node_modules/pluralize/pluralize.js","./starnames":"src/starnames.js","./improvgrammar/starSystem.yaml":"src/improvgrammar/starSystem.yaml","./improvgrammar/planet.yaml":"src/improvgrammar/planet.yaml"}],"../node_modules/vue-hot-reload-api/dist/index.js":[function(require,module,exports) {
+},{"stellardream":"../node_modules/stellardream/lib/index.js","alea":"../node_modules/alea/alea.js","improv":"../node_modules/improv/dist/index.js","number-to-words":"../node_modules/number-to-words/numberToWords.min.js","pluralize":"../node_modules/pluralize/pluralize.js","./tracerygrammar/starnames":"src/tracerygrammar/starnames.js","./tracerygrammar/speciesnames":"src/tracerygrammar/speciesnames.js","./improvgrammar/starSystem.yaml":"src/improvgrammar/starSystem.yaml","./improvgrammar/planet.yaml":"src/improvgrammar/planet.yaml"}],"../node_modules/vue-hot-reload-api/dist/index.js":[function(require,module,exports) {
 var Vue // late bind
 var version
 var map = Object.create(null)
@@ -32677,6 +32726,14 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
 var defer = function defer(fn) {
   setTimeout(fn, 0);
 };
@@ -32891,6 +32948,21 @@ var staticRenderFns = [
           _vm._v("Improv")
         ]),
         _vm._v(" for generating text\n      based on world models.\n    ")
+      ]),
+      _vm._v(" "),
+      _c("div", [
+        _vm._v("\n      The\n      "),
+        _c(
+          "a",
+          {
+            attrs: {
+              href:
+                "https://www.cooperhewitt.org/open-source-at-cooper-hewitt/cooper-hewitt-the-typeface-by-chester-jenkins/"
+            }
+          },
+          [_vm._v("\n        Cooper Hewitt\n      ")]
+        ),
+        _vm._v("\n      typeface.\n    ")
       ])
     ])
   }
@@ -32969,7 +33041,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52173" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50948" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
