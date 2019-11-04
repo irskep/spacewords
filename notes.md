@@ -11,6 +11,7 @@ Axes
 - Conscious <--> Unconscious
 - Harmony <--> Domination 
 - Inward <--> Outward
+- Individual <--> Collective
 
 Potential corpora
 - TVTropes

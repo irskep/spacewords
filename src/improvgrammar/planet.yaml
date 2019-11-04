@@ -41,4 +41,4 @@ terranHzDesc:
     -
       tags: [['hz', 'habitable']]
       phrases:
-        - 'Its orbit is within the habitable zone of the star system.'
+        - 'Its orbit is within the habitable zone of the star system. It is populated by a species called [planet.speciesName].'

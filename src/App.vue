@@ -32,6 +32,14 @@
         <a href="https://improv.readthedocs.io/">Improv</a> for generating text
         based on world models.
       </div>
+
+      <div>
+        The
+        <a href="https://www.cooperhewitt.org/open-source-at-cooper-hewitt/cooper-hewitt-the-typeface-by-chester-jenkins/">
+          Cooper Hewitt
+        </a>
+        typeface.
+      </div>
     </footer>
   </main>
 </template>
