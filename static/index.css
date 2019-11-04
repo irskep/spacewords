@@ -13,14 +13,20 @@
 html {
   font-family: "Cooper Hewitt", serif;
   font-size: 1.2rem;
+  line-height: 1.4em;
+}
+
+main {
+  max-width: 28rem;
+  margin: auto;
+}
+
+nav {
+  margin-top: 2rem;
 }
 
 footer {
   margin-top: 2rem;
-}
-
-p {
-  margin-bottom: 1rem;
 }
 
 /* styles */
@@ -33,8 +39,16 @@ h1, h2 { font-size: 2rem; }
 h3, h4 { font-size: 1.5rem; }
 h5, h6 { font-size: 1.2rem; }
 
+p {
+  margin-bottom: 1rem;
+}
+
 strong {
   font-family: "Cooper Hewitt Medium";
+}
+
+footer {
+  font-size: 0.9rem;
 }
 
 /* custom */

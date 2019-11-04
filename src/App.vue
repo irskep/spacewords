@@ -1,12 +1,13 @@
 <template>
-  <div>
-    <button @click="travel">Travel</button>
-    <button @click="search">Search for life</button>
-    <button v-if="!isStopped">Stop</button>
-
-    <div>
-      Visited {{ traveledSystemsCount }} {{ traveledSystemsCount == 1 ? 'system' : 'systems' }}
-    </div>
+  <main>
+    <nav>
+      <div>
+        Visited {{ traveledSystemsCount }} {{ traveledSystemsCount == 1 ? 'system' : 'systems' }}
+      </div>
+      <button @click="travel">Travel</button>
+      <button @click="search">Search for life</button>
+      <button v-if="!isStopped">Stop</button>
+    </nav>
 
     <article v-if="system">
       <h1>{{ system.name }}</h1>
@@ -32,7 +33,7 @@
         based on world models.
       </div>
     </footer>
-  </div>
+  </main>
 </template>
 
 <script>
