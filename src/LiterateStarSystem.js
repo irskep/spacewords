@@ -188,6 +188,7 @@ export default class LiterateStarSystem {
           }),
         },
         planet);
+      console.log('planet', planetImprovModel);
 
       this.planetTexts.push(planetTextGenerator.gen('root', planetImprovModel));
 
@@ -210,7 +211,7 @@ export default class LiterateStarSystem {
       this.lifeTexts = [noLifeTextGenerator.gen('root', improvModel)];
     }
 
-    console.log(this);
+    console.log('system', improvModel);
 
     // for (let i=0; i<100; i++) {
     //   console.log(speciesnames.flatten('#root#'));

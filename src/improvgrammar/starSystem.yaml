@@ -17,6 +17,7 @@ starsdesc:
         - "The [name] system contains [:star1desc] orbited by a smaller [:star2desc]."
 
 star1desc:
+  bind: true
   groups:
     -
       tags:

@@ -5,5 +5,8 @@ root:
       phrases:
         - >-
           The [ordinal planet.number] planet was populated long ago by the
-          [>speciesName:output] species, who called the planet [>planetName:output].
+          [>speciesName:output] species, who called the planet [:planetName].
+planetName:
+  bind: true
+  groups: [{tags: [], phrases: ['[>planetName:output]']}]
 output: {groups: [{tags: [], phrases: ['[output]']}]}
