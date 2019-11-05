@@ -4,6 +4,6 @@ root:
       tags: []
       phrases:
         - >-
-          The [ordinal planet.number] planet is home to the [>speciesName:output] species,
-          who call the planet [>planetName:output].
+          The [ordinal planet.number] planet was populated long ago by the
+          [>speciesName:output] species, who called the planet [>planetName:output].
 output: {groups: [{tags: [], phrases: ['[output]']}]}
