@@ -32273,7 +32273,7 @@ module.exports = {
   root: {
     groups: [{
       tags: [],
-      phrases: ["The [ordinal planet.number] planet is home to the [>speciesName:output] species, who call the planet [>planetName:output]."]
+      phrases: ["The [ordinal planet.number] planet was populated long ago by the [>speciesName:output] species, who called the planet [>planetName:output]."]
     }]
   },
   output: {
@@ -33151,7 +33151,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59715" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59967" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
