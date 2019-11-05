@@ -13,6 +13,8 @@ root:
       phrases:
         - 'The [ordinal planet.number] planet is [a :planetdesc] with [planet.pluralizedMoons]. [:terranHzDesc]'
 
+output: {groups: [{tags: [], phrases: ['[output]']}]}
+
 planetdesc:
   groups:
     -
@@ -41,6 +43,6 @@ terranHzDesc:
     -
       tags: [['hz', 'habitable']]
       phrases:
-        - >
+        - >-
           Its orbit is within the habitable zone of the star system. It was once
-          populated by a species called [planet.speciesName].
+          populated by a species called [>speciesName:output].

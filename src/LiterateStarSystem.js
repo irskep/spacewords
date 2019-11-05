@@ -14,8 +14,9 @@ import lifeGrammar from './improvgrammar/life.yaml';
 function patchingMathDotRandom(fn, code) {
   const oldMR = Math.random;
   Math.random = fn;
-  code();
+  const ret = code();
   Math.random = oldMR;  
+  return ret;
 }
 
 function star2tags(starSystem) {
@@ -52,22 +53,35 @@ export default class LiterateStarSystem {
     this.starSystem = new StarSystem(this.seed);
     this.alea = new Alea(this.seed);
 
-    patchingMathDotRandom(this.alea, () => {
-      this.name = starnames.flatten('#starname#');
+    this.name = patchingMathDotRandom(this.alea, () => {
+      return starnames.flatten('#starname#');
     });
 
     /* tools */
+
+    const submodeler = (supermodel, name) => {
+      return patchingMathDotRandom(this.alea, () => {
+        if (name.startsWith('>planetName')) {
+          return {output: speciesnames.flatten('#root#')};
+        }
+        if (name.startsWith('>speciesName')) {
+          return {output: speciesnames.flatten('#root#')};
+        }
+        return {}
+      });
+    };
 
     const starSystemTextGenerator = new Improv(starSystemGrammar, {
       filters: [
         Improv.filters.mismatchFilter(),
         Improv.filters.partialBonus(),
         Improv.filters.fullBonus(),
-        Improv.filters.dryness(),
+        // Improv.filters.dryness(),
         ],
       reincorporate: true,
       // audit: true,
       persistence: false,
+      submodeler,
     });
 
     const planetTextGenerator = new Improv(planetGrammar, {
@@ -75,11 +89,12 @@ export default class LiterateStarSystem {
         Improv.filters.mismatchFilter(),
         Improv.filters.partialBonus(),
         Improv.filters.fullBonus(),
-        Improv.filters.dryness(),
+        // Improv.filters.dryness(),
         ],
       reincorporate: true,
       // audit: true,
       persistence: false,
+      submodeler,
     });
 
     const noLifeTextGenerator = new Improv(noLifeGrammar, {
@@ -87,11 +102,12 @@ export default class LiterateStarSystem {
         Improv.filters.mismatchFilter(),
         Improv.filters.partialBonus(),
         Improv.filters.fullBonus(),
-        Improv.filters.dryness(),
+        // Improv.filters.dryness(),
         ],
       reincorporate: true,
       // audit: true,
       persistence: false,
+      submodeler,
     });
 
     const lifeTextGenerator = new Improv(lifeGrammar, {
@@ -99,11 +115,12 @@ export default class LiterateStarSystem {
         Improv.filters.mismatchFilter(),
         Improv.filters.partialBonus(),
         Improv.filters.fullBonus(),
-        Improv.filters.dryness(),
+        // Improv.filters.dryness(),
         ],
       reincorporate: true,
       // audit: true,
       persistence: false,
+      submodeler,
     });
 
     /* values */
@@ -154,26 +171,23 @@ export default class LiterateStarSystem {
     for (let i=0; i<planets.length; i++) {
       const planet = planets[i];
 
-      let speciesName = '';
-      patchingMathDotRandom(this.alea, () => {
-        speciesName = speciesnames.flatten('#root#');
-      });
-
       let pluralizedMoons = (
         `${planet.moons.length} ${pluralize('moon', planet.moons.length)}`);
       if (pluralizedMoons === '0 moons') pluralizedMoons = 'no moons';
 
-      const planetImprovModel = Object.assign({
-        tags: planet2tags(
-          planet, this.starSystem.habitableZoneMin, this.starSystem.habitableZoneMax
-        ).concat(originalTags),
-        planet: Object.assign({
-          number: i + 1,
-          pluralizedMoons,
-          speciesName,
-          earthMasses: planet.mass.toPrecision(2),
-        }, planet),
-      }, improvModel);
+      const planetImprovModel = Object.assign({},
+        improvModel,
+        {
+          tags: planet2tags(
+            planet, this.starSystem.habitableZoneMin, this.starSystem.habitableZoneMax
+          ).concat(originalTags),
+          planet: Object.assign({
+            number: i + 1,
+            pluralizedMoons,
+            earthMasses: planet.mass.toPrecision(2),
+          }),
+        },
+        planet);
 
       this.planetTexts.push(planetTextGenerator.gen('root', planetImprovModel));
 
@@ -198,8 +212,8 @@ export default class LiterateStarSystem {
 
     console.log(this);
 
-    for (let i=0; i<100; i++) {
-      console.log(speciesnames.flatten('#root#'));
-    }
+    // for (let i=0; i<100; i++) {
+    //   console.log(speciesnames.flatten('#root#'));
+    // }
   }
 }
