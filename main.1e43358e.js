@@ -32228,6 +32228,12 @@ module.exports = {
       phrases: ["The [ordinal planet.number] planet is [a :planetdesc] with [planet.pluralizedMoons]. [:terranHzDesc]"]
     }]
   },
+  output: {
+    groups: [{
+      tags: [],
+      phrases: ["[output]"]
+    }]
+  },
   planetdesc: {
     groups: [{
       tags: [["planetType", "Neptunian"]],
@@ -32249,7 +32255,31 @@ module.exports = {
       phrases: ["It is too far from the star to support life."]
     }, {
       tags: [["hz", "habitable"]],
-      phrases: ["Its orbit is within the habitable zone of the star system. It was once populated by a species called [planet.speciesName]."]
+      phrases: ["Its orbit is within the habitable zone of the star system. It was once populated by a species called [>speciesName:output]."]
+    }]
+  }
+};
+},{}],"src/improvgrammar/nolife.yaml":[function(require,module,exports) {
+module.exports = {
+  root: {
+    groups: [{
+      tags: [],
+      phrases: ["The [name] system is completely empty of life."]
+    }]
+  }
+};
+},{}],"src/improvgrammar/life.yaml":[function(require,module,exports) {
+module.exports = {
+  root: {
+    groups: [{
+      tags: [],
+      phrases: ["The [ordinal planet.number] planet is home to the [>speciesName:output] species, who call the planet [>planetName:output]."]
+    }]
+  },
+  output: {
+    groups: [{
+      tags: [],
+      phrases: ["[output]"]
     }]
   }
 };
@@ -32279,6 +32309,10 @@ var _starSystem = _interopRequireDefault(require("./improvgrammar/starSystem.yam
 
 var _planet = _interopRequireDefault(require("./improvgrammar/planet.yaml"));
 
+var _nolife = _interopRequireDefault(require("./improvgrammar/nolife.yaml"));
+
+var _life = _interopRequireDefault(require("./improvgrammar/life.yaml"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -32286,8 +32320,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function patchingMathDotRandom(fn, code) {
   var oldMR = Math.random;
   Math.random = fn;
-  code();
+  var ret = code();
   Math.random = oldMR;
+  return ret;
 }
 
 function star2tags(starSystem) {
@@ -32318,22 +32353,60 @@ var LiterateStarSystem = function LiterateStarSystem(seed) {
   this.seed = seed || Date.now();
   this.starSystem = new _stellardream.StarSystem(this.seed);
   this.alea = new _alea.default(this.seed);
-  patchingMathDotRandom(this.alea, function () {
-    _this.name = _starnames.default.flatten('#starname#');
+  this.name = patchingMathDotRandom(this.alea, function () {
+    return _starnames.default.flatten('#starname#');
   });
   /* tools */
 
+  var submodeler = function submodeler(supermodel, name) {
+    return patchingMathDotRandom(_this.alea, function () {
+      if (name.startsWith('>planetName')) {
+        return {
+          output: _speciesnames.default.flatten('#root#')
+        };
+      }
+
+      if (name.startsWith('>speciesName')) {
+        return {
+          output: _speciesnames.default.flatten('#root#')
+        };
+      }
+
+      return {};
+    });
+  };
+
   var starSystemTextGenerator = new _improv.default(_starSystem.default, {
-    filters: [_improv.default.filters.mismatchFilter(), _improv.default.filters.partialBonus(), _improv.default.filters.fullBonus(), _improv.default.filters.dryness()],
+    filters: [_improv.default.filters.mismatchFilter(), _improv.default.filters.partialBonus(), _improv.default.filters.fullBonus() // Improv.filters.dryness(),
+    ],
     reincorporate: true,
-    audit: true,
-    persistence: false
+    // audit: true,
+    persistence: false,
+    submodeler: submodeler
   });
   var planetTextGenerator = new _improv.default(_planet.default, {
-    filters: [_improv.default.filters.mismatchFilter(), _improv.default.filters.partialBonus(), _improv.default.filters.fullBonus(), _improv.default.filters.dryness()],
+    filters: [_improv.default.filters.mismatchFilter(), _improv.default.filters.partialBonus(), _improv.default.filters.fullBonus() // Improv.filters.dryness(),
+    ],
     reincorporate: true,
-    audit: true,
-    persistence: false
+    // audit: true,
+    persistence: false,
+    submodeler: submodeler
+  });
+  var noLifeTextGenerator = new _improv.default(_nolife.default, {
+    filters: [_improv.default.filters.mismatchFilter(), _improv.default.filters.partialBonus(), _improv.default.filters.fullBonus() // Improv.filters.dryness(),
+    ],
+    reincorporate: true,
+    // audit: true,
+    persistence: false,
+    submodeler: submodeler
+  });
+  var lifeTextGenerator = new _improv.default(_life.default, {
+    filters: [_improv.default.filters.mismatchFilter(), _improv.default.filters.partialBonus(), _improv.default.filters.fullBonus() // Improv.filters.dryness(),
+    ],
+    reincorporate: true,
+    // audit: true,
+    persistence: false,
+    submodeler: submodeler
   });
   /* values */
 
@@ -32367,35 +32440,55 @@ var LiterateStarSystem = function LiterateStarSystem(seed) {
 
   this.planetTexts = [];
   var originalTags = improvModel.tags;
+  var hasLife = false;
+  var lifePlanets = [];
 
   for (var i = 0; i < planets.length; i++) {
     var planet = planets[i];
-    var isHz = planet.distance >= this.starSystem.habitableZoneMin && planet.distance <= this.starSystem.habitableZoneMax;
-    var speciesName = '';
-    patchingMathDotRandom(this.alea, function () {
-      speciesName = _speciesnames.default.flatten('#root#');
-    });
     var pluralizedMoons = "".concat(planet.moons.length, " ").concat((0, _pluralize.default)('moon', planet.moons.length));
     if (pluralizedMoons === '0 moons') pluralizedMoons = 'no moons';
-    improvModel.tags = planet2tags(planet, this.starSystem.habitableZoneMin, this.starSystem.habitableZoneMax).concat(originalTags);
-    improvModel.planet = Object.assign({
-      number: i + 1,
-      pluralizedMoons: pluralizedMoons,
-      speciesName: speciesName,
-      earthMasses: planet.mass.toPrecision(2)
+    var planetImprovModel = Object.assign({}, improvModel, {
+      tags: planet2tags(planet, this.starSystem.habitableZoneMin, this.starSystem.habitableZoneMax).concat(originalTags),
+      planet: Object.assign({
+        number: i + 1,
+        pluralizedMoons: pluralizedMoons,
+        earthMasses: planet.mass.toPrecision(2)
+      })
     }, planet);
-    this.planetTexts.push(planetTextGenerator.gen('root', improvModel));
+    this.planetTexts.push(planetTextGenerator.gen('root', planetImprovModel));
+    var isHz = planet.distance >= this.starSystem.habitableZoneMin && planet.distance <= this.starSystem.habitableZoneMax;
+
+    if (isHz && planet.planetType === 'Terran') {
+      hasLife = true;
+      lifePlanets.push({
+        planet: planet,
+        planetImprovModel: planetImprovModel
+      });
+    }
+  }
+  /* life */
+
+
+  if (hasLife) {
+    this.lifeTexts = lifePlanets.map(function (_ref) {
+      var planet = _ref.planet,
+          planetImprovModel = _ref.planetImprovModel;
+      return lifeTextGenerator.gen('root', planetImprovModel);
+    }).join('\n\n').split('\n\n').filter(function (i) {
+      return i;
+    });
+  } else {
+    console.log(improvModel);
+    this.lifeTexts = [noLifeTextGenerator.gen('root', improvModel)];
   }
 
-  console.log(this);
-
-  for (var _i = 0; _i < 100; _i++) {
-    console.log(_speciesnames.default.flatten('#root#'));
-  }
+  console.log(this); // for (let i=0; i<100; i++) {
+  //   console.log(speciesnames.flatten('#root#'));
+  // }
 };
 
 exports.default = LiterateStarSystem;
-},{"stellardream":"../node_modules/stellardream/lib/index.js","alea":"../node_modules/alea/alea.js","improv":"../node_modules/improv/dist/index.js","number-to-words":"../node_modules/number-to-words/numberToWords.min.js","pluralize":"../node_modules/pluralize/pluralize.js","./tracerygrammar/starnames":"src/tracerygrammar/starnames.js","./tracerygrammar/speciesnames":"src/tracerygrammar/speciesnames.js","./improvgrammar/starSystem.yaml":"src/improvgrammar/starSystem.yaml","./improvgrammar/planet.yaml":"src/improvgrammar/planet.yaml"}],"../node_modules/vue-hot-reload-api/dist/index.js":[function(require,module,exports) {
+},{"stellardream":"../node_modules/stellardream/lib/index.js","alea":"../node_modules/alea/alea.js","improv":"../node_modules/improv/dist/index.js","number-to-words":"../node_modules/number-to-words/numberToWords.min.js","pluralize":"../node_modules/pluralize/pluralize.js","./tracerygrammar/starnames":"src/tracerygrammar/starnames.js","./tracerygrammar/speciesnames":"src/tracerygrammar/speciesnames.js","./improvgrammar/starSystem.yaml":"src/improvgrammar/starSystem.yaml","./improvgrammar/planet.yaml":"src/improvgrammar/planet.yaml","./improvgrammar/nolife.yaml":"src/improvgrammar/nolife.yaml","./improvgrammar/life.yaml":"src/improvgrammar/life.yaml"}],"../node_modules/vue-hot-reload-api/dist/index.js":[function(require,module,exports) {
 var Vue // late bind
 var version
 var map = Object.create(null)
@@ -32734,6 +32827,11 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 //
 //
 //
+//
+//
+//
+//
+//
 var defer = function defer(fn) {
   setTimeout(fn, 0);
 };
@@ -32917,7 +33015,19 @@ exports.default = _default;
               return _c("section", { key: i }, [
                 _c("p", [_vm._v(_vm._s(planetText))])
               ])
-            })
+            }),
+            _vm._v(" "),
+            _c(
+              "section",
+              [
+                _c("h2", [_vm._v("Life")]),
+                _vm._v(" "),
+                _vm._l(_vm.system.lifeTexts, function(t, i) {
+                  return _c("p", { key: i }, [_vm._v(_vm._s(t))])
+                })
+              ],
+              2
+            )
           ],
           2
         )
@@ -33041,7 +33151,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50948" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "65422" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
