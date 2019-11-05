@@ -16,6 +16,11 @@
       <section v-for="(planetText, i) in system.planetTexts" v-bind:key="i">
         <p>{{ planetText }}</p>
       </section>
+
+      <section>
+        <h2>Life</h2>
+        <p v-for="(t, i) in system.lifeTexts" v-bind:key="i">{{ t }}</p>
+      </section>
     </article>
 
     <!-- <pre>{{ systemJSON }}</pre> -->

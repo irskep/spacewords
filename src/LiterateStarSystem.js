@@ -8,6 +8,8 @@ import starnames from './tracerygrammar/starnames';
 import speciesnames from './tracerygrammar/speciesnames';
 import starSystemGrammar from './improvgrammar/starSystem.yaml';
 import planetGrammar from './improvgrammar/planet.yaml';
+import noLifeGrammar from './improvgrammar/nolife.yaml';
+import lifeGrammar from './improvgrammar/life.yaml';
 
 function patchingMathDotRandom(fn, code) {
   const oldMR = Math.random;
@@ -64,7 +66,7 @@ export default class LiterateStarSystem {
         Improv.filters.dryness(),
         ],
       reincorporate: true,
-      audit: true,
+      // audit: true,
       persistence: false,
     });
 
@@ -76,7 +78,31 @@ export default class LiterateStarSystem {
         Improv.filters.dryness(),
         ],
       reincorporate: true,
-      audit: true,
+      // audit: true,
+      persistence: false,
+    });
+
+    const noLifeTextGenerator = new Improv(noLifeGrammar, {
+      filters: [
+        Improv.filters.mismatchFilter(),
+        Improv.filters.partialBonus(),
+        Improv.filters.fullBonus(),
+        Improv.filters.dryness(),
+        ],
+      reincorporate: true,
+      // audit: true,
+      persistence: false,
+    });
+
+    const lifeTextGenerator = new Improv(lifeGrammar, {
+      filters: [
+        Improv.filters.mismatchFilter(),
+        Improv.filters.partialBonus(),
+        Improv.filters.fullBonus(),
+        Improv.filters.dryness(),
+        ],
+      reincorporate: true,
+      // audit: true,
       persistence: false,
     });
 
@@ -122,11 +148,11 @@ export default class LiterateStarSystem {
     this.planetTexts = [];
     const originalTags = improvModel.tags;
 
+    let hasLife = false;
+    const lifePlanets = [];
+
     for (let i=0; i<planets.length; i++) {
       const planet = planets[i];
-
-      const isHz = planet.distance >= this.starSystem.habitableZoneMin &&
-        planet.distance <= this.starSystem.habitableZoneMax;
 
       let speciesName = '';
       patchingMathDotRandom(this.alea, () => {
@@ -137,18 +163,39 @@ export default class LiterateStarSystem {
         `${planet.moons.length} ${pluralize('moon', planet.moons.length)}`);
       if (pluralizedMoons === '0 moons') pluralizedMoons = 'no moons';
 
-      improvModel.tags = planet2tags(
-        planet, this.starSystem.habitableZoneMin, this.starSystem.habitableZoneMax
-      ).concat(originalTags)
-      improvModel.planet = Object.assign({
-        number: i + 1,
-        pluralizedMoons,
-        speciesName,
-        earthMasses: planet.mass.toPrecision(2),
-      }, planet);
+      const planetImprovModel = Object.assign({
+        tags: planet2tags(
+          planet, this.starSystem.habitableZoneMin, this.starSystem.habitableZoneMax
+        ).concat(originalTags),
+        planet: Object.assign({
+          number: i + 1,
+          pluralizedMoons,
+          speciesName,
+          earthMasses: planet.mass.toPrecision(2),
+        }, planet),
+      }, improvModel);
 
-      this.planetTexts.push(planetTextGenerator.gen('root', improvModel));
+      this.planetTexts.push(planetTextGenerator.gen('root', planetImprovModel));
+
+      const isHz = planet.distance >= this.starSystem.habitableZoneMin &&
+        planet.distance <= this.starSystem.habitableZoneMax;
+      if (isHz && planet.planetType === 'Terran') {
+        hasLife = true;
+        lifePlanets.push({planet, planetImprovModel});
+      }
     }
+
+    /* life */
+
+    if (hasLife) {
+      this.lifeTexts = lifePlanets.map(({planet, planetImprovModel}) => {
+        return lifeTextGenerator.gen('root', planetImprovModel);
+      }).join('\n\n').split('\n\n').filter((i) => i);
+    } else {
+      console.log(improvModel);
+      this.lifeTexts = [noLifeTextGenerator.gen('root', improvModel)];
+    }
+
     console.log(this);
 
     for (let i=0; i<100; i++) {
