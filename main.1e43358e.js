@@ -32136,6 +32136,36 @@ var grammar = _traceryGrammar.default.createGrammar({
 
 var _default = grammar;
 exports.default = _default;
+},{"tracery-grammar":"../node_modules/tracery-grammar/tracery.js"}],"src/tracerygrammar/planetnames.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _traceryGrammar = _interopRequireDefault(require("tracery-grammar"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+// with apologies to https://www.springhole.net/writing_roleplaying_randomators/greekyish-names.htm
+var grammar = _traceryGrammar.default.createGrammar({
+  'root': ['#simple#'],
+  'simple': [// "#firstconsonant##ending#",
+  "#firstconsonant##maybesecondconsonant##ending#", "#firstconsonant##maybesecondconsonant##vowel##midletters##ending#", "#firstvowel##midletters##ending#", "#firstvowel##midletters##vowel##midletters##ending#"],
+  'firstvowel': ["A", "Ae", "Ai", "E", "Eio", "Eu", "I", "Ia", "O", "Ou", "U", "Uo", "Oo", "Ee", "Aa", "Uu", "Ii", "Ui"],
+  'firstconsonant': ["B", "C", "D", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Ph", "Ph", "Pr", "Q", "R", "R", "S", "Sc", "Sch", "Sh", "T", "Th", "V", "W", "X", "Y", "Z", "Zh"],
+  'maybesecondconsonant': ["", "", "", "", "", "", "", "", "", "", "l", "r"],
+  'vowel': ["a", "a", "e", "e", "ei", "eo", "eu", "i", "io", "o", "ou", "y"],
+  'midletters': ["b", "b", "b", "g", "g", "g", "gn", "k", "k", "k", "kh", "kh", "kh", "kl", "kr", "l", "l", "l", "lk", "m", "m", "m", "mbr", "mn", "mp", "mph", "n", "n", "n", "nd", "ndr", "nt", "nth", "p", "p", "p", "p", "ph", "phr", "pp", "ps", "r", "r", "r", "rkh", "rg", "rm", "rrh", "rs", "s", "s", "s", "ss", "sp", "st", "sth", "t", "t", "t", "th", "th", "th", "tl", "tr", "x"],
+  'ending': ['#endingvowels#', '#endingvowels##endingconsonants#'],
+  'endingconsonants': ['s', 's', 's', 's', 's', 's', 'rs', 'rs', 'don', 'd', 'f', 'g', 'j', 'k', 'ke', 'l', 'lk', 'ls', 'm', 'n', 'n', 'n', 'n', 'p', 'r', 'r', 'r', 'r', 't', 'te', 'v', 'w', 'x', 'y', 'z'],
+  'endingvowels': ["a", "e", "i", "o", "u", "ao", "ia", "io"],
+  'endingvowels-orig': ["a", "e", "i", "o", "aos", "as", "en", "es", "er", "ers", "ia", "idon", "ike", "ite", "ios", "olk", "ol", "ols", "on", "ons", "ul", "us", "ut", "ys"]
+});
+
+var _default = grammar;
+exports.default = _default;
 },{"tracery-grammar":"../node_modules/tracery-grammar/tracery.js"}],"src/improvgrammar/starSystem.yaml":[function(require,module,exports) {
 module.exports = {
   root: {
@@ -32154,6 +32184,7 @@ module.exports = {
     }]
   },
   star1desc: {
+    bind: true,
     groups: [{
       tags: [["star1type", "M"]],
       phrases: ["an M-type star"]
@@ -32228,6 +32259,20 @@ module.exports = {
       phrases: ["The [ordinal planet.number] planet is [a :planetdesc] with [planet.pluralizedMoons]. [:terranHzDesc]"]
     }]
   },
+  planetName: {
+    bind: true,
+    groups: [{
+      tags: [],
+      phrases: ["[>planetName:output]"]
+    }]
+  },
+  speciesName: {
+    bind: true,
+    groups: [{
+      tags: [],
+      phrases: ["[>speciesName:output]"]
+    }]
+  },
   output: {
     groups: [{
       tags: [],
@@ -32255,7 +32300,7 @@ module.exports = {
       phrases: ["It is too far from the star to support life."]
     }, {
       tags: [["hz", "habitable"]],
-      phrases: ["Its orbit is within the habitable zone of the star system. It was once populated by a species called [>speciesName:output]."]
+      phrases: ["Its orbit is within the habitable zone of the star system. It was once populated by the [:speciesName] species, who called it [:planetName]."]
     }]
   }
 };
@@ -32273,13 +32318,42 @@ module.exports = {
   root: {
     groups: [{
       tags: [],
-      phrases: ["The [ordinal planet.number] planet was populated long ago by the [>speciesName:output] species, who called the planet [>planetName:output]."]
+      phrases: ["The [ordinal planet.number] planet was populated long ago by the [>speciesName:output] species, who called the planet [:planetName]. They thrived for [num #50000-200000] years until [:death]"]
+    }]
+  },
+  planetName: {
+    bind: true,
+    groups: [{
+      tags: [],
+      phrases: ["[>planetName:output]"]
+    }]
+  },
+  moonName: {
+    bind: true,
+    groups: [{
+      tags: [],
+      phrases: ["[>planetName:output]"]
     }]
   },
   output: {
     groups: [{
       tags: [],
       phrases: ["[output]"]
+    }]
+  },
+  death: {
+    groups: [{
+      tags: [],
+      phrases: ["a meteor struck [:planetName].", "a supervolcano erupted and clouded the sky with ash.", "gamma ray bursts from a merged neutron star pair wiped out all life in the system.", "they found that they had answered all their questions about existence and the universe, and euthanized themselves.", "alien organisms carried by a passing comet wiped out all life in the system.", "a coronal mass ejection burned away [:planetName]'s atmosphere.", "a solar flare burned away [:planetName]'s atmosphere.", "a Space Crystal released Death Spores into [:planetName]'s atmosphere."]
+    }, {
+      tags: [["hasMoons", "true"], ["power", "technological"]],
+      phrases: ["a mad scientist built a laser on the moon [moonName] and beamed a hole through the planet's core."]
+    }, {
+      tags: [["power", "technological"]],
+      phrases: ["their weather machines constructively interfered with climatological patterns, leaving the planet thrashed by neverending dust storms.", "their planet's ecosystems collapsed due to industrial activity.", "a runaway greenhouse effect caused by industrial activity made the planet uninhabitable.", "nuclear war broke out, leaving no survivors.", "long-dormant weapons of mass destruction were activated by extremist factions.", "self-replicating nanomachines consumed all resources on [:planetName].", "an experiment with the nature of life went horribly wrong.", "an \"agricultural aid\" worked a little too well, covering [:planetName] in something resembling soybeans.", "an army of deadly robots was misprogrammed and hunted down every living thing."]
+    }, {
+      tags: [["power", "mystical"]],
+      phrases: ["they awoke an ancient evil from the deep and succumbed to its hunger.", "their gods had had enough of them and called the whole thing off.", "a foolish apprentice spoke the Deplorable Word."]
     }]
   }
 };
@@ -32304,6 +32378,8 @@ var _pluralize = _interopRequireDefault(require("pluralize"));
 var _starnames = _interopRequireDefault(require("./tracerygrammar/starnames"));
 
 var _speciesnames = _interopRequireDefault(require("./tracerygrammar/speciesnames"));
+
+var _planetnames = _interopRequireDefault(require("./tracerygrammar/planetnames"));
 
 var _starSystem = _interopRequireDefault(require("./improvgrammar/starSystem.yaml"));
 
@@ -32342,7 +32418,7 @@ function planet2tags(planet, hzMin, hzMax) {
     hz = 'habitable';
   }
 
-  return [['planetType', planet.planetType], ['hz', hz]];
+  return [['planetType', planet.planetType], ['hz', hz], ['hasMoons', planet.moons > 0]];
 }
 
 var LiterateStarSystem = function LiterateStarSystem(seed) {
@@ -32362,7 +32438,7 @@ var LiterateStarSystem = function LiterateStarSystem(seed) {
     return patchingMathDotRandom(_this.alea, function () {
       if (name.startsWith('>planetName')) {
         return {
-          output: _speciesnames.default.flatten('#root#')
+          output: _planetnames.default.flatten('#root#')
         };
       }
 
@@ -32382,7 +32458,8 @@ var LiterateStarSystem = function LiterateStarSystem(seed) {
     reincorporate: true,
     // audit: true,
     persistence: false,
-    submodeler: submodeler
+    submodeler: submodeler,
+    rng: this.alea
   });
   var planetTextGenerator = new _improv.default(_planet.default, {
     filters: [_improv.default.filters.mismatchFilter(), _improv.default.filters.partialBonus(), _improv.default.filters.fullBonus() // Improv.filters.dryness(),
@@ -32390,7 +32467,8 @@ var LiterateStarSystem = function LiterateStarSystem(seed) {
     reincorporate: true,
     // audit: true,
     persistence: false,
-    submodeler: submodeler
+    submodeler: submodeler,
+    rng: this.alea
   });
   var noLifeTextGenerator = new _improv.default(_nolife.default, {
     filters: [_improv.default.filters.mismatchFilter(), _improv.default.filters.partialBonus(), _improv.default.filters.fullBonus() // Improv.filters.dryness(),
@@ -32398,15 +32476,19 @@ var LiterateStarSystem = function LiterateStarSystem(seed) {
     reincorporate: true,
     // audit: true,
     persistence: false,
-    submodeler: submodeler
+    submodeler: submodeler,
+    rng: this.alea
   });
   var lifeTextGenerator = new _improv.default(_life.default, {
-    filters: [_improv.default.filters.mismatchFilter(), _improv.default.filters.partialBonus(), _improv.default.filters.fullBonus() // Improv.filters.dryness(),
+    filters: [_improv.default.filters.mismatchFilter() // Improv.filters.partialBonus(),
+    // Improv.filters.fullBonus(),
+    // Improv.filters.dryness(),
     ],
     reincorporate: true,
     // audit: true,
     persistence: false,
-    submodeler: submodeler
+    submodeler: submodeler,
+    rng: this.alea
   });
   /* values */
 
@@ -32432,7 +32514,10 @@ var LiterateStarSystem = function LiterateStarSystem(seed) {
     planetMaxAU: planetMaxAU,
     tags: [['planetsAmount', planetsAmount]].concat(star2tags(this.starSystem)),
     numberword: _numberToWords.default.toWords,
-    ordinal: _numberToWords.default.toWordsOrdinal
+    ordinal: _numberToWords.default.toWordsOrdinal,
+    num: function num(n) {
+      return parseInt(n, 10).toLocaleString();
+    }
   };
   this.systemText = starSystemTextGenerator.gen('root', improvModel);
   /* planet model + text */
@@ -32455,6 +32540,7 @@ var LiterateStarSystem = function LiterateStarSystem(seed) {
         earthMasses: planet.mass.toPrecision(2)
       })
     }, planet);
+    console.log('planet', planetImprovModel);
     this.planetTexts.push(planetTextGenerator.gen('root', planetImprovModel));
     var isHz = planet.distance >= this.starSystem.habitableZoneMin && planet.distance <= this.starSystem.habitableZoneMax;
 
@@ -32482,13 +32568,13 @@ var LiterateStarSystem = function LiterateStarSystem(seed) {
     this.lifeTexts = [noLifeTextGenerator.gen('root', improvModel)];
   }
 
-  console.log(this); // for (let i=0; i<100; i++) {
+  console.log('system', improvModel); // for (let i=0; i<100; i++) {
   //   console.log(speciesnames.flatten('#root#'));
   // }
 };
 
 exports.default = LiterateStarSystem;
-},{"stellardream":"../node_modules/stellardream/lib/index.js","alea":"../node_modules/alea/alea.js","improv":"../node_modules/improv/dist/index.js","number-to-words":"../node_modules/number-to-words/numberToWords.min.js","pluralize":"../node_modules/pluralize/pluralize.js","./tracerygrammar/starnames":"src/tracerygrammar/starnames.js","./tracerygrammar/speciesnames":"src/tracerygrammar/speciesnames.js","./improvgrammar/starSystem.yaml":"src/improvgrammar/starSystem.yaml","./improvgrammar/planet.yaml":"src/improvgrammar/planet.yaml","./improvgrammar/nolife.yaml":"src/improvgrammar/nolife.yaml","./improvgrammar/life.yaml":"src/improvgrammar/life.yaml"}],"../node_modules/vue-hot-reload-api/dist/index.js":[function(require,module,exports) {
+},{"stellardream":"../node_modules/stellardream/lib/index.js","alea":"../node_modules/alea/alea.js","improv":"../node_modules/improv/dist/index.js","number-to-words":"../node_modules/number-to-words/numberToWords.min.js","pluralize":"../node_modules/pluralize/pluralize.js","./tracerygrammar/starnames":"src/tracerygrammar/starnames.js","./tracerygrammar/speciesnames":"src/tracerygrammar/speciesnames.js","./tracerygrammar/planetnames":"src/tracerygrammar/planetnames.js","./improvgrammar/starSystem.yaml":"src/improvgrammar/starSystem.yaml","./improvgrammar/planet.yaml":"src/improvgrammar/planet.yaml","./improvgrammar/nolife.yaml":"src/improvgrammar/nolife.yaml","./improvgrammar/life.yaml":"src/improvgrammar/life.yaml"}],"../node_modules/vue-hot-reload-api/dist/index.js":[function(require,module,exports) {
 var Vue // late bind
 var version
 var map = Object.create(null)
@@ -33151,7 +33237,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "61046" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54592" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
