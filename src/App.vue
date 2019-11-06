@@ -39,12 +39,22 @@
       </div>
 
       <div>
+        <a href="http://www.tracery.io/">Tracery</a> for generating names.
+      </div>
+
+      <div>
         The
         <a href="https://www.cooperhewitt.org/open-source-at-cooper-hewitt/cooper-hewitt-the-typeface-by-chester-jenkins/">
           Cooper Hewitt
         </a>
         typeface.
       </div>
+
+      <div>
+        <a href="https://petermulvey.bandcamp.com/track/vlad-the-astrophysicist">
+          Vlad the Astrophysicist
+        </a>
+        for inspiration.
     </footer>
   </main>
 </template>

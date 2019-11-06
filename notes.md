@@ -17,6 +17,7 @@ Axes
 - Harmony <--> Domination 
 - Inward <--> Outward
 - Individual <--> Collective
+- Mystical <--> Technological
 
 Potential corpora
 - TVTropes

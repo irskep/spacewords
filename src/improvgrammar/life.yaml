@@ -1,13 +1,22 @@
 root:
   groups:
     -
-      tags: []
+      tags: [['hasColonizablePlanet', 'false']]
       phrases:
         - >-
           The [ordinal planet.number] planet was populated long ago by the
-          [>speciesName:output] species, who called the planet [:planetName]. They
+          [>speciesName:output] species, who called the planet [planetName]. They
           thrived for [num #50000-200000] years until [:death]
-planetName: {bind: true, groups: [{tags: [], phrases: ['[>planetName:output]']}]}
+    -
+      tags: [['hasColonizablePlanet', 'true']]
+      phrases:
+        - |
+          The [ordinal planet.number] planet was populated long ago by the
+          [>speciesName:output] species, who called the planet [planetName]. They
+          thrived for [num #50000-200000] years until [:death]
+          
+          Before the fall of their civilization, they colonized [colonizablePlanetName].
+          The colony limped along until [:death]
 moonName: {bind: true, groups: [{tags: [], phrases: ['[>planetName:output]']}]}
 output: {groups: [{tags: [], phrases: ['[output]']}]}
 
@@ -16,7 +25,7 @@ death:
     - tags: []
       phrases:
         - >-
-          an asteroid struck [:planetName].
+          a meteor struck [planetName].
         - >-
           a supervolcano erupted and clouded the sky with ash.
         - >-
@@ -27,11 +36,24 @@ death:
           universe, and euthanized themselves.
         - >-
           alien organisms carried by a passing comet wiped out all life in the system.
+        - >-
+          a coronal mass ejection burned away [planetName]'s atmosphere.
+        - >-
+          a solar flare burned away [planetName]'s atmosphere.
+        - >-
+          a Space Crystal released Death Spores into [planetName]'s atmosphere.
+
+    - tags: [['hasMoons', 'true']]
+      phrases:
+        - >-
+          The moon [:moonName] was struck by an asteroid and broke apart, falling down
+          upon [planetName], filling the atmosphere with bolides and heating the
+          atmosphere to incandescence.
 
     - tags: [['hasMoons', 'true'], ['power', 'technological']]
       phrases:
         - >-
-          a mad scientist built a laser on the moon [moonName] and beamed a hole through
+          a mad scientist built a laser on the moon [:moonName] and beamed a hole through
           the planet's core.
     
     - tags: [['power', 'technological']]
@@ -48,6 +70,17 @@ death:
           nuclear war broke out, leaving no survivors.
         - >-
           long-dormant weapons of mass destruction were activated by extremist factions.
+        - >-
+          self-replicating nanomachines consumed all resources on [planetName].
+        - >-
+          an experiment with the nature of life went horribly wrong.
+        - >-
+          an "agricultural aid" worked a little too well, covering [planetName] in
+          something resembling soybeans.
+        - >-
+          an army of deadly robots was misprogrammed and hunted down every living thing.
+        - >-
+          an electromagnetic pulse destroyed their entertainment and they died of boredom.
           
     - tags: [['power', 'mystical']]
       phrases:

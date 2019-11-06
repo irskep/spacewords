@@ -3,11 +3,11 @@ root:
     -
       tags: [['planetType', 'Neptunian']]
       phrases:
-        - 'The [ordinal planet.number] planet is [a :planetdesc] with [planet.pluralizedMoons].'
+        - 'The [ordinal planet.number] planet is [a :planetdesc] with [planet.pluralizedMoons]. [:maybeName]'
     -
       tags: [['planetType', 'Jovian']]
       phrases:
-        - 'The [ordinal planet.number] planet is [a :planetdesc] with [planet.pluralizedMoons].'
+        - 'The [ordinal planet.number] planet is [a :planetdesc] with [planet.pluralizedMoons]. [:maybeName]'
     -
       tags: [['planetType', 'Terran']]
       phrases:
@@ -35,20 +35,40 @@ planetdesc:
       tags: [['planetType', 'Terran']]
       phrases:
         - 'rocky planet [planet.earthMasses] times the size of Earth'
+
+maybeName:
+  groups:
+    - tags: [['isNamed', 'true']]
+      phrases:
+        - 'The [:speciesName] called it [planetName].'
+    - tags: [['isNamed', 'false']]
+      phrases:
+        - ''
         
 terranHzDesc:
   groups:
     -
       tags: [['hz', 'hot']]
       phrases:
-        - 'It is too close to the star to support life.'
+        - 'It is too close to the star to support life. [:maybeName]'
     -
       tags: [['hz', 'cold']]
       phrases:
-        - 'It is too far from the star to support life.'
+        - 'It is too far from the star to support life. [:maybeName]'
     -
-      tags: [['hz', 'habitable']]
+      tags: [['hz', 'habitable'], ['isColonized', 'true']]
       phrases:
         - >-
           Its orbit is within the habitable zone of the star system. It was once
-          populated by the [:speciesName] species, who called it [:planetName].
+          populated by the [:speciesName] species, who called it [planetName].
+        - >-
+          Its orbit is within the habitable zone of the star system. It was once
+          home to the [:speciesName] species, who called it [planetName].
+        - >-
+          Its orbit is within the habitable zone of the star system. It was once
+          the home of the [:speciesName] species, who called it [planetName].
+    -
+      tags: [['hz', 'habitable'], ['isNamed', 'true'], ['isColonized', 'false']]
+      phrases:
+        - >-
+          Its orbit is within the habitable zone of the star system. [:maybeName]
