@@ -32250,10 +32250,10 @@ module.exports = {
   root: {
     groups: [{
       tags: [["planetType", "Neptunian"]],
-      phrases: ["The [ordinal planet.number] planet is [a :planetdesc] with [planet.pluralizedMoons]."]
+      phrases: ["The [ordinal planet.number] planet is [a :planetdesc] with [planet.pluralizedMoons]. [:maybeName]"]
     }, {
       tags: [["planetType", "Jovian"]],
-      phrases: ["The [ordinal planet.number] planet is [a :planetdesc] with [planet.pluralizedMoons]."]
+      phrases: ["The [ordinal planet.number] planet is [a :planetdesc] with [planet.pluralizedMoons]. [:maybeName]"]
     }, {
       tags: [["planetType", "Terran"]],
       phrases: ["The [ordinal planet.number] planet is [a :planetdesc] with [planet.pluralizedMoons]. [:terranHzDesc]"]
@@ -32291,16 +32291,28 @@ module.exports = {
       phrases: ["rocky planet [planet.earthMasses] times the size of Earth"]
     }]
   },
+  maybeName: {
+    groups: [{
+      tags: [["isNamed", "true"]],
+      phrases: ["The [:speciesName] called it [planetName]."]
+    }, {
+      tags: [["isNamed", "false"]],
+      phrases: [""]
+    }]
+  },
   terranHzDesc: {
     groups: [{
       tags: [["hz", "hot"]],
-      phrases: ["It is too close to the star to support life."]
+      phrases: ["It is too close to the star to support life. [:maybeName]"]
     }, {
       tags: [["hz", "cold"]],
-      phrases: ["It is too far from the star to support life."]
+      phrases: ["It is too far from the star to support life. [:maybeName]"]
     }, {
-      tags: [["hz", "habitable"]],
-      phrases: ["Its orbit is within the habitable zone of the star system. It was once populated by the [:speciesName] species, who called it [:planetName]."]
+      tags: [["hz", "habitable"], ["isColonized", "true"]],
+      phrases: ["Its orbit is within the habitable zone of the star system. It was once populated by the [:speciesName] species, who called it [planetName].", "Its orbit is within the habitable zone of the star system. It was once home to the [:speciesName] species, who called it [planetName].", "Its orbit is within the habitable zone of the star system. It was once the home of the [:speciesName] species, who called it [planetName]."]
+    }, {
+      tags: [["hz", "habitable"], ["isNamed", "true"], ["isColonized", "false"]],
+      phrases: ["Its orbit is within the habitable zone of the star system. [:maybeName]"]
     }]
   }
 };
@@ -32317,15 +32329,11 @@ module.exports = {
 module.exports = {
   root: {
     groups: [{
-      tags: [],
-      phrases: ["The [ordinal planet.number] planet was populated long ago by the [>speciesName:output] species, who called the planet [:planetName]. They thrived for [num #50000-200000] years until [:death]"]
-    }]
-  },
-  planetName: {
-    bind: true,
-    groups: [{
-      tags: [],
-      phrases: ["[>planetName:output]"]
+      tags: [["hasColonizablePlanet", "false"]],
+      phrases: ["The [ordinal planet.number] planet was populated long ago by the [>speciesName:output] species, who called the planet [planetName]. They thrived for [num #50000-200000] years until [:death]"]
+    }, {
+      tags: [["hasColonizablePlanet", "true"]],
+      phrases: ["The [ordinal planet.number] planet was populated long ago by the\n[>speciesName:output] species, who called the planet [planetName]. They\nthrived for [num #50000-200000] years until [:death]\n\nBefore the fall of their civilization, they colonized [colonizablePlanetName].\nThe colony limped along until [:death]\n"]
     }]
   },
   moonName: {
@@ -32344,13 +32352,16 @@ module.exports = {
   death: {
     groups: [{
       tags: [],
-      phrases: ["a meteor struck [:planetName].", "a supervolcano erupted and clouded the sky with ash.", "gamma ray bursts from a merged neutron star pair wiped out all life in the system.", "they found that they had answered all their questions about existence and the universe, and euthanized themselves.", "alien organisms carried by a passing comet wiped out all life in the system.", "a coronal mass ejection burned away [:planetName]'s atmosphere.", "a solar flare burned away [:planetName]'s atmosphere.", "a Space Crystal released Death Spores into [:planetName]'s atmosphere."]
+      phrases: ["a meteor struck [planetName].", "a supervolcano erupted and clouded the sky with ash.", "gamma ray bursts from a merged neutron star pair wiped out all life in the system.", "they found that they had answered all their questions about existence and the universe, and euthanized themselves.", "alien organisms carried by a passing comet wiped out all life in the system.", "a coronal mass ejection burned away [planetName]'s atmosphere.", "a solar flare burned away [planetName]'s atmosphere.", "a Space Crystal released Death Spores into [planetName]'s atmosphere."]
+    }, {
+      tags: [["hasMoons", "true"]],
+      phrases: ["The moon [:moonName] was struck by an asteroid and broke apart, falling down upon [planetName], filling the atmosphere with bolides and heating the atmosphere to incandescence."]
     }, {
       tags: [["hasMoons", "true"], ["power", "technological"]],
-      phrases: ["a mad scientist built a laser on the moon [moonName] and beamed a hole through the planet's core."]
+      phrases: ["a mad scientist built a laser on the moon [:moonName] and beamed a hole through the planet's core."]
     }, {
       tags: [["power", "technological"]],
-      phrases: ["their weather machines constructively interfered with climatological patterns, leaving the planet thrashed by neverending dust storms.", "their planet's ecosystems collapsed due to industrial activity.", "a runaway greenhouse effect caused by industrial activity made the planet uninhabitable.", "nuclear war broke out, leaving no survivors.", "long-dormant weapons of mass destruction were activated by extremist factions.", "self-replicating nanomachines consumed all resources on [:planetName].", "an experiment with the nature of life went horribly wrong.", "an \"agricultural aid\" worked a little too well, covering [:planetName] in something resembling soybeans.", "an army of deadly robots was misprogrammed and hunted down every living thing."]
+      phrases: ["their weather machines constructively interfered with climatological patterns, leaving the planet thrashed by neverending dust storms.", "their planet's ecosystems collapsed due to industrial activity.", "a runaway greenhouse effect caused by industrial activity made the planet uninhabitable.", "nuclear war broke out, leaving no survivors.", "long-dormant weapons of mass destruction were activated by extremist factions.", "self-replicating nanomachines consumed all resources on [planetName].", "an experiment with the nature of life went horribly wrong.", "an \"agricultural aid\" worked a little too well, covering [planetName] in something resembling soybeans.", "an army of deadly robots was misprogrammed and hunted down every living thing.", "an electromagnetic pulse destroyed their entertainment and they died of boredom."]
     }, {
       tags: [["power", "mystical"]],
       phrases: ["they awoke an ancient evil from the deep and succumbed to its hunger.", "their gods had had enough of them and called the whole thing off.", "a foolish apprentice spoke the Deplorable Word."]
@@ -32399,6 +32410,11 @@ function patchingMathDotRandom(fn, code) {
   var ret = code();
   Math.random = oldMR;
   return ret;
+} // 0-indexed
+
+
+function choiceIndex(randVal, outOf) {
+  return Math.floor(randVal * outOf);
 }
 
 function star2tags(starSystem) {
@@ -32418,7 +32434,7 @@ function planet2tags(planet, hzMin, hzMax) {
     hz = 'habitable';
   }
 
-  return [['planetType', planet.planetType], ['hz', hz], ['hasMoons', planet.moons > 0]];
+  return [['planetType', planet.planetType], ['hz', hz], ['hasMoons', "".concat(planet.moons > 0)]];
 }
 
 var LiterateStarSystem = function LiterateStarSystem(seed) {
@@ -32525,49 +32541,112 @@ var LiterateStarSystem = function LiterateStarSystem(seed) {
 
   this.planetTexts = [];
   var originalTags = improvModel.tags;
-  var hasLife = false;
   var lifePlanets = [];
+  var planetImprovModels = [];
+  var lifePlanetIndex = -1;
 
-  for (var i = 0; i < planets.length; i++) {
+  var _loop = function _loop(i) {
     var planet = planets[i];
+    planet.planetName = patchingMathDotRandom(_this.alea, function () {
+      return _planetnames.default.flatten('#root#');
+    });
     var pluralizedMoons = "".concat(planet.moons.length, " ").concat((0, _pluralize.default)('moon', planet.moons.length));
     if (pluralizedMoons === '0 moons') pluralizedMoons = 'no moons';
     var planetImprovModel = Object.assign({}, improvModel, {
-      tags: planet2tags(planet, this.starSystem.habitableZoneMin, this.starSystem.habitableZoneMax).concat(originalTags),
+      tags: planet2tags(planet, _this.starSystem.habitableZoneMin, _this.starSystem.habitableZoneMax).concat(originalTags),
       planet: Object.assign({
         number: i + 1,
         pluralizedMoons: pluralizedMoons,
         earthMasses: planet.mass.toPrecision(2)
-      })
+      }),
+      nonLifeInhabitablePlanets: []
     }, planet);
-    console.log('planet', planetImprovModel);
-    this.planetTexts.push(planetTextGenerator.gen('root', planetImprovModel));
-    var isHz = planet.distance >= this.starSystem.habitableZoneMin && planet.distance <= this.starSystem.habitableZoneMax;
+    lifePlanets.forEach(function (_ref) {
+      var planetImprovModel = _ref.planetImprovModel;
+      planetImprovModel.planet.colonizablePlanetName = planet.name;
+    });
+    planetImprovModels.push(planetImprovModel);
+    var isHz = planet.distance >= _this.starSystem.habitableZoneMin && planet.distance <= _this.starSystem.habitableZoneMax;
 
     if (isHz && planet.planetType === 'Terran') {
-      hasLife = true;
+      // by end of loop, each habitable planet has a 1/n chance of being chosen.
+      // TODO: prefer planets with moons
+      if (_this.alea() < 1 / (lifePlanets.length + 1)) {
+        lifePlanetIndex = lifePlanets.length;
+      }
+
       lifePlanets.push({
         planet: planet,
         planetImprovModel: planetImprovModel
       });
     }
+  };
+
+  for (var i = 0; i < planets.length; i++) {
+    _loop(i);
   }
   /* life */
 
 
-  if (hasLife) {
-    this.lifeTexts = lifePlanets.map(function (_ref) {
-      var planet = _ref.planet,
-          planetImprovModel = _ref.planetImprovModel;
-      return lifeTextGenerator.gen('root', planetImprovModel);
-    }).join('\n\n').split('\n\n').filter(function (i) {
+  if (lifePlanetIndex >= 0) {
+    var planetImprovModel = lifePlanets[lifePlanetIndex].planetImprovModel;
+    lifePlanets.forEach(function (p, i) {
+      if (i === lifePlanetIndex) {
+        return;
+      }
+
+      p.planetImprovModel.tags.push(['hasColonizablePlanet', 'true']);
+      p.planetImprovModel.tags.push(['isColonized', 'false']);
+      planetImprovModel.colonizablePlanetName = p.planetImprovModel.planetName;
+    });
+
+    if (lifePlanets.length > 1) {
+      planetImprovModel.tags.push(['hasColonizablePlanet', 'true']);
+      planetImprovModel.tags.push(['isColonized', 'true']);
+    } else {
+      planetImprovModel.tags.push(['hasColonizablePlanet', 'false']);
+      planetImprovModel.tags.push(['isColonized', 'true']);
+    }
+
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+      for (var _iterator = planetImprovModels[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+        var m = _step.value;
+        m.tags.push(['isNamed', 'true']);
+      }
+    } catch (err) {
+      _didIteratorError = true;
+      _iteratorError = err;
+    } finally {
+      try {
+        if (!_iteratorNormalCompletion && _iterator.return != null) {
+          _iterator.return();
+        }
+      } finally {
+        if (_didIteratorError) {
+          throw _iteratorError;
+        }
+      }
+    }
+
+    this.lifeTexts = lifeTextGenerator.gen('root', planetImprovModel) // .join('\n\n')
+    .split('\n\n').filter(function (i) {
       return i;
     });
+    console.log(this.lifeTexts);
   } else {
-    console.log(improvModel);
+    console.log('lifeless', improvModel);
     this.lifeTexts = [noLifeTextGenerator.gen('root', improvModel)];
   }
 
+  planetImprovModels.forEach(function (m) {
+    _this.planetTexts.push(planetTextGenerator.gen('root', m));
+
+    console.log('planet', m.planetName, m);
+  });
   console.log('system', improvModel); // for (let i=0; i<100; i++) {
   //   console.log(speciesnames.flatten('#root#'));
   // }
@@ -32918,6 +32997,16 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 var defer = function defer(fn) {
   setTimeout(fn, 0);
 };
@@ -33147,6 +33236,13 @@ var staticRenderFns = [
       ]),
       _vm._v(" "),
       _c("div", [
+        _c("a", { attrs: { href: "http://www.tracery.io/" } }, [
+          _vm._v("Tracery")
+        ]),
+        _vm._v(" for generating names.\n    ")
+      ]),
+      _vm._v(" "),
+      _c("div", [
         _vm._v("\n      The\n      "),
         _c(
           "a",
@@ -33159,6 +33255,20 @@ var staticRenderFns = [
           [_vm._v("\n        Cooper Hewitt\n      ")]
         ),
         _vm._v("\n      typeface.\n    ")
+      ]),
+      _vm._v(" "),
+      _c("div", [
+        _c(
+          "a",
+          {
+            attrs: {
+              href:
+                "https://petermulvey.bandcamp.com/track/vlad-the-astrophysicist"
+            }
+          },
+          [_vm._v("\n        Vlad the Astrophysicist\n      ")]
+        ),
+        _vm._v("\n      for inspiration.\n  ")
       ])
     ])
   }
@@ -33237,7 +33347,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54592" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60550" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
