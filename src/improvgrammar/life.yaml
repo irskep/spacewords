@@ -5,8 +5,56 @@ root:
       phrases:
         - >-
           The [ordinal planet.number] planet was populated long ago by the
-          [>speciesName:output] species, who called the planet [:planetName].
-planetName:
-  bind: true
-  groups: [{tags: [], phrases: ['[>planetName:output]']}]
+          [>speciesName:output] species, who called the planet [:planetName]. They
+          thrived for [num #50000-200000] years until [:death]
+planetName: {bind: true, groups: [{tags: [], phrases: ['[>planetName:output]']}]}
+moonName: {bind: true, groups: [{tags: [], phrases: ['[>planetName:output]']}]}
 output: {groups: [{tags: [], phrases: ['[output]']}]}
+
+death:
+  groups:
+    - tags: []
+      phrases:
+        - >-
+          an asteroid struck [:planetName].
+        - >-
+          a supervolcano erupted and clouded the sky with ash.
+        - >-
+          gamma ray bursts from a merged neutron star pair wiped out all life in the
+          system.
+        - >-
+          they found that they had answered all their questions about existence and the
+          universe, and euthanized themselves.
+        - >-
+          alien organisms carried by a passing comet wiped out all life in the system.
+
+    - tags: [['hasMoons', 'true'], ['power', 'technological']]
+      phrases:
+        - >-
+          a mad scientist built a laser on the moon [moonName] and beamed a hole through
+          the planet's core.
+    
+    - tags: [['power', 'technological']]
+      phrases:
+        - >-
+          their weather machines constructively interfered with climatological patterns,
+          leaving the planet thrashed by neverending dust storms.
+        - >-
+          their planet's ecosystems collapsed due to industrial activity.
+        - >-
+          a runaway greenhouse effect caused by industrial activity made the planet
+          uninhabitable.
+        - >-
+          nuclear war broke out, leaving no survivors.
+        - >-
+          long-dormant weapons of mass destruction were activated by extremist factions.
+          
+    - tags: [['power', 'mystical']]
+      phrases:
+        # [['?', 'mystical']]
+        - >-
+          they awoke an ancient evil from the deep and succumbed to its hunger.
+        - >- # polytheistic
+          their gods had had enough of them and called the whole thing off.
+        - >-
+          a foolish apprentice spoke the Deplorable Word.

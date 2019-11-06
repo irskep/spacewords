@@ -6,6 +6,7 @@ import pluralize from 'pluralize';
 
 import starnames from './tracerygrammar/starnames';
 import speciesnames from './tracerygrammar/speciesnames';
+import planetnames from './tracerygrammar/planetnames';
 import starSystemGrammar from './improvgrammar/starSystem.yaml';
 import planetGrammar from './improvgrammar/planet.yaml';
 import noLifeGrammar from './improvgrammar/nolife.yaml';
@@ -44,6 +45,7 @@ function planet2tags(planet, hzMin, hzMax) {
   return [
     ['planetType', planet.planetType],
     ['hz', hz],
+    ['hasMoons', planet.moons > 0],
   ]
 }
 
@@ -62,7 +64,7 @@ export default class LiterateStarSystem {
     const submodeler = (supermodel, name) => {
       return patchingMathDotRandom(this.alea, () => {
         if (name.startsWith('>planetName')) {
-          return {output: speciesnames.flatten('#root#')};
+          return {output: planetnames.flatten('#root#')};
         }
         if (name.startsWith('>speciesName')) {
           return {output: speciesnames.flatten('#root#')};
@@ -82,6 +84,7 @@ export default class LiterateStarSystem {
       // audit: true,
       persistence: false,
       submodeler,
+      rng: this.alea,
     });
 
     const planetTextGenerator = new Improv(planetGrammar, {
@@ -95,6 +98,7 @@ export default class LiterateStarSystem {
       // audit: true,
       persistence: false,
       submodeler,
+      rng: this.alea,
     });
 
     const noLifeTextGenerator = new Improv(noLifeGrammar, {
@@ -108,19 +112,21 @@ export default class LiterateStarSystem {
       // audit: true,
       persistence: false,
       submodeler,
+      rng: this.alea,
     });
 
     const lifeTextGenerator = new Improv(lifeGrammar, {
       filters: [
         Improv.filters.mismatchFilter(),
-        Improv.filters.partialBonus(),
-        Improv.filters.fullBonus(),
+        // Improv.filters.partialBonus(),
+        // Improv.filters.fullBonus(),
         // Improv.filters.dryness(),
         ],
       reincorporate: true,
       // audit: true,
       persistence: false,
       submodeler,
+      rng: this.alea,
     });
 
     /* values */
@@ -155,6 +161,7 @@ export default class LiterateStarSystem {
 
       numberword: numberToWords.toWords,
       ordinal: numberToWords.toWordsOrdinal,
+      num: (n) => parseInt(n, 10).toLocaleString(),
     };
 
     this.systemText = starSystemTextGenerator.gen('root', improvModel);

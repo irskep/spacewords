@@ -6,6 +6,11 @@ Lists of things to define
   - transportation
   - war
   - climate change
+- Kinds of species
+  - Land
+  - Aquatic
+  - Flying
+  - 
 
 Axes
 - Conscious <--> Unconscious
