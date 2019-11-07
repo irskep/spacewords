@@ -200,14 +200,13 @@ export default class LiterateStarSystem {
           planet: Object.assign({
             number: i + 1,
             pluralizedMoons,
-            earthMasses: planet.mass.toPrecision(2),
+            earthMasses: parseFloat(planet.mass.toPrecision(2)),
+            jupiterMasses: parseFloat((planet.mass / 10.96).toPrecision(2)),
+            neptuneMasses: parseFloat((planet.mass / 3.86).toPrecision(2)),
           }),
           nonLifeInhabitablePlanets: [],
         },
         planet);
-      lifePlanets.forEach(({planetImprovModel}) => {
-        planetImprovModel.planet.colonizablePlanetName = planet.name;
-      });
       planetImprovModels.push(planetImprovModel);
 
       const isHz = planet.distance >= this.starSystem.habitableZoneMin &&
@@ -218,11 +217,18 @@ export default class LiterateStarSystem {
         if (this.alea() < 1 / (lifePlanets.length + 1)) {
           lifePlanetIndex = lifePlanets.length;
         }
+        lifePlanets.forEach(({planetImprovModel}) => {
+          planetImprovModel.planet.colonizablePlanetName = planet.name;
+        });
         lifePlanets.push({planet, planetImprovModel});
       }
     }
 
     /* life */
+
+    for (let m of planetImprovModels) {
+      m.tags.push(['isNamed', `${lifePlanets.length > 0}`]);
+    }
 
     if (lifePlanetIndex >= 0) {
       const planetImprovModel = lifePlanets[lifePlanetIndex].planetImprovModel;
@@ -242,10 +248,6 @@ export default class LiterateStarSystem {
         planetImprovModel.tags.push(['isColonized', 'true']);
       }
 
-      for (let m of planetImprovModels) {
-        m.tags.push(['isNamed', 'true']);
-      }
-
       this.lifeTexts =  lifeTextGenerator
         .gen('root', planetImprovModel)
         // .join('\n\n')
@@ -259,7 +261,15 @@ export default class LiterateStarSystem {
       this.lifeTexts = [noLifeTextGenerator.gen('root', improvModel)];
     }
 
+    if (lifePlanetIndex >= 0) {
+      const m = lifePlanets[lifePlanetIndex].planetImprovModel;
+      m.alreadyGone = true;
+      this.planetTexts.push(planetTextGenerator.gen('root', m));
+      console.log('planet', m.planetName, m);
+    }
+
     planetImprovModels.forEach((m) => {
+      if (m.alreadyGone) return;
       this.planetTexts.push(planetTextGenerator.gen('root', m));
       console.log('planet', m.planetName, m);
     });

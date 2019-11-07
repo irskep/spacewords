@@ -26,11 +26,11 @@ planetdesc:
     -
       tags: [['planetType', 'Neptunian']]
       phrases:
-        - 'Neptunian'
+        - 'Neptunian [planet.neptuneMasses] times the size of Neptune'
     -
       tags: [['planetType', 'Jovian']]
       phrases:
-        - 'gas giant'
+        - 'gas giant [planet.jupiterMasses] times the size of Jupiter'
     -
       tags: [['planetType', 'Terran']]
       phrases:
