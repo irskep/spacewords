@@ -32282,10 +32282,10 @@ module.exports = {
   planetdesc: {
     groups: [{
       tags: [["planetType", "Neptunian"]],
-      phrases: ["Neptunian"]
+      phrases: ["Neptunian [planet.neptuneMasses] times the size of Neptune"]
     }, {
       tags: [["planetType", "Jovian"]],
-      phrases: ["gas giant"]
+      phrases: ["gas giant [planet.jupiterMasses] times the size of Jupiter"]
     }, {
       tags: [["planetType", "Terran"]],
       phrases: ["rocky planet [planet.earthMasses] times the size of Earth"]
@@ -32557,14 +32557,12 @@ var LiterateStarSystem = function LiterateStarSystem(seed) {
       planet: Object.assign({
         number: i + 1,
         pluralizedMoons: pluralizedMoons,
-        earthMasses: planet.mass.toPrecision(2)
+        earthMasses: parseFloat(planet.mass.toPrecision(2)),
+        jupiterMasses: parseFloat((planet.mass / 10.96).toPrecision(2)),
+        neptuneMasses: parseFloat((planet.mass / 3.86).toPrecision(2))
       }),
       nonLifeInhabitablePlanets: []
     }, planet);
-    lifePlanets.forEach(function (_ref) {
-      var planetImprovModel = _ref.planetImprovModel;
-      planetImprovModel.planet.colonizablePlanetName = planet.name;
-    });
     planetImprovModels.push(planetImprovModel);
     var isHz = planet.distance >= _this.starSystem.habitableZoneMin && planet.distance <= _this.starSystem.habitableZoneMax;
 
@@ -32575,6 +32573,10 @@ var LiterateStarSystem = function LiterateStarSystem(seed) {
         lifePlanetIndex = lifePlanets.length;
       }
 
+      lifePlanets.forEach(function (_ref) {
+        var planetImprovModel = _ref.planetImprovModel;
+        planetImprovModel.planet.colonizablePlanetName = planet.name;
+      });
       lifePlanets.push({
         planet: planet,
         planetImprovModel: planetImprovModel
@@ -32587,6 +32589,12 @@ var LiterateStarSystem = function LiterateStarSystem(seed) {
   }
   /* life */
 
+
+  for (var _i = 0, _planetImprovModels = planetImprovModels; _i < _planetImprovModels.length; _i++) {
+    var _m = _planetImprovModels[_i];
+
+    _m.tags.push(['isNamed', "".concat(lifePlanets.length > 0)]);
+  }
 
   if (lifePlanetIndex >= 0) {
     var planetImprovModel = lifePlanets[lifePlanetIndex].planetImprovModel;
@@ -32608,30 +32616,6 @@ var LiterateStarSystem = function LiterateStarSystem(seed) {
       planetImprovModel.tags.push(['isColonized', 'true']);
     }
 
-    var _iteratorNormalCompletion = true;
-    var _didIteratorError = false;
-    var _iteratorError = undefined;
-
-    try {
-      for (var _iterator = planetImprovModels[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-        var m = _step.value;
-        m.tags.push(['isNamed', 'true']);
-      }
-    } catch (err) {
-      _didIteratorError = true;
-      _iteratorError = err;
-    } finally {
-      try {
-        if (!_iteratorNormalCompletion && _iterator.return != null) {
-          _iterator.return();
-        }
-      } finally {
-        if (_didIteratorError) {
-          throw _iteratorError;
-        }
-      }
-    }
-
     this.lifeTexts = lifeTextGenerator.gen('root', planetImprovModel) // .join('\n\n')
     .split('\n\n').filter(function (i) {
       return i;
@@ -32642,7 +32626,16 @@ var LiterateStarSystem = function LiterateStarSystem(seed) {
     this.lifeTexts = [noLifeTextGenerator.gen('root', improvModel)];
   }
 
+  if (lifePlanetIndex >= 0) {
+    var m = lifePlanets[lifePlanetIndex].planetImprovModel;
+    m.alreadyGone = true;
+    this.planetTexts.push(planetTextGenerator.gen('root', m));
+    console.log('planet', m.planetName, m);
+  }
+
   planetImprovModels.forEach(function (m) {
+    if (m.alreadyGone) return;
+
     _this.planetTexts.push(planetTextGenerator.gen('root', m));
 
     console.log('planet', m.planetName, m);
@@ -33347,7 +33340,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60550" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49494" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
