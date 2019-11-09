@@ -17,7 +17,7 @@ root:
           
           [:artifacts]
           
-          The [:speciesName] thrived for [:lifespan] years until [:death][:maybeColony]
+          The [:speciesName] thrived for [num lifespanYears] years until [:death].[:maybeColony]
 
 lifespan:
   groups:
@@ -65,26 +65,26 @@ death:
     - tags: []
       phrases:
         - >-
-          a meteor struck [planetName].
+          a meteor struck [planetName]
         - >-
-          a supervolcano erupted and clouded the sky with ash.
+          a supervolcano erupted and clouded the sky with ash
         - >-
           gamma ray bursts from a merged neutron star pair wiped out all life in the
-          system.
+          system
         - >-
           they found that they had answered all their questions about existence and the
-          universe, and euthanized themselves.
+          universe, and euthanized themselves
         - >-
           alien organisms carried by a passing comet wiped out all life in the system.
         - >-
-          a coronal mass ejection burned away [planetName]'s atmosphere.
+          a coronal mass ejection burned away [planetName]'s atmosphere
         - >-
-          a solar flare burned away [planetName]'s atmosphere.
+          a solar flare burned away [planetName]'s atmosphere
         - >-
-          a Space Crystal released Death Spores into [planetName]'s atmosphere.
+          a Space Crystal released Death Spores into [planetName]'s atmosphere
         - >-
           a famine destroyed their food supply, and the resulting wars wiped out the rest
-          of the remaining species.
+          of the remaining species
           
     - tags: [['power', 'technological'], ['hasAI', 'true']]
       phrases:
@@ -96,7 +96,7 @@ death:
       phrases:
         - >-
           industrial activity poisoned their atmosphere, making the planet hostile to
-          life except in near deep-sea vents.
+          life except in near deep-sea vents
       
 
     - tags: [['hasMoons', 'true']]
@@ -104,57 +104,57 @@ death:
         - >-
           the moon [:moonName] was struck by an asteroid and broke apart, falling down
           upon [planetName], filling the atmosphere with bolides and heating the
-          atmosphere to incandescence.
+          atmosphere to incandescence
 
     - tags: [['hasMoons', 'true'], ['power', 'technological']]
       phrases:
         - >-
           a mad scientist built a laser on the moon [:moonName] and beamed a hole through
-          the planet's core.
+          the planet's core
         - >-
           colonists on the moon [:moonName] secured their independence by orbital
-          bombardment of [planetName], then died themselves [:moonDemise].
+          bombardment of [planetName], then died themselves [:moonDemise]
     
     - tags: [['power', 'technological']]
       phrases:
         - >-
           their weather machines constructively interfered with climatological patterns,
-          leaving the planet thrashed by neverending dust storms.
+          leaving the planet thrashed by neverending dust storms
         - >-
-          their planet's ecosystems collapsed due to industrial activity.
+          their planet's ecosystems collapsed due to industrial activity
         - >-
           a runaway greenhouse effect caused by industrial activity made the planet
-          uninhabitable.
+          uninhabitable
         - >-
-          nuclear war broke out, leaving no survivors.
+          nuclear war broke out, leaving no survivors
         - >-
-          long-dormant weapons of mass destruction were activated by extremist factions.
+          long-dormant weapons of mass destruction were activated by extremist factions
         - >-
-          self-replicating nanomachines consumed all resources on [planetName].
+          self-replicating nanomachines consumed all resources on [planetName]
         - >-
-          an experiment with the nature of life went horribly wrong.
+          an experiment with the nature of life went horribly wrong
         - >-
           an "agricultural aid" worked a little too well, covering [planetName] in
-          something resembling soybeans.
+          something resembling soybeans
         - >-
-          an army of deadly robots was misprogrammed and hunted down every living thing.
+          an army of deadly robots was misprogrammed and hunted down every living thing
         - >-
-          an electromagnetic pulse destroyed their entertainment and they died of boredom.
+          an electromagnetic pulse destroyed their entertainment and they died of boredom
           
     - tags: [['power', 'mystical']]
       phrases:
         # [['?', 'mystical']]
         - >-
-          they awoke an ancient evil from the deep and succumbed to its hunger.
+          they awoke an ancient evil from the deep and succumbed to its hunger
         - >- # polytheistic
-          their gods had had enough of them and called the whole thing off.
+          their gods had had enough of them and called the whole thing off
         - >-
-          a foolish apprentice spoke the Deplorable Word.
+          a foolish apprentice spoke the Deplorable Word
         - >-
-          they developed telekenesis, and a super-strong telepath destroyed everything.
+          they developed telekenesis, and a super-strong telepath destroyed everything
         - >-
           a cabal of sorcerers summoned an endless winter to appease a god that didn't
-          really exist.
+          really exist
 
 moonDemise:
   groups:

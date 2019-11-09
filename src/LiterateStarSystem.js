@@ -54,6 +54,10 @@ function planet2tags(planet, hzMin, hzMax) {
   ]
 }
 
+function precision(n, val) {
+  return parseFloat(val.toPrecision(n));
+}
+
 export default class LiterateStarSystem {
   constructor(seed) {
     this.seed = seed || Date.now();
@@ -141,8 +145,8 @@ export default class LiterateStarSystem {
     let planetMinAU = 0;
     let planetMaxAU = 0;
     if (planets.length) {
-      planetMinAU = planets[0].distance.toPrecision(2);
-      planetMaxAU = planets[planets.length - 1].distance.toPrecision(2);
+      planetMinAU = precision(2, planets[0].distance);
+      planetMaxAU = precision(2, planets[planets.length - 1].distance);
     }
 
     let planetsAmount = 'none';
@@ -151,8 +155,21 @@ export default class LiterateStarSystem {
 
     /* system model + text */
 
-    const lifeBeginGa = parseFloat((this.alea() * 6 + 1).toPrecision(3));
-    const speciesBeginGa = parseFloat((lifeBeginGa - 0.2 - this.alea() * 2).toPrecision(3));
+    const lifeBeginGa = precision(3, this.alea() * 3 + 3);
+    const speciesBeginGa = precision(3, lifeBeginGa - 0.2 - this.alea() * 2);
+    const lifespanLength = ['short', 'medium', 'long'][choiceIndex(this.alea(), 3)];
+    const lifespanMin = {
+      short: 50000,
+      medium: 100000,
+      long: 500000,
+    }[lifespanLength];
+    const lifespanMax = {
+      short: 100000,
+      medium: 500000,
+      long: 2000000,
+    }[lifespanLength];
+    const lifespanYears = Math.floor(lifespanMin + this.alea() * (lifespanMax - lifespanMin));
+    const speciesEndGa = precision(3, speciesBeginGa + lifespanYears / 1000000000);
 
     const improvModel = {
       // starSystem: this.starSystem,
@@ -162,9 +179,12 @@ export default class LiterateStarSystem {
       planetMaxAU,
       lifeBeginTime: `${lifeBeginGa} billion years ago`,
       speciesBeginTime: `${speciesBeginGa} billion years ago`,
+      speciesEndTime: `${speciesEndGa} billion years ago`,
+      lifespanYears: lifespanYears,
 
       tags: [
         ['planetsAmount', planetsAmount],
+        ['lifespanLength', lifespanLength]
       ].concat(
         star2tags(this.starSystem)
       ),
@@ -205,9 +225,9 @@ export default class LiterateStarSystem {
           planet: Object.assign({
             number: i + 1,
             pluralizedMoons,
-            earthMasses: parseFloat(planet.mass.toPrecision(2)),
-            jupiterMasses: parseFloat((planet.mass / 10.96).toPrecision(2)),
-            neptuneMasses: parseFloat((planet.mass / 3.86).toPrecision(2)),
+            earthMasses: precision(2, planet.mass),
+            jupiterMasses: precision(2, planet.mass / 10.96),
+            neptuneMasses: precision(2, planet.mass / 3.86),
           }),
           nonLifeInhabitablePlanets: [],
         },
