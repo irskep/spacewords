@@ -1,24 +1,64 @@
+### UTILS ###
+moonName: {bind: true, groups: [{tags: [], phrases: ['[>planetName:output]']}]}
+speciesName: {bind: true, groups: [{tags: [], phrases: ['[>speciesName:output]']}]}
+output: {groups: [{tags: [], phrases: ['[output]']}]}
+
+### ROOT ###
+
 root:
   groups:
-    -
-      tags: [['hasColonizablePlanet', 'false']]
-      phrases:
-        - >-
-          The [ordinal planet.number] planet was populated long ago by the
-          [>speciesName:output] species, who called the planet [planetName]. They
-          thrived for [num #50000-200000] years until [:death]
-    -
-      tags: [['hasColonizablePlanet', 'true']]
+    - tags: []
       phrases:
         - |
           The [ordinal planet.number] planet was populated long ago by the
-          [>speciesName:output] species, who called the planet [planetName]. They
-          thrived for [num #50000-200000] years until [:death]
+          [:speciesName], who called the planet [planetName].
           
+          [:originOfSpecies]
+          
+          [:artifacts]
+          
+          The [:speciesName] thrived for [:lifespan] years until [:death][:maybeColony]
+
+lifespan:
+  groups:
+    - tags: [['lifespanLength', 'short']]
+      phrases: ['[num #50000-100000]']
+    - tags: [['lifespanLength', 'medium']]
+      phrases: ['[num #100000-500000]']
+    - tags: [['lifespanLength', 'long']]
+      phrases: ['[num #500000-2000000]']
+      
+### ORIGINS ###
+
+originOfSpecies:
+  groups:
+    - tags: []
+      phrases:
+      - >-
+        Life arose on [planetName] [lifeBeginTime]. The [:speciesName] developed [speciesBeginTime].
+
+### ARTIFACTS ###
+
+artifacts:
+  groups:
+    - tags: []
+      phrases:
+        - >-
+          The [:speciesName] left no great signs of their existence besides their dwellings.
+
+### DEATH ###
+
+maybeColony:
+  groups:
+    - tags: [['hasColonizablePlanet', 'false']]
+      phrases: ['']
+    - tags: [['hasColonizablePlanet', 'true']]
+      phrases:
+        - |
+        
+        
           Before the fall of their civilization, they colonized [colonizablePlanetName].
           The colony limped along until [:death]
-moonName: {bind: true, groups: [{tags: [], phrases: ['[>planetName:output]']}]}
-output: {groups: [{tags: [], phrases: ['[output]']}]}
 
 death:
   groups:
@@ -42,11 +82,27 @@ death:
           a solar flare burned away [planetName]'s atmosphere.
         - >-
           a Space Crystal released Death Spores into [planetName]'s atmosphere.
+        - >-
+          a famine destroyed their food supply, and the resulting wars wiped out the rest
+          of the remaining species.
+          
+    - tags: [['power', 'technological'], ['hasAI', 'true']]
+      phrases:
+        - >-
+          they created a self-improving AI that killed them all, got bored, and killed
+          itself.
+          
+    - tags: [['hasSea', 'true'], ['power', 'technological']]
+      phrases:
+        - >-
+          industrial activity poisoned their atmosphere, making the planet hostile to
+          life except in near deep-sea vents.
+      
 
     - tags: [['hasMoons', 'true']]
       phrases:
         - >-
-          The moon [:moonName] was struck by an asteroid and broke apart, falling down
+          the moon [:moonName] was struck by an asteroid and broke apart, falling down
           upon [planetName], filling the atmosphere with bolides and heating the
           atmosphere to incandescence.
 
@@ -55,6 +111,9 @@ death:
         - >-
           a mad scientist built a laser on the moon [:moonName] and beamed a hole through
           the planet's core.
+        - >-
+          colonists on the moon [:moonName] secured their independence by orbital
+          bombardment of [planetName], then died themselves [:moonDemise].
     
     - tags: [['power', 'technological']]
       phrases:
@@ -91,3 +150,18 @@ death:
           their gods had had enough of them and called the whole thing off.
         - >-
           a foolish apprentice spoke the Deplorable Word.
+        - >-
+          they developed telekenesis, and a super-strong telepath destroyed everything.
+        - >-
+          a cabal of sorcerers summoned an endless winter to appease a god that didn't
+          really exist.
+
+moonDemise:
+  groups:
+    - tags: []
+      phrases:
+        - 'due to infrastructure issues'
+        - 'due to lack of herd immunity'
+        - 'in a great fire'
+        - 'following a nuclear reactor meltdown'
+        

@@ -151,12 +151,17 @@ export default class LiterateStarSystem {
 
     /* system model + text */
 
+    const lifeBeginGa = parseFloat((this.alea() * 6 + 1).toPrecision(3));
+    const speciesBeginGa = parseFloat((lifeBeginGa - 0.2 - this.alea() * 2).toPrecision(3));
+
     const improvModel = {
       // starSystem: this.starSystem,
       name: this.name,
       numPlanets: planets.length,
       planetMinAU,
       planetMaxAU,
+      lifeBeginTime: `${lifeBeginGa} billion years ago`,
+      speciesBeginTime: `${speciesBeginGa} billion years ago`,
 
       tags: [
         ['planetsAmount', planetsAmount],
