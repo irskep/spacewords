@@ -3,15 +3,21 @@ root:
     -
       tags: [['planetType', 'Neptunian']]
       phrases:
-        - 'The [ordinal planet.number] planet is [a :planetdesc] with [planet.pluralizedMoons]. [:maybeName]'
+        - >-
+          The [ordinal planet.number] planet is [a :planetdesc] with
+          [planet.pluralizedMoons] orbiting at [precision2 distance] AU. [:maybeName]
     -
       tags: [['planetType', 'Jovian']]
       phrases:
-        - 'The [ordinal planet.number] planet is [a :planetdesc] with [planet.pluralizedMoons]. [:maybeName]'
+        - >-
+          The [ordinal planet.number] planet is [a :planetdesc] with
+          [planet.pluralizedMoons] orbiting at [precision2 distance] AU. [:maybeName]
     -
       tags: [['planetType', 'Terran']]
       phrases:
-        - 'The [ordinal planet.number] planet is [a :planetdesc] with [planet.pluralizedMoons]. [:terranHzDesc]'
+        - >-
+          The [ordinal planet.number] planet is [a :planetdesc] with
+          [planet.pluralizedMoons] orbiting at [precision2 distance] AU. [:terranHzDesc]
 
 planetName:
   bind: true

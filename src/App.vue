@@ -7,6 +7,9 @@
       <button @click="travel">Travel</button>
       <button @click="search">Search for life</button>
       <button v-if="!isStopped">Stop</button>
+      <p>
+        <a target="_blank" :href="keplverseURL">View in telescope</a>
+      </p>
     </nav>
 
     <article v-if="system">
@@ -76,6 +79,8 @@ export default {
     const parsedHash = queryString.parse(window.location.hash);
 
     const seed = ref(null);
+    const keplverseURL = computed(() => `https://steveasleep.com/keplverse/#seed=${ seed.value }`);
+
     const system = ref(null);
     const systemText = ref(null);
     const traveledSystemsCount = ref(0);
@@ -175,6 +180,7 @@ export default {
       search,
       stop,
       isStopped,
+      keplverseURL,
     }
   }
 }

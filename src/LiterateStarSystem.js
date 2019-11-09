@@ -83,6 +83,7 @@ export default class LiterateStarSystem {
       numberword: numberToWords.toWords,
       ordinal: numberToWords.toWordsOrdinal,
       num: (n) => parseInt(n, 10).toLocaleString(),
+      precision2: (n) => parseFloat(parseFloat(n).toPrecision(2)),
     };
 
     this.systemText = starSystemTextGenerator.gen('root', improvModel);

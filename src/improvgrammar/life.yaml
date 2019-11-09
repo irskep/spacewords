@@ -141,7 +141,7 @@ artifacts:
         [cap numberword #1-10] space probes originating on [planetName] are still on their
         way toward nearby stars. [:artifacts]
       - >-
-        A few light years out, you received frequency-modulated radio waves [:message].
+        A few light years out, you received frequency-modulated radio waves [:message]. [:artifacts]
     - tags: [['hasArtifacts', 'true']]
       phrases: ['']
         
@@ -151,7 +151,23 @@ message:
       phrases:
       - >-
         describing the basic molecules of life on [planetName], the [name] system,
-        and a graphic figure of a [:speciesName].
+        and a graphic representation of [a :speciesName] individual
+      - >-
+        containing a set of symbols describing basic scientific facts, such as the age
+        of the universe ([:messageCorrectness]), and a few theories ([:messageCorrectness])
+      - >-
+        warning against coming near the system under threat of violence
+        
+messageCorrectness:
+  groups:
+    - tags: []
+      phrases:
+      - 'spot on'
+      - 'subtly wrong'
+      - 'egregiously wrong'
+      - 'slightly off'
+      - 'just right'
+      - 'embarrassingly inaccurate'
 
 ### DEATH ###
 

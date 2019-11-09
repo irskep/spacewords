@@ -61,8 +61,8 @@ export default function makeImprovGenerators(alea) {
   const lifeTextGenerator = new Improv(lifeGrammar, {
     filters: [
       Improv.filters.mismatchFilter(),
-      // Improv.filters.partialBonus(),
-      // Improv.filters.fullBonus(),
+      Improv.filters.partialBonus(),
+      Improv.filters.fullBonus(),
       dryness(),
     ],
     reincorporate: true,
