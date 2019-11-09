@@ -58,6 +58,11 @@ function precision(n, val) {
   return parseFloat(val.toPrecision(n));
 }
 
+function decimal(n, val) {
+  return parseFloat((Math.round(val * 100) / 100).toFixed(n));
+  return parseFloat(val.toFixed(n));
+}
+
 export default class LiterateStarSystem {
   constructor(seed) {
     this.seed = seed || Date.now();
@@ -155,8 +160,7 @@ export default class LiterateStarSystem {
 
     /* system model + text */
 
-    const lifeBeginGa = precision(3, this.alea() * 3 + 3);
-    const speciesBeginGa = precision(3, lifeBeginGa - 0.2 - this.alea() * 2);
+    const speciesEndGa = precision(3, 0.2 + this.alea() * 3);
     const lifespanLength = ['short', 'medium', 'long'][choiceIndex(this.alea(), 3)];
     const lifespanMin = {
       short: 50000,
@@ -169,7 +173,9 @@ export default class LiterateStarSystem {
       long: 2000000,
     }[lifespanLength];
     const lifespanYears = Math.floor(lifespanMin + this.alea() * (lifespanMax - lifespanMin));
-    const speciesEndGa = precision(3, speciesBeginGa + lifespanYears / 1000000000);
+    const lifespanGa = decimal(2, lifespanYears / 1000000000);
+    const speciesBeginGa = decimal(2, speciesEndGa - lifespanGa);
+    const lifeBeginGa = decimal(2, speciesBeginGa + 1 + this.alea() * 3);
 
     const improvModel = {
       // starSystem: this.starSystem,
