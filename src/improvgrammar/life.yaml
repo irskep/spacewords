@@ -35,16 +35,123 @@ originOfSpecies:
     - tags: []
       phrases:
       - >-
-        Life arose on [planetName] [lifeBeginTime]. The [:speciesName] developed [speciesBeginTime].
+        Life based on [:biochemistry] arose on [planetName] [lifeBeginTime]. The [:speciesName] developed
+        [speciesBeginTime]. [:evolution] [:discoveries]
+        
+evolution:
+  groups:
+    - tags: []
+      phrases:
+      - >-
+        Evolving from [:ancestry], they [:sentienceEvent] that elevated them to sentience.
+        
+biochemistry:
+  bind: true
+  groups:
+    - tags: []
+      phrases:
+      # requires carbon, oxygen, nitrogen, hydrogen, calcium, phosphorus, liquid water
+      - 'Earthlike biochemistry'
+      - 'alternative-chirality Earthlike biochemistry' 
+      - 'carbon and heteropoly acid biochemistry'
+      # cosmically rare
+#      - 'carbon and hydrogen flouride biochemistry'
+      - 'carbon and hydrogen sulfide biochemistry'
+      - 'methane biochemistry'
+      # silicon is much rarer than carbon
+#      - 'silicon biochemistry'
+    - tags: [['atmosphere', 'reducing']]
+      phrases:
+      # https://en.wikipedia.org/wiki/Hypothetical_types_of_biochemistry#Ammonia
+      - 'carbon and ammonia biochemistry'
+      - 'Borane biochemistry' # requires a reducing atmosphere (removing oxygen))
+
+ancestry:
+  bind: true
+  groups:
+    - tags: [['habitat', 'ocean'], ['individualism', 'solo']]
+      phrases:
+      - 'a long, finned aquatic species'
+    - tags: [['habitat', 'ocean'], ['individualism', 'collective']]
+      phrases:
+      - 'a small fish-like creature'
+      - 'networked plankton'
+    - tags: [['habitat', 'ocean'], ['individualism', 'colonyWithQueen']]
+      phrases:
+      - 'tiny, hard-shelled organisms with pincers'
+
+    - tags: [['habitat', 'land'], ['individualism', 'colonyWithQueen']]
+      phrases:
+      - 'insect-like creatures'
+    - tags: [['habitat', 'land'], ['individualism', 'solo']]
+      phrases:
+      - 'insect-like creatures'
+    - tags: [['habitat', 'land'], ['individualism', 'collective']]
+      phrases:
+      - 'insect-like creatures'
+
+sentienceEvent:
+  groups:
+    - tags: [['individualism', 'solo']]
+      phrases:
+      - 'developed a hunter-gatherer culture'
+    - tags: [['individualism', 'colonyWithQueen']]
+      phrases:
+      - 'developed complex inter-colony competition and cooperation'
+    - tags: [['individualism', 'collective']]
+      phrases:
+      - 'developed complex inter-colony competition and cooperation'
+
+discoveries:
+  groups:
+    - tags: [['power', 'none']]
+      phrases:
+      - >-
+        They never made significant technological progress.
+    - tags: [['power', 'technological']]
+      phrases:
+      - >-
+        They made rapid technological progress.
+    - tags: [['power', 'mystical']]
+      phrases:
+      - >-
+        They quickly connected with [:gods].
+
+### MYSTICS ###
+
+gods:
+  bind: true
+  groups:
+    - tags: []
+      phrases:
+      - 'the gods of creation'
+      - 'the gods of life'
 
 ### ARTIFACTS ###
 
 artifacts:
   groups:
+    - tags: [['hasArtifacts', 'false']]
+      phrases:
+      - >-
+        The [:speciesName] left no great signs of their existence besides their dwellings.
+    - tags: [['hasArtifacts', 'true'], ['power', 'technological']]
+      phrases:
+      - >-
+        [cap numberword #1-10] space probes originating on [planetName] are still on their
+        way toward nearby stars. [:artifacts]
+      - >-
+        A few light years out, you received frequency-modulated radio waves [:message].
+    - tags: [['hasArtifacts', 'true']]
+      phrases: ['']
+        
+message:
+  groups:
     - tags: []
       phrases:
-        - >-
-          The [:speciesName] left no great signs of their existence besides their dwellings.
+      - >-
+        describing the basic molecules of life on [planetName], the [name] system,
+        and a graphic figure of a [:speciesName].
 
 ### DEATH ###
 

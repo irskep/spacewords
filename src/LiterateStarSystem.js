@@ -5,63 +5,9 @@ import numberToWords from 'number-to-words';
 import pluralize from 'pluralize';
 
 import starnames from './tracerygrammar/starnames';
-import speciesnames from './tracerygrammar/speciesnames';
 import planetnames from './tracerygrammar/planetnames';
-import starSystemGrammar from './improvgrammar/starSystem.yaml';
-import planetGrammar from './improvgrammar/planet.yaml';
-import noLifeGrammar from './improvgrammar/nolife.yaml';
-import lifeGrammar from './improvgrammar/life.yaml';
-
-function patchingMathDotRandom(fn, code) {
-  const oldMR = Math.random;
-  Math.random = fn;
-  const ret = code();
-  Math.random = oldMR;  
-  return ret;
-}
-
-// 0-indexed
-function choiceIndex(randVal, outOf) {
-  return Math.floor(randVal * outOf);
-}
-
-function star2tags(starSystem) {
-  if (starSystem.stars.length == 1) {
-    return [
-      ['numstars', '1'],
-      ['star1type', starSystem.stars[0].starType],
-    ];
-  } else {
-    return [
-      ['numstars', '2'],
-      ['star1type', starSystem.stars[0].starType],
-      ['star2type', starSystem.stars[1].starType],
-    ];
-  }
-}
-
-function planet2tags(planet, hzMin, hzMax) {
-  let hz = 'cold';
-  if (planet.distance < hzMin) {
-    hz = 'hot';
-  } else if (planet.distance < hzMax) {
-    hz = 'habitable';
-  }
-  return [
-    ['planetType', planet.planetType],
-    ['hz', hz],
-    ['hasMoons', `${planet.moons > 0}`],
-  ]
-}
-
-function precision(n, val) {
-  return parseFloat(val.toPrecision(n));
-}
-
-function decimal(n, val) {
-  return parseFloat((Math.round(val * 100) / 100).toFixed(n));
-  return parseFloat(val.toFixed(n));
-}
+import { patchingMathDotRandom, precision, choiceIndex, decimal, star2tags, planet2tags } from './util';
+import makeImprovGenerators from './makeImprovGenerators';
 
 export default class LiterateStarSystem {
   constructor(seed) {
@@ -75,73 +21,12 @@ export default class LiterateStarSystem {
 
     /* tools */
 
-    const submodeler = (supermodel, name) => {
-      return patchingMathDotRandom(this.alea, () => {
-        if (name.startsWith('>planetName')) {
-          return {output: planetnames.flatten('#root#')};
-        }
-        if (name.startsWith('>speciesName')) {
-          return {output: speciesnames.flatten('#root#')};
-        }
-        return {}
-      });
-    };
-
-    const starSystemTextGenerator = new Improv(starSystemGrammar, {
-      filters: [
-        Improv.filters.mismatchFilter(),
-        Improv.filters.partialBonus(),
-        Improv.filters.fullBonus(),
-        // Improv.filters.dryness(),
-        ],
-      reincorporate: true,
-      // audit: true,
-      persistence: false,
-      submodeler,
-      rng: this.alea,
-    });
-
-    const planetTextGenerator = new Improv(planetGrammar, {
-      filters: [
-        Improv.filters.mismatchFilter(),
-        Improv.filters.partialBonus(),
-        Improv.filters.fullBonus(),
-        // Improv.filters.dryness(),
-        ],
-      reincorporate: true,
-      // audit: true,
-      persistence: false,
-      submodeler,
-      rng: this.alea,
-    });
-
-    const noLifeTextGenerator = new Improv(noLifeGrammar, {
-      filters: [
-        Improv.filters.mismatchFilter(),
-        Improv.filters.partialBonus(),
-        Improv.filters.fullBonus(),
-        // Improv.filters.dryness(),
-        ],
-      reincorporate: true,
-      // audit: true,
-      persistence: false,
-      submodeler,
-      rng: this.alea,
-    });
-
-    const lifeTextGenerator = new Improv(lifeGrammar, {
-      filters: [
-        Improv.filters.mismatchFilter(),
-        // Improv.filters.partialBonus(),
-        // Improv.filters.fullBonus(),
-        // Improv.filters.dryness(),
-        ],
-      reincorporate: true,
-      // audit: true,
-      persistence: false,
-      submodeler,
-      rng: this.alea,
-    });
+    const {
+      starSystemTextGenerator,
+      lifeTextGenerator,
+      noLifeTextGenerator,
+      planetTextGenerator,
+    } = makeImprovGenerators(this.alea);
 
     /* values */
 
@@ -312,3 +197,5 @@ export default class LiterateStarSystem {
     // }
   }
 }
+
+
