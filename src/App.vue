@@ -20,8 +20,12 @@
         <p>{{ planetText }}</p>
       </section>
 
-      <section>
-        <h2>Life</h2>
+      <section v-if="system.hasLife">
+        <h2>Life on {{ system.lifePlanetName }}</h2>
+        <p v-for="(t, i) in system.lifeTexts" v-bind:key="i">{{ t }}</p>
+      </section>
+
+      <section v-if="!system.hasLife">
         <p v-for="(t, i) in system.lifeTexts" v-bind:key="i">{{ t }}</p>
       </section>
     </article>

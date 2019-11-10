@@ -66,7 +66,7 @@ export default function makeImprovGenerators(alea) {
       dryness(),
     ],
     reincorporate: true,
-    audit: true,
+    // audit: true,
     persistence: false,
     submodeler,
     rng: alea,

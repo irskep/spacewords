@@ -1,6 +1,7 @@
 ### UTILS ###
 moonName: {bind: true, groups: [{tags: [], phrases: ['[>planetName:output]']}]}
 speciesName: {bind: true, groups: [{tags: [], phrases: ['[>speciesName:output]']}]}
+planetName: {bind: true, groups: [{tags: [], phrases: ['[planetName]']}]}
 output: {groups: [{tags: [], phrases: ['[output]']}]}
 
 ### ROOT ###
@@ -11,13 +12,13 @@ root:
       phrases:
         - |
           The [ordinal planet.number] planet was populated long ago by the
-          [:speciesName], who called the planet [planetName].
+          [:speciesName], who called the planet [:planetName].
           
           [:originOfSpecies]
           
           [:artifacts]
           
-          The [:speciesName] thrived for [num lifespanYears] years until [:death].[:maybeColony]
+          [:death]
 
 lifespan:
   groups:
@@ -34,9 +35,14 @@ originOfSpecies:
   groups:
     - tags: []
       phrases:
-      - >-
-        Life based on [:biochemistry] arose on [planetName] [lifeBeginTime]. The [:speciesName] developed
-        [speciesBeginTime]. [:evolution] [:discoveries]
+      - |
+        Life based on [:biochemistry] arose on [planetName] [lifeBeginTime].
+        The [:speciesName] developed [speciesBeginTime]. Their civilization lasted for
+        [num lifespanYears] years.
+        
+        [:evolution]
+        
+        [:discoveries]
         
 evolution:
   groups:
@@ -112,6 +118,10 @@ discoveries:
       phrases:
       - >-
         They made rapid technological progress.
+      - >-
+        They made slow but steady technological progress.
+      - >-
+        They made steady technological progress.
     - tags: [['power', 'mystical']]
       phrases:
       - >-
@@ -142,6 +152,10 @@ artifacts:
         way toward nearby stars. [:artifacts]
       - >-
         A few light years out, you received frequency-modulated radio waves [:message]. [:artifacts]
+    - tags: [['hasColonizablePlanet', 'true'], ['power', 'technological']]
+      phrases:
+      - >-
+        Remains of a lost colony can be found on [colonizablePlanetName]. [:artifacts]
     - tags: [['hasArtifacts', 'true']]
       phrases: ['']
         
@@ -150,8 +164,8 @@ message:
     - tags: []
       phrases:
       - >-
-        describing the basic molecules of life on [planetName], the [name] system,
-        and a graphic representation of [a :speciesName] individual
+        describing the basic molecules of life on [planetName], the planets of the
+        [name] system, and a graphic representation of [a :speciesName] individual
       - >-
         containing a set of symbols describing basic scientific facts, such as the age
         of the universe ([:messageCorrectness]), and a few theories ([:messageCorrectness])
@@ -163,27 +177,47 @@ messageCorrectness:
     - tags: []
       phrases:
       - 'spot on'
+      - 'just right'
+      - 'very accurate'
+      - 'exactly correct'
+      - 'nearly correct'
+      - 'almost right'
+      - 'just a little bit off'
       - 'subtly wrong'
       - 'egregiously wrong'
       - 'slightly off'
-      - 'just right'
       - 'embarrassingly inaccurate'
 
 ### DEATH ###
 
-maybeColony:
-  groups:
-    - tags: [['hasColonizablePlanet', 'false']]
-      phrases: ['']
-    - tags: [['hasColonizablePlanet', 'true']]
-      phrases:
-        - |
-        
-        
-          Before the fall of their civilization, they colonized [colonizablePlanetName].
-          The colony limped along until [:death]
-
 death:
+  groups:
+    - tags: []
+      phrases:
+      - |
+        Ultimately, [:deathReason], ending the [:speciesName] civilization.
+        
+        Life never emerged again in [name].
+      - |
+        The [:speciesName] civilization fell when [:deathReason].
+        
+        Life never emerged again in [name].
+      - |
+        After [:deathReason], life in [name] never recovered.
+
+#maybeColony:
+#  groups:
+#    - tags: [['hasColonizablePlanet', 'false']]
+#      phrases: ['']
+#    - tags: [['hasColonizablePlanet', 'true']]
+#      phrases:
+#        - |
+#        
+#        
+#          Before the fall of their civilization, they colonized [colonizablePlanetName].
+#          The colony limped along until [:death]
+
+deathReason:
   groups:
     - tags: []
       phrases:
@@ -198,7 +232,7 @@ death:
           they found that they had answered all their questions about existence and the
           universe, and euthanized themselves
         - >-
-          alien organisms carried by a passing comet wiped out all life in the system.
+          alien organisms carried by a passing comet wiped out all life in the system
         - >-
           a coronal mass ejection burned away [planetName]'s atmosphere
         - >-
@@ -212,8 +246,7 @@ death:
     - tags: [['power', 'technological'], ['hasAI', 'true']]
       phrases:
         - >-
-          they created a self-improving AI that killed them all, got bored, and killed
-          itself.
+          they created a self-improving AI that killed them all
           
     - tags: [['hasSea', 'true'], ['power', 'technological']]
       phrases:
@@ -262,7 +295,8 @@ death:
         - >-
           an army of deadly robots was misprogrammed and hunted down every living thing
         - >-
-          an electromagnetic pulse destroyed their entertainment and they died of boredom
+          an electromagnetic pulse destroyed their electronic entertainment and they 
+          all died of boredom
           
     - tags: [['power', 'mystical']]
       phrases:

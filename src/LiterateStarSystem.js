@@ -148,6 +148,9 @@ export default class LiterateStarSystem {
     }
 
     if (lifePlanetIndex >= 0) {
+      this.hasLife = true;
+      this.lifePlanetName = lifePlanets[lifePlanetIndex].planetImprovModel.planetName;
+
       const planetImprovModel = lifePlanets[lifePlanetIndex].planetImprovModel;
 
       lifePlanets.forEach((p, i) => {
@@ -172,8 +175,8 @@ export default class LiterateStarSystem {
         .filter((i) => i);
 
       console.log(this.lifeTexts);
-
     } else {
+      this.hasLife = false;
       console.log('lifeless', improvModel);
       this.lifeTexts = [noLifeTextGenerator.gen('root', improvModel)];
     }
