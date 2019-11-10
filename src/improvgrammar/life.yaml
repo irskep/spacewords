@@ -124,6 +124,7 @@ ancestryAppendages:
       phrases:
         - 'tentacles'
         - 'claws'
+        - 'pincers'
     - tags: [['habitat', 'ocean']]
       phrases:
         - 'fins'

@@ -101,6 +101,8 @@ article {
 
 .GraphicalPlanet__Graphic.Terran {
   background-color: lightgray;
+  width: 1rem;
+  height: 1rem;
 }
 
 .GraphicalPlanet__Graphic.Terran.hasLife {
@@ -108,10 +110,12 @@ article {
 }
 
 .GraphicalPlanet__Graphic.Neptunian {
+  width: 1.7rem;
+  height: 1.7rem;
   background-color: lightblue;
 }
 
-.GraphicalPlanet__Graphic.jovian {
+.GraphicalPlanet__Graphic.Jovian {
   background-color: burlywood;
 }
 
