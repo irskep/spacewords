@@ -32380,7 +32380,7 @@ module.exports = {
   root: {
     groups: [{
       tags: [],
-      phrases: ["The [ordinal planet.number] planet was populated long ago by the\n[:speciesName], who called the planet [:planetName].\n\n[:originOfSpecies]\n\n[:artifacts]\n\n[:death]\n"]
+      phrases: ["The [ordinal planet.number] planet was populated long ago by the\n[:speciesName], who called the planet [:planetName].\n\n[:originOfSpecies]\n\n[:death]\n\n[:artifacts]\n"]
     }]
   },
   lifespan: {
@@ -32398,13 +32398,7 @@ module.exports = {
   originOfSpecies: {
     groups: [{
       tags: [],
-      phrases: ["Life based on [:biochemistry] arose on [planetName] [lifeBeginTime].\nThe [:speciesName] developed [speciesBeginTime]. Their civilization lasted for\n[num lifespanYears] years.\n\n[:evolution]\n\n[:discoveries]\n"]
-    }]
-  },
-  evolution: {
-    groups: [{
-      tags: [],
-      phrases: ["Evolving from [:ancestry], they [:sentienceEvent] that elevated them to sentience."]
+      phrases: ["Life based on [:biochemistry] arose on [planetName] [lifeBeginTime].\nThe [:speciesName] developed [speciesBeginTime], evolving from [:ancestryDescription].\n\nThey lived [:habitat] and [:ancestryGroupDynamics], communicating primarily\nthrough [:communicationMethod]. [:sentienceEvent]\n\nTheir civilization lasted for [num lifespanYears] years.\n\n[:discoveries]\n"]
     }]
   },
   biochemistry: {
@@ -32417,38 +32411,114 @@ module.exports = {
       phrases: ["carbon and ammonia biochemistry", "Borane biochemistry"]
     }]
   },
-  ancestry: {
+  habitat: {
     bind: true,
     groups: [{
-      tags: [["habitat", "ocean"], ["individualism", "solo"]],
-      phrases: ["a long, finned aquatic species"]
+      tags: [["habitat", "ocean"]],
+      phrases: ["in the ocean"]
     }, {
-      tags: [["habitat", "ocean"], ["individualism", "collective"]],
-      phrases: ["a small fish-like creature", "networked plankton"]
+      tags: [["habitat", "land"]],
+      phrases: ["on land"]
+    }]
+  },
+  ancestryDescription: {
+    bind: true,
+    groups: [{
+      tags: [],
+      phrases: ["[an :ancestrySize] [:ancestrySkin] species with [:ancestryAppendages]"]
+    }]
+  },
+  ancestrySize: {
+    bind: true,
+    groups: [{
+      tags: [],
+      phrases: ["tiny", "small", "human-sized", "large", "enormous"]
+    }]
+  },
+  ancestrySkin: {
+    bind: true,
+    groups: [{
+      tags: [],
+      phrases: ["spiny", "scaly", "chitinous", "hard-shelled", "rubbery", "slimy", "leathery"]
     }, {
-      tags: [["habitat", "ocean"], ["individualism", "colonyWithQueen"]],
-      phrases: ["tiny, hard-shelled organisms with pincers"]
+      tags: [["habitat", "ocean"]],
+      phrases: ["scale-covered", "scaly"]
     }, {
-      tags: [["habitat", "land"], ["individualism", "colonyWithQueen"]],
-      phrases: ["insect-like creatures"]
+      tags: [["habitat", "land"]],
+      phrases: ["furry", "feathered", "hairy"]
+    }]
+  },
+  ancestryAppendages: {
+    bind: true,
+    groups: [{
+      tags: [],
+      phrases: ["tentacles", "claws"]
     }, {
-      tags: [["habitat", "land"], ["individualism", "solo"]],
-      phrases: ["insect-like creatures"]
+      tags: [["habitat", "ocean"]],
+      phrases: ["fins", "minutely articulated fins"]
     }, {
-      tags: [["habitat", "land"], ["individualism", "collective"]],
-      phrases: ["insect-like creatures"]
+      tags: [["habitat", "land"]],
+      phrases: ["arms and legs", "legs"]
+    }, {
+      tags: [["habitat", "land"], ["flying", "true"]],
+      phrases: ["wings and [:ancestryAppendages]"]
+    }]
+  },
+  ancestryGroupDynamics: {
+    bind: true,
+    groups: [{
+      tags: [["individualism", "solo"]],
+      phrases: ["hunted in groups"]
+    }, {
+      tags: [["individualism", "colonyWithQueen"]],
+      phrases: ["served massive colonies controlled by queens"]
+    }, {
+      tags: [["individualism", "solo"]],
+      phrases: ["mostly fended for themselves"]
+    }, {
+      tags: [["individualism", "solo"]],
+      phrases: ["traveled in flocks"]
+    }, {
+      tags: [["individualism", "collective"]],
+      phrases: ["formed large groups that acted nearly as one being"]
+    }]
+  },
+  ancestryBodyPlan: {
+    bind: true,
+    groups: [{
+      tags: [],
+      phrases: ["bilateral", "trilateral", "trilateral", "quadrilateral", "pentalateral", "hexalateral"]
+    }]
+  },
+  communicationMethod: {
+    bind: true,
+    groups: [{
+      tags: [],
+      phrases: ["sound", "visual body language", "scent", "complex chemical transfers", "patterns of physical contact", "combat"]
+    }]
+  },
+  eventually: {
+    groups: [{
+      tags: [],
+      phrases: ["Over time", "Eventually"]
+    }]
+  },
+  madeThemSentient: {
+    groups: [{
+      tags: [],
+      phrases: ["elevated them to sentience", "brought them up to the level of sentience"]
     }]
   },
   sentienceEvent: {
     groups: [{
       tags: [["individualism", "solo"]],
-      phrases: ["developed a hunter-gatherer culture"]
+      phrases: ["[cap :eventually], they developed complex social interactions that [:madeThemSentient].", "[cap :eventually], competition for resources and mates [:madeThemSentient]."]
     }, {
       tags: [["individualism", "colonyWithQueen"]],
-      phrases: ["developed complex inter-colony competition and cooperation"]
+      phrases: ["[cap :eventually], they developed complex inter-colony competition and cooperation that [:madeThemSentient].", "[cap :eventually], individuals within colonies became sophisticated enough to achieve sentience."]
     }, {
       tags: [["individualism", "collective"]],
-      phrases: ["developed complex inter-colony competition and cooperation"]
+      phrases: ["[cap :eventually], they developed complex inter-group competition and cooperation that [:madeThemSentient].", "[cap :eventually], communication within groups became so rapid and complex that sentience emerged."]
     }]
   },
   discoveries: {
@@ -32476,7 +32546,7 @@ module.exports = {
       phrases: ["The [:speciesName] left no great signs of their existence besides their dwellings."]
     }, {
       tags: [["hasArtifacts", "true"], ["power", "technological"]],
-      phrases: ["[cap numberword #1-10] space probes originating on [planetName] are still on their way toward nearby stars. [:artifacts]", "A few light years out, you received frequency-modulated radio waves [:message]. [:artifacts]"]
+      phrases: ["[cap numberword #1-10] space probes originating on [planetName] are still on their way toward nearby stars. [:artifacts]", "As you approached the system, you picked up frequency-modulated radio waves [:message]. [:artifacts]"]
     }, {
       tags: [["hasColonizablePlanet", "true"], ["power", "technological"]],
       phrases: ["Remains of a lost colony can be found on [colonizablePlanetName]. [:artifacts]"]
@@ -32512,7 +32582,7 @@ module.exports = {
       phrases: ["they created a self-improving AI that killed them all"]
     }, {
       tags: [["hasSea", "true"], ["power", "technological"]],
-      phrases: ["industrial activity poisoned their atmosphere, making the planet hostile to life except in near deep-sea vents"]
+      phrases: ["industrial activity poisoned their atmosphere, making the planet hostile to life except near deep-sea vents"]
     }, {
       tags: [["hasMoons", "true"]],
       phrases: ["the moon [:moonName] was struck by an asteroid and broke apart, falling down upon [planetName], filling the atmosphere with bolides and heating the atmosphere to incandescence"]
@@ -33757,7 +33827,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63670" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60508" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

@@ -96,7 +96,7 @@ article {
   border-radius: 1rem;
   display: inline-block;
 
-  box-shadow: inset 0 6px 0 -2px rgba(0, 0, 0, 0.25);
+  box-shadow: inset 0 -6px 0 -2px rgba(0, 0, 0, 0.25);
 }
 
 .GraphicalPlanet__Graphic.Terran {
@@ -157,7 +157,7 @@ article {
 
   width: 4rem;
   height: 4rem;
-  border: 1px solid rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 /*# sourceMappingURL=/static.abaec9a8.css.map */
