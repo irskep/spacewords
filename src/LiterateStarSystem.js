@@ -31,20 +31,54 @@ export default class LiterateStarSystem {
     /* values */
 
     const planets = this.starSystem.planets;
+    const improvModel = this.makeImprovModel();
 
+    this.systemText = starSystemTextGenerator.gen('root', improvModel);
+
+    /* planet model + text */
+
+    const { planetImprovModels, lifePlanets, lifePlanetIndex } = this.makePlanetModels(improvModel, planets);
+
+    /* life */
+
+    for (let m of planetImprovModels) {
+      m.tags.push(['isNamed', `${lifePlanets.length > 0}`]);
+    }
+
+    if (lifePlanetIndex >= 0) {
+      this.hasLife = true;
+      this.lifePlanetName = lifePlanets[lifePlanetIndex].planetImprovModel.planetName;
+      this.lifeTexts = this.makeLifeText(lifePlanets, lifePlanetIndex, lifeTextGenerator);
+    } else {
+      this.hasLife = false;
+      this.lifeTexts = [noLifeTextGenerator.gen('root', improvModel)];
+    }
+
+    this.planetTexts = this.makePlanetTexts(lifePlanetIndex, lifePlanets, planetTextGenerator, planetImprovModels);
+
+    console.log('system', improvModel);
+
+    // for (let i=0; i<100; i++) {
+    //   console.log(speciesnames.flatten('#root#'));
+    // }
+  }
+
+  makeImprovModel() {
+    /* values */
+    const planets = this.starSystem.planets;
     let planetMinAU = 0;
     let planetMaxAU = 0;
     if (planets.length) {
       planetMinAU = precision(2, planets[0].distance);
       planetMaxAU = precision(2, planets[planets.length - 1].distance);
     }
-
     let planetsAmount = 'none';
-    if (planets.length == 1) planetsAmount = 'one';
-    if (planets.length > 1) planetsAmount = 'many';
+    if (planets.length == 1)
+      planetsAmount = 'one';
+    if (planets.length > 1)
+      planetsAmount = 'many';
 
     /* system model + text */
-
     const speciesEndGa = precision(3, 0.2 + this.alea() * 3);
     const lifespanLength = ['short', 'medium', 'long'][choiceIndex(this.alea(), 3)];
     const lifespanMin = {
@@ -61,8 +95,8 @@ export default class LiterateStarSystem {
     const lifespanGa = decimal(2, lifespanYears / 1000000000);
     const speciesBeginGa = decimal(2, speciesEndGa - lifespanGa);
     const lifeBeginGa = decimal(2, speciesBeginGa + 1 + this.alea() * 3);
-
-    const improvModel = {
+    
+    return {
       // starSystem: this.starSystem,
       name: this.name,
       numPlanets: planets.length,
@@ -72,60 +106,69 @@ export default class LiterateStarSystem {
       speciesBeginTime: `${speciesBeginGa} billion years ago`,
       speciesEndTime: `${speciesEndGa} billion years ago`,
       lifespanYears: lifespanYears,
-
       tags: [
         ['planetsAmount', planetsAmount],
         ['lifespanLength', lifespanLength]
-      ].concat(
-        star2tags(this.starSystem)
-      ),
-
+      ].concat(star2tags(this.starSystem)),
       numberword: numberToWords.toWords,
       ordinal: numberToWords.toWordsOrdinal,
       num: (n) => parseInt(n, 10).toLocaleString(),
       precision2: (n) => parseFloat(parseFloat(n).toPrecision(2)),
     };
+  }
 
-    this.systemText = starSystemTextGenerator.gen('root', improvModel);
+  makeLifeText(lifePlanets, lifePlanetIndex, lifeTextGenerator) {
+    const planetImprovModel = lifePlanets[lifePlanetIndex].planetImprovModel;
+    lifePlanets.forEach((p, i) => {
+      if (i === lifePlanetIndex) {
+        return;
+      }
+      p.planetImprovModel.tags.push(['hasColonizablePlanet', 'true']);
+      p.planetImprovModel.tags.push(['isColonized', 'false']);
+      planetImprovModel.colonizablePlanetName = p.planetImprovModel.planetName;
+    });
+    if (lifePlanets.length > 1) {
+      planetImprovModel.tags.push(['hasColonizablePlanet', 'true']);
+      planetImprovModel.tags.push(['isColonized', 'true']);
+    }
+    else {
+      planetImprovModel.tags.push(['hasColonizablePlanet', 'false']);
+      planetImprovModel.tags.push(['isColonized', 'true']);
+    }
+    return lifeTextGenerator
+      .gen('root', planetImprovModel)
+      // .join('\n\n')
+      .split('\n\n')
+      .filter((i) => i);
+  }
 
-    /* planet model + text */
-
+  makePlanetModels(improvModel, planets) {
     // TODO: order planets interestingly
-    this.planetTexts = [];
     const originalTags = improvModel.tags;
-
     const lifePlanets = [];
     const planetImprovModels = [];
     let lifePlanetIndex = -1;
 
-    for (let i=0; i<planets.length; i++) {
+    for (let i = 0; i < planets.length; i++) {
       const planet = planets[i];
       planet.planetName = patchingMathDotRandom(this.alea, () => {
         return planetnames.flatten('#root#');
       });
-
-      let pluralizedMoons = (
-        `${planet.moons.length} ${pluralize('moon', planet.moons.length)}`);
-      if (pluralizedMoons === '0 moons') pluralizedMoons = 'no moons';
-
-      const planetImprovModel = Object.assign({},
-        improvModel,
-        {
-          tags: planet2tags(
-            planet, this.starSystem.habitableZoneMin, this.starSystem.habitableZoneMax
-          ).concat(originalTags),
-          planet: Object.assign({
-            number: i + 1,
-            pluralizedMoons,
-            earthMasses: precision(2, planet.mass),
-            jupiterMasses: precision(2, planet.mass / 10.96),
-            neptuneMasses: precision(2, planet.mass / 3.86),
-          }),
-          nonLifeInhabitablePlanets: [],
-        },
-        planet);
+      let pluralizedMoons = (`${planet.moons.length} ${pluralize('moon', planet.moons.length)}`);
+      if (pluralizedMoons === '0 moons')
+        pluralizedMoons = 'no moons';
+      const planetImprovModel = Object.assign({}, improvModel, {
+        tags: planet2tags(planet, this.starSystem.habitableZoneMin, this.starSystem.habitableZoneMax).concat(originalTags),
+        planet: Object.assign({
+          number: i + 1,
+          pluralizedMoons,
+          earthMasses: precision(2, planet.mass),
+          jupiterMasses: precision(2, planet.mass / 10.96),
+          neptuneMasses: precision(2, planet.mass / 3.86),
+        }),
+        nonLifeInhabitablePlanets: [],
+      }, planet);
       planetImprovModels.push(planetImprovModel);
-
       const isHz = planet.distance >= this.starSystem.habitableZoneMin &&
         planet.distance <= this.starSystem.habitableZoneMax;
       if (isHz && planet.planetType === 'Terran') {
@@ -134,71 +177,30 @@ export default class LiterateStarSystem {
         if (this.alea() < 1 / (lifePlanets.length + 1)) {
           lifePlanetIndex = lifePlanets.length;
         }
-        lifePlanets.forEach(({planetImprovModel}) => {
+        lifePlanets.forEach(({ planetImprovModel }) => {
           planetImprovModel.planet.colonizablePlanetName = planet.name;
         });
-        lifePlanets.push({planet, planetImprovModel});
+        lifePlanets.push({ planet, planetImprovModel });
       }
     }
+    return { planetImprovModels, lifePlanets, lifePlanetIndex };
+  }
 
-    /* life */
-
-    for (let m of planetImprovModels) {
-      m.tags.push(['isNamed', `${lifePlanets.length > 0}`]);
-    }
-
-    if (lifePlanetIndex >= 0) {
-      this.hasLife = true;
-      this.lifePlanetName = lifePlanets[lifePlanetIndex].planetImprovModel.planetName;
-
-      const planetImprovModel = lifePlanets[lifePlanetIndex].planetImprovModel;
-
-      lifePlanets.forEach((p, i) => {
-        if (i === lifePlanetIndex) { return; }
-        p.planetImprovModel.tags.push(['hasColonizablePlanet', 'true']);
-        p.planetImprovModel.tags.push(['isColonized', 'false']);
-        planetImprovModel.colonizablePlanetName = p.planetImprovModel.planetName;
-      })
-
-      if (lifePlanets.length > 1) {
-        planetImprovModel.tags.push(['hasColonizablePlanet', 'true']);
-        planetImprovModel.tags.push(['isColonized', 'true']);
-      } else {
-        planetImprovModel.tags.push(['hasColonizablePlanet', 'false']);
-        planetImprovModel.tags.push(['isColonized', 'true']);
-      }
-
-      this.lifeTexts =  lifeTextGenerator
-        .gen('root', planetImprovModel)
-        // .join('\n\n')
-        .split('\n\n')
-        .filter((i) => i);
-
-      console.log(this.lifeTexts);
-    } else {
-      this.hasLife = false;
-      console.log('lifeless', improvModel);
-      this.lifeTexts = [noLifeTextGenerator.gen('root', improvModel)];
-    }
-
+  makePlanetTexts(lifePlanetIndex, lifePlanets, planetTextGenerator, planetImprovModels) {
+    const planetTexts = [];
     if (lifePlanetIndex >= 0) {
       const m = lifePlanets[lifePlanetIndex].planetImprovModel;
       m.alreadyGone = true;
-      this.planetTexts.push(planetTextGenerator.gen('root', m));
+      planetTexts.push(planetTextGenerator.gen('root', m));
       console.log('planet', m.planetName, m);
     }
-
     planetImprovModels.forEach((m) => {
-      if (m.alreadyGone) return;
-      this.planetTexts.push(planetTextGenerator.gen('root', m));
+      if (m.alreadyGone)
+        return;
+      planetTexts.push(planetTextGenerator.gen('root', m));
       console.log('planet', m.planetName, m);
     });
-
-    console.log('system', improvModel);
-
-    // for (let i=0; i<100; i++) {
-    //   console.log(speciesnames.flatten('#root#'));
-    // }
+    return planetTexts;
   }
 }
 
