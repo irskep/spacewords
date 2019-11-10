@@ -11133,7 +11133,1298 @@ if (main) {
     console.log(JSON.stringify(system, null, 2));
   }
 }
-},{"./stars":"../node_modules/stellardream/lib/stars.js","./planets":"../node_modules/stellardream/lib/planets.js","./starSystem":"../node_modules/stellardream/lib/starSystem.js"}],"../node_modules/improv/dist/template.js":[function(require,module,exports) {
+},{"./stars":"../node_modules/stellardream/lib/stars.js","./planets":"../node_modules/stellardream/lib/planets.js","./starSystem":"../node_modules/stellardream/lib/starSystem.js"}],"../node_modules/number-to-words/numberToWords.min.js":[function(require,module,exports) {
+var global = arguments[3];
+/*!
+ * Number-To-Words util
+ * @version v1.2.4
+ * @link https://github.com/marlun78/number-to-words
+ * @author Martin Eneqvist (https://github.com/marlun78)
+ * @contributors Aleksey Pilyugin (https://github.com/pilyugin),Jeremiah Hall (https://github.com/jeremiahrhall),Adriano Melo (https://github.com/adrianomelo),dmrzn (https://github.com/dmrzn)
+ * @license MIT
+ */
+!function(){"use strict";var e="object"==typeof self&&self.self===self&&self||"object"==typeof global&&global.global===global&&global||this,t=9007199254740991;function f(e){return!("number"!=typeof e||e!=e||e===1/0||e===-1/0)}function l(e){return"number"==typeof e&&Math.abs(e)<=t}var n=/(hundred|thousand|(m|b|tr|quadr)illion)$/,r=/teen$/,o=/y$/,i=/(zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)$/,s={zero:"zeroth",one:"first",two:"second",three:"third",four:"fourth",five:"fifth",six:"sixth",seven:"seventh",eight:"eighth",nine:"ninth",ten:"tenth",eleven:"eleventh",twelve:"twelfth"};function h(e){return n.test(e)||r.test(e)?e+"th":o.test(e)?e.replace(o,"ieth"):i.test(e)?e.replace(i,a):e}function a(e,t){return s[t]}var u=10,d=100,p=1e3,v=1e6,b=1e9,y=1e12,c=1e15,g=9007199254740992,m=["zero","one","two","three","four","five","six","seven","eight","nine","ten","eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen"],w=["zero","ten","twenty","thirty","forty","fifty","sixty","seventy","eighty","ninety"];function x(e,t){var n,r=parseInt(e,10);if(!f(r))throw new TypeError("Not a finite number: "+e+" ("+typeof e+")");if(!l(r))throw new RangeError("Input is not a safe number, it’s either too large or too small.");return n=function e(t){var n,r,o=arguments[1];if(0===t)return o?o.join(" ").replace(/,$/,""):"zero";o||(o=[]);t<0&&(o.push("minus"),t=Math.abs(t));t<20?(n=0,r=m[t]):t<d?(n=t%u,r=w[Math.floor(t/u)],n&&(r+="-"+m[n],n=0)):t<p?(n=t%d,r=e(Math.floor(t/d))+" hundred"):t<v?(n=t%p,r=e(Math.floor(t/p))+" thousand,"):t<b?(n=t%v,r=e(Math.floor(t/v))+" million,"):t<y?(n=t%b,r=e(Math.floor(t/b))+" billion,"):t<c?(n=t%y,r=e(Math.floor(t/y))+" trillion,"):t<=g&&(n=t%c,r=e(Math.floor(t/c))+" quadrillion,");o.push(r);return e(n,o)}(r),t?h(n):n}var M={toOrdinal:function(e){var t=parseInt(e,10);if(!f(t))throw new TypeError("Not a finite number: "+e+" ("+typeof e+")");if(!l(t))throw new RangeError("Input is not a safe number, it’s either too large or too small.");var n=String(t),r=Math.abs(t%100),o=11<=r&&r<=13,i=n.charAt(n.length-1);return n+(o?"th":"1"===i?"st":"2"===i?"nd":"3"===i?"rd":"th")},toWords:x,toWordsOrdinal:function(e){return h(x(e))}};"undefined"!=typeof exports?("undefined"!=typeof module&&module.exports&&(exports=module.exports=M),exports.numberToWords=M):e.numberToWords=M}();
+},{}],"../node_modules/pluralize/pluralize.js":[function(require,module,exports) {
+var define;
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+/* global define */
+(function (root, pluralize) {
+  /* istanbul ignore else */
+  if (typeof require === 'function' && (typeof exports === "undefined" ? "undefined" : _typeof(exports)) === 'object' && (typeof module === "undefined" ? "undefined" : _typeof(module)) === 'object') {
+    // Node.
+    module.exports = pluralize();
+  } else if (typeof define === 'function' && define.amd) {
+    // AMD, registers as an anonymous module.
+    define(function () {
+      return pluralize();
+    });
+  } else {
+    // Browser global.
+    root.pluralize = pluralize();
+  }
+})(this, function () {
+  // Rule storage - pluralize and singularize need to be run sequentially,
+  // while other rules can be optimized using an object for instant lookups.
+  var pluralRules = [];
+  var singularRules = [];
+  var uncountables = {};
+  var irregularPlurals = {};
+  var irregularSingles = {};
+  /**
+   * Sanitize a pluralization rule to a usable regular expression.
+   *
+   * @param  {(RegExp|string)} rule
+   * @return {RegExp}
+   */
+
+  function sanitizeRule(rule) {
+    if (typeof rule === 'string') {
+      return new RegExp('^' + rule + '$', 'i');
+    }
+
+    return rule;
+  }
+  /**
+   * Pass in a word token to produce a function that can replicate the case on
+   * another word.
+   *
+   * @param  {string}   word
+   * @param  {string}   token
+   * @return {Function}
+   */
+
+
+  function restoreCase(word, token) {
+    // Tokens are an exact match.
+    if (word === token) return token; // Lower cased words. E.g. "hello".
+
+    if (word === word.toLowerCase()) return token.toLowerCase(); // Upper cased words. E.g. "WHISKY".
+
+    if (word === word.toUpperCase()) return token.toUpperCase(); // Title cased words. E.g. "Title".
+
+    if (word[0] === word[0].toUpperCase()) {
+      return token.charAt(0).toUpperCase() + token.substr(1).toLowerCase();
+    } // Lower cased words. E.g. "test".
+
+
+    return token.toLowerCase();
+  }
+  /**
+   * Interpolate a regexp string.
+   *
+   * @param  {string} str
+   * @param  {Array}  args
+   * @return {string}
+   */
+
+
+  function interpolate(str, args) {
+    return str.replace(/\$(\d{1,2})/g, function (match, index) {
+      return args[index] || '';
+    });
+  }
+  /**
+   * Replace a word using a rule.
+   *
+   * @param  {string} word
+   * @param  {Array}  rule
+   * @return {string}
+   */
+
+
+  function replace(word, rule) {
+    return word.replace(rule[0], function (match, index) {
+      var result = interpolate(rule[1], arguments);
+
+      if (match === '') {
+        return restoreCase(word[index - 1], result);
+      }
+
+      return restoreCase(match, result);
+    });
+  }
+  /**
+   * Sanitize a word by passing in the word and sanitization rules.
+   *
+   * @param  {string}   token
+   * @param  {string}   word
+   * @param  {Array}    rules
+   * @return {string}
+   */
+
+
+  function sanitizeWord(token, word, rules) {
+    // Empty string or doesn't need fixing.
+    if (!token.length || uncountables.hasOwnProperty(token)) {
+      return word;
+    }
+
+    var len = rules.length; // Iterate over the sanitization rules and use the first one to match.
+
+    while (len--) {
+      var rule = rules[len];
+      if (rule[0].test(word)) return replace(word, rule);
+    }
+
+    return word;
+  }
+  /**
+   * Replace a word with the updated word.
+   *
+   * @param  {Object}   replaceMap
+   * @param  {Object}   keepMap
+   * @param  {Array}    rules
+   * @return {Function}
+   */
+
+
+  function replaceWord(replaceMap, keepMap, rules) {
+    return function (word) {
+      // Get the correct token and case restoration functions.
+      var token = word.toLowerCase(); // Check against the keep object map.
+
+      if (keepMap.hasOwnProperty(token)) {
+        return restoreCase(word, token);
+      } // Check against the replacement map for a direct word replacement.
+
+
+      if (replaceMap.hasOwnProperty(token)) {
+        return restoreCase(word, replaceMap[token]);
+      } // Run all the rules against the word.
+
+
+      return sanitizeWord(token, word, rules);
+    };
+  }
+  /**
+   * Check if a word is part of the map.
+   */
+
+
+  function checkWord(replaceMap, keepMap, rules, bool) {
+    return function (word) {
+      var token = word.toLowerCase();
+      if (keepMap.hasOwnProperty(token)) return true;
+      if (replaceMap.hasOwnProperty(token)) return false;
+      return sanitizeWord(token, token, rules) === token;
+    };
+  }
+  /**
+   * Pluralize or singularize a word based on the passed in count.
+   *
+   * @param  {string}  word      The word to pluralize
+   * @param  {number}  count     How many of the word exist
+   * @param  {boolean} inclusive Whether to prefix with the number (e.g. 3 ducks)
+   * @return {string}
+   */
+
+
+  function pluralize(word, count, inclusive) {
+    var pluralized = count === 1 ? pluralize.singular(word) : pluralize.plural(word);
+    return (inclusive ? count + ' ' : '') + pluralized;
+  }
+  /**
+   * Pluralize a word.
+   *
+   * @type {Function}
+   */
+
+
+  pluralize.plural = replaceWord(irregularSingles, irregularPlurals, pluralRules);
+  /**
+   * Check if a word is plural.
+   *
+   * @type {Function}
+   */
+
+  pluralize.isPlural = checkWord(irregularSingles, irregularPlurals, pluralRules);
+  /**
+   * Singularize a word.
+   *
+   * @type {Function}
+   */
+
+  pluralize.singular = replaceWord(irregularPlurals, irregularSingles, singularRules);
+  /**
+   * Check if a word is singular.
+   *
+   * @type {Function}
+   */
+
+  pluralize.isSingular = checkWord(irregularPlurals, irregularSingles, singularRules);
+  /**
+   * Add a pluralization rule to the collection.
+   *
+   * @param {(string|RegExp)} rule
+   * @param {string}          replacement
+   */
+
+  pluralize.addPluralRule = function (rule, replacement) {
+    pluralRules.push([sanitizeRule(rule), replacement]);
+  };
+  /**
+   * Add a singularization rule to the collection.
+   *
+   * @param {(string|RegExp)} rule
+   * @param {string}          replacement
+   */
+
+
+  pluralize.addSingularRule = function (rule, replacement) {
+    singularRules.push([sanitizeRule(rule), replacement]);
+  };
+  /**
+   * Add an uncountable word rule.
+   *
+   * @param {(string|RegExp)} word
+   */
+
+
+  pluralize.addUncountableRule = function (word) {
+    if (typeof word === 'string') {
+      uncountables[word.toLowerCase()] = true;
+      return;
+    } // Set singular and plural references for the word.
+
+
+    pluralize.addPluralRule(word, '$0');
+    pluralize.addSingularRule(word, '$0');
+  };
+  /**
+   * Add an irregular word definition.
+   *
+   * @param {string} single
+   * @param {string} plural
+   */
+
+
+  pluralize.addIrregularRule = function (single, plural) {
+    plural = plural.toLowerCase();
+    single = single.toLowerCase();
+    irregularSingles[single] = plural;
+    irregularPlurals[plural] = single;
+  };
+  /**
+   * Irregular rules.
+   */
+
+
+  [// Pronouns.
+  ['I', 'we'], ['me', 'us'], ['he', 'they'], ['she', 'they'], ['them', 'them'], ['myself', 'ourselves'], ['yourself', 'yourselves'], ['itself', 'themselves'], ['herself', 'themselves'], ['himself', 'themselves'], ['themself', 'themselves'], ['is', 'are'], ['was', 'were'], ['has', 'have'], ['this', 'these'], ['that', 'those'], // Words ending in with a consonant and `o`.
+  ['echo', 'echoes'], ['dingo', 'dingoes'], ['volcano', 'volcanoes'], ['tornado', 'tornadoes'], ['torpedo', 'torpedoes'], // Ends with `us`.
+  ['genus', 'genera'], ['viscus', 'viscera'], // Ends with `ma`.
+  ['stigma', 'stigmata'], ['stoma', 'stomata'], ['dogma', 'dogmata'], ['lemma', 'lemmata'], ['schema', 'schemata'], ['anathema', 'anathemata'], // Other irregular rules.
+  ['ox', 'oxen'], ['axe', 'axes'], ['die', 'dice'], ['yes', 'yeses'], ['foot', 'feet'], ['eave', 'eaves'], ['goose', 'geese'], ['tooth', 'teeth'], ['quiz', 'quizzes'], ['human', 'humans'], ['proof', 'proofs'], ['carve', 'carves'], ['valve', 'valves'], ['looey', 'looies'], ['thief', 'thieves'], ['groove', 'grooves'], ['pickaxe', 'pickaxes'], ['passerby', 'passersby']].forEach(function (rule) {
+    return pluralize.addIrregularRule(rule[0], rule[1]);
+  });
+  /**
+   * Pluralization rules.
+   */
+
+  [[/s?$/i, 's'], [/[^\u0000-\u007F]$/i, '$0'], [/([^aeiou]ese)$/i, '$1'], [/(ax|test)is$/i, '$1es'], [/(alias|[^aou]us|t[lm]as|gas|ris)$/i, '$1es'], [/(e[mn]u)s?$/i, '$1s'], [/([^l]ias|[aeiou]las|[ejzr]as|[iu]am)$/i, '$1'], [/(alumn|syllab|vir|radi|nucle|fung|cact|stimul|termin|bacill|foc|uter|loc|strat)(?:us|i)$/i, '$1i'], [/(alumn|alg|vertebr)(?:a|ae)$/i, '$1ae'], [/(seraph|cherub)(?:im)?$/i, '$1im'], [/(her|at|gr)o$/i, '$1oes'], [/(agend|addend|millenni|dat|extrem|bacteri|desiderat|strat|candelabr|errat|ov|symposi|curricul|automat|quor)(?:a|um)$/i, '$1a'], [/(apheli|hyperbat|periheli|asyndet|noumen|phenomen|criteri|organ|prolegomen|hedr|automat)(?:a|on)$/i, '$1a'], [/sis$/i, 'ses'], [/(?:(kni|wi|li)fe|(ar|l|ea|eo|oa|hoo)f)$/i, '$1$2ves'], [/([^aeiouy]|qu)y$/i, '$1ies'], [/([^ch][ieo][ln])ey$/i, '$1ies'], [/(x|ch|ss|sh|zz)$/i, '$1es'], [/(matr|cod|mur|sil|vert|ind|append)(?:ix|ex)$/i, '$1ices'], [/\b((?:tit)?m|l)(?:ice|ouse)$/i, '$1ice'], [/(pe)(?:rson|ople)$/i, '$1ople'], [/(child)(?:ren)?$/i, '$1ren'], [/eaux$/i, '$0'], [/m[ae]n$/i, 'men'], ['thou', 'you']].forEach(function (rule) {
+    return pluralize.addPluralRule(rule[0], rule[1]);
+  });
+  /**
+   * Singularization rules.
+   */
+
+  [[/s$/i, ''], [/(ss)$/i, '$1'], [/(wi|kni|(?:after|half|high|low|mid|non|night|[^\w]|^)li)ves$/i, '$1fe'], [/(ar|(?:wo|[ae])l|[eo][ao])ves$/i, '$1f'], [/ies$/i, 'y'], [/\b([pl]|zomb|(?:neck|cross)?t|coll|faer|food|gen|goon|group|lass|talk|goal|cut)ies$/i, '$1ie'], [/\b(mon|smil)ies$/i, '$1ey'], [/\b((?:tit)?m|l)ice$/i, '$1ouse'], [/(seraph|cherub)im$/i, '$1'], [/(x|ch|ss|sh|zz|tto|go|cho|alias|[^aou]us|t[lm]as|gas|(?:her|at|gr)o|[aeiou]ris)(?:es)?$/i, '$1'], [/(analy|diagno|parenthe|progno|synop|the|empha|cri|ne)(?:sis|ses)$/i, '$1sis'], [/(movie|twelve|abuse|e[mn]u)s$/i, '$1'], [/(test)(?:is|es)$/i, '$1is'], [/(alumn|syllab|vir|radi|nucle|fung|cact|stimul|termin|bacill|foc|uter|loc|strat)(?:us|i)$/i, '$1us'], [/(agend|addend|millenni|dat|extrem|bacteri|desiderat|strat|candelabr|errat|ov|symposi|curricul|quor)a$/i, '$1um'], [/(apheli|hyperbat|periheli|asyndet|noumen|phenomen|criteri|organ|prolegomen|hedr|automat)a$/i, '$1on'], [/(alumn|alg|vertebr)ae$/i, '$1a'], [/(cod|mur|sil|vert|ind)ices$/i, '$1ex'], [/(matr|append)ices$/i, '$1ix'], [/(pe)(rson|ople)$/i, '$1rson'], [/(child)ren$/i, '$1'], [/(eau)x?$/i, '$1'], [/men$/i, 'man']].forEach(function (rule) {
+    return pluralize.addSingularRule(rule[0], rule[1]);
+  });
+  /**
+   * Uncountable rules.
+   */
+
+  [// Singular words with no plurals.
+  'adulthood', 'advice', 'agenda', 'aid', 'aircraft', 'alcohol', 'ammo', 'analytics', 'anime', 'athletics', 'audio', 'bison', 'blood', 'bream', 'buffalo', 'butter', 'carp', 'cash', 'chassis', 'chess', 'clothing', 'cod', 'commerce', 'cooperation', 'corps', 'debris', 'diabetes', 'digestion', 'elk', 'energy', 'equipment', 'excretion', 'expertise', 'firmware', 'flounder', 'fun', 'gallows', 'garbage', 'graffiti', 'hardware', 'headquarters', 'health', 'herpes', 'highjinks', 'homework', 'housework', 'information', 'jeans', 'justice', 'kudos', 'labour', 'literature', 'machinery', 'mackerel', 'mail', 'media', 'mews', 'moose', 'music', 'mud', 'manga', 'news', 'only', 'personnel', 'pike', 'plankton', 'pliers', 'police', 'pollution', 'premises', 'rain', 'research', 'rice', 'salmon', 'scissors', 'series', 'sewage', 'shambles', 'shrimp', 'software', 'species', 'staff', 'swine', 'tennis', 'traffic', 'transportation', 'trout', 'tuna', 'wealth', 'welfare', 'whiting', 'wildebeest', 'wildlife', 'you', /pok[eé]mon$/i, // Regexes.
+  /[^aeiou]ese$/i, // "chinese", "japanese"
+  /deer$/i, // "deer", "reindeer"
+  /fish$/i, // "fish", "blowfish", "angelfish"
+  /measles$/i, /o[iu]s$/i, // "carnivorous"
+  /pox$/i, // "chickpox", "smallpox"
+  /sheep$/i].forEach(pluralize.addUncountableRule);
+  return pluralize;
+});
+},{}],"../node_modules/tracery-grammar/tracery.js":[function(require,module,exports) {
+/**
+ * @author Kate
+ */
+
+var tracery = function() {
+
+    var TraceryNode = function(parent, childIndex, settings) {
+        this.errors = [];
+
+        // No input? Add an error, but continue anyways
+        if (settings.raw === undefined) {
+            this.errors.push("Empty input for node");
+            settings.raw = "";
+        }
+
+        // If the root node of an expansion, it will have the grammar passed as the 'parent'
+        //  set the grammar from the 'parent', and set all other values for a root node
+        if ( parent instanceof tracery.Grammar) {
+            this.grammar = parent;
+            this.parent = null;
+            this.depth = 0;
+            this.childIndex = 0;
+        } else {
+            this.grammar = parent.grammar;
+            this.parent = parent;
+            this.depth = parent.depth + 1;
+            this.childIndex = childIndex;
+        }
+
+        this.raw = settings.raw;
+        this.type = settings.type;
+        this.isExpanded = false;
+
+        if (!this.grammar) {
+            this.errors.push("No grammar specified for this node " + this);
+        }
+
+    };
+
+    TraceryNode.prototype.toString = function() {
+        return "Node('" + this.raw + "' " + this.type + " d:" + this.depth + ")";
+    };
+
+    // Expand the node (with the given child rule)
+    //  Make children if the node has any
+    TraceryNode.prototype.expandChildren = function(childRule, preventRecursion) {
+        this.children = [];
+        this.finishedText = "";
+
+        // Set the rule for making children,
+        // and expand it into section
+        this.childRule = childRule;
+        if (this.childRule !== undefined) {
+            var sections = tracery.parse(childRule);
+
+            // Add errors to this
+            if (sections.errors.length > 0) {
+                this.errors = this.errors.concat(sections.errors);
+
+            }
+
+            for (var i = 0; i < sections.length; i++) {
+                this.children[i] = new TraceryNode(this, i, sections[i]);
+                if (!preventRecursion)
+                    this.children[i].expand(preventRecursion);
+
+                // Add in the finished text
+                this.finishedText += this.children[i].finishedText;
+            }
+        } else {
+            // In normal operation, this shouldn't ever happen
+            this.errors.push("No child rule provided, can't expand children");
+        }
+    };
+
+    // Expand this rule (possibly creating children)
+    TraceryNode.prototype.expand = function(preventRecursion) {
+
+        if (!this.isExpanded) {
+            this.isExpanded = true;
+
+            this.expansionErrors = [];
+
+            // Types of nodes
+            // -1: raw, needs parsing
+            //  0: Plaintext
+            //  1: Tag ("#symbol.mod.mod2.mod3#" or "#[pushTarget:pushRule]symbol.mod")
+            //  2: Action ("[pushTarget:pushRule], [pushTarget:POP]", more in the future)
+
+            switch(this.type) {
+            // Raw rule
+            case -1:
+
+                this.expandChildren(this.raw, preventRecursion);
+                break;
+
+            // plaintext, do nothing but copy text into finsihed text
+            case 0:
+                this.finishedText = this.raw;
+                break;
+
+            // Tag
+            case 1:
+                // Parse to find any actions, and figure out what the symbol is
+                this.preactions = [];
+                this.postactions = [];
+
+                var parsed = tracery.parseTag(this.raw);
+
+                // Break into symbol actions and modifiers
+                this.symbol = parsed.symbol;
+                this.modifiers = parsed.modifiers;
+
+                // Create all the preactions from the raw syntax
+                for (var i = 0; i < parsed.preactions.length; i++) {
+                    this.preactions[i] = new NodeAction(this, parsed.preactions[i].raw);
+                }
+                for (var i = 0; i < parsed.postactions.length; i++) {
+                    //   this.postactions[i] = new NodeAction(this, parsed.postactions[i].raw);
+                }
+
+                // Make undo actions for all preactions (pops for each push)
+                for (var i = 0; i < this.preactions.length; i++) {
+                    if (this.preactions[i].type === 0)
+                        this.postactions.push(this.preactions[i].createUndo());
+                }
+
+                // Activate all the preactions
+                for (var i = 0; i < this.preactions.length; i++) {
+                    this.preactions[i].activate();
+                }
+
+                this.finishedText = this.raw;
+
+                // Expand (passing the node, this allows tracking of recursion depth)
+
+                var selectedRule = this.grammar.selectRule(this.symbol, this, this.errors);
+
+                this.expandChildren(selectedRule, preventRecursion);
+
+                // Apply modifiers
+                // TODO: Update parse function to not trigger on hashtags within parenthesis within tags,
+                //   so that modifier parameters can contain tags "#story.replace(#protagonist#, #newCharacter#)#"
+                for (var i = 0; i < this.modifiers.length; i++) {
+                    var modName = this.modifiers[i];
+                    var modParams = [];
+                    if (modName.indexOf("(") > 0) {
+                        var regExp = /\(([^)]+)\)/;
+
+                        // Todo: ignore any escaped commas.  For now, commas always split
+                        var results = regExp.exec(this.modifiers[i]);
+                        if (!results || results.length < 2) {
+                        } else {
+                            var modParams = results[1].split(",");
+                            modName = this.modifiers[i].substring(0, modName.indexOf("("));
+                        }
+
+                    }
+
+                    var mod = this.grammar.modifiers[modName];
+
+                    // Missing modifier?
+                    if (!mod) {
+                        this.errors.push("Missing modifier " + modName);
+                        this.finishedText += "((." + modName + "))";
+                    } else {
+                        this.finishedText = mod(this.finishedText, modParams);
+
+                    }
+
+                }
+
+                // Perform post-actions
+                for (var i = 0; i < this.postactions.length; i++) {
+                    this.postactions[i].activate();
+                }
+                break;
+            case 2:
+
+                // Just a bare action?  Expand it!
+                this.action = new NodeAction(this, this.raw);
+                this.action.activate();
+
+                // No visible text for an action
+                // TODO: some visible text for if there is a failure to perform the action?
+                this.finishedText = "";
+                break;
+
+            }
+
+        } else {
+            //console.warn("Already expanded " + this);
+        }
+
+    };
+
+    TraceryNode.prototype.clearEscapeChars = function() {
+
+        this.finishedText = this.finishedText.replace(/\\\\/g, "DOUBLEBACKSLASH").replace(/\\/g, "").replace(/DOUBLEBACKSLASH/g, "\\");
+    };
+
+    // An action that occurs when a node is expanded
+    // Types of actions:
+    // 0 Push: [key:rule]
+    // 1 Pop: [key:POP]
+    // 2 function: [functionName(param0,param1)] (TODO!)
+    function NodeAction(node, raw) {
+        /*
+         if (!node)
+         console.warn("No node for NodeAction");
+         if (!raw)
+         console.warn("No raw commands for NodeAction");
+         */
+
+        this.node = node;
+
+        var sections = raw.split(":");
+        this.target = sections[0];
+
+        // No colon? A function!
+        if (sections.length === 1) {
+            this.type = 2;
+
+        }
+
+        // Colon? It's either a push or a pop
+        else {
+            this.rule = sections[1];
+            if (this.rule === "POP") {
+                this.type = 1;
+            } else {
+                this.type = 0;
+            }
+        }
+    }
+
+
+    NodeAction.prototype.createUndo = function() {
+        if (this.type === 0) {
+            return new NodeAction(this.node, this.target + ":POP");
+        }
+        // TODO Not sure how to make Undo actions for functions or POPs
+        return null;
+    };
+
+    NodeAction.prototype.activate = function() {
+        var grammar = this.node.grammar;
+        switch(this.type) {
+        case 0:
+            // split into sections (the way to denote an array of rules)
+            this.ruleSections = this.rule.split(",");
+            this.finishedRules = [];
+            this.ruleNodes = [];
+            for (var i = 0; i < this.ruleSections.length; i++) {
+                var n = new TraceryNode(grammar, 0, {
+                    type : -1,
+                    raw : this.ruleSections[i]
+                });
+
+                n.expand();
+
+                this.finishedRules.push(n.finishedText);
+            }
+
+            // TODO: escape commas properly
+            grammar.pushRules(this.target, this.finishedRules, this);
+            break;
+        case 1:
+            grammar.popRules(this.target);
+            break;
+        case 2:
+            grammar.flatten(this.target, true);
+            break;
+        }
+
+    };
+
+    NodeAction.prototype.toText = function() {
+        switch(this.type) {
+        case 0:
+            return this.target + ":" + this.rule;
+        case 1:
+            return this.target + ":POP";
+        case 2:
+            return "((some function))";
+        default:
+            return "((Unknown Action))";
+        }
+    };
+
+    // Sets of rules
+    // Can also contain conditional or fallback sets of rulesets)
+    function RuleSet(grammar, raw) {
+        this.raw = raw;
+        this.grammar = grammar;
+        this.falloff = 1;
+
+        if (Array.isArray(raw)) {
+            this.defaultRules = raw;
+        } else if ( typeof raw === 'string' || raw instanceof String) {
+            this.defaultRules = [raw];
+        } else if (raw === 'object') {
+            // TODO: support for conditional and hierarchical rule sets
+        }
+
+    };
+
+    RuleSet.prototype.selectRule = function(errors) {
+        // console.log("Get rule", this.raw);
+        // Is there a conditional?
+        if (this.conditionalRule) {
+            var value = this.grammar.expand(this.conditionalRule, true);
+            // does this value match any of the conditionals?
+            if (this.conditionalValues[value]) {
+                var v = this.conditionalValues[value].selectRule(errors);
+                if (v !== null && v !== undefined)
+                    return v;
+            }
+            // No returned value?
+        }
+
+        // Is there a ranked order?
+        if (this.ranking) {
+            for (var i = 0; i < this.ranking.length; i++) {
+                var v = this.ranking.selectRule();
+                if (v !== null && v !== undefined)
+                    return v;
+            }
+
+            // Still no returned value?
+        }
+
+        if (this.defaultRules !== undefined) {
+            var index = 0;
+            // Select from this basic array of rules
+
+            // Get the distribution from the grammar if there is no other
+            var distribution = this.distribution;
+            if (!distribution)
+                distribution = this.grammar.distribution;
+
+            switch(distribution) {
+            case "shuffle":
+
+                // create a shuffle desk
+                if (!this.shuffledDeck || this.shuffledDeck.length === 0) {
+                    // make an array
+                    this.shuffledDeck = fyshuffle(Array.apply(null, {
+                        length : this.defaultRules.length
+                    }).map(Number.call, Number), this.falloff);
+
+                }
+
+                index = this.shuffledDeck.pop();
+
+                break;
+            case "weighted":
+                errors.push("Weighted distribution not yet implemented");
+                break;
+            case "falloff":
+                errors.push("Falloff distribution not yet implemented");
+                break;
+            default:
+
+                index = Math.floor(Math.pow(Math.random(), this.falloff) * this.defaultRules.length);
+                break;
+            }
+
+            if (!this.defaultUses)
+                this.defaultUses = [];
+            this.defaultUses[index] = ++this.defaultUses[index] || 1;
+            return this.defaultRules[index];
+        }
+
+        errors.push("No default rules defined for " + this);
+        return null;
+
+    };
+
+    RuleSet.prototype.clearState = function() {
+
+        if (this.defaultUses) {
+            this.defaultUses = [];
+        }
+    };
+
+    function fyshuffle(array, falloff) {
+        var currentIndex = array.length,
+            temporaryValue,
+            randomIndex;
+
+        // While there remain elements to shuffle...
+        while (0 !== currentIndex) {
+
+            // Pick a remaining element...
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex -= 1;
+
+            // And swap it with the current element.
+            temporaryValue = array[currentIndex];
+            array[currentIndex] = array[randomIndex];
+            array[randomIndex] = temporaryValue;
+        }
+
+        return array;
+    }
+
+    var Symbol = function(grammar, key, rawRules) {
+        // Symbols can be made with a single value, and array, or array of objects of (conditions/values)
+        this.key = key;
+        this.grammar = grammar;
+        this.rawRules = rawRules;
+
+        this.baseRules = new RuleSet(this.grammar, rawRules);
+        this.clearState();
+
+    };
+
+    Symbol.prototype.clearState = function() {
+
+        // Clear the stack and clear all ruleset usages
+        this.stack = [this.baseRules];
+
+        this.uses = [];
+        this.baseRules.clearState();
+    };
+
+    Symbol.prototype.pushRules = function(rawRules) {
+        var rules = new RuleSet(this.grammar, rawRules);
+        this.stack.push(rules);
+    };
+
+    Symbol.prototype.popRules = function() {
+        this.stack.pop();
+    };
+
+    Symbol.prototype.selectRule = function(node, errors) {
+        this.uses.push({
+            node : node
+        });
+
+        if (this.stack.length === 0) {
+            errors.push("The rule stack for '" + this.key + "' is empty, too many pops?");
+            return "((" + this.key + "))";
+        }
+
+        return this.stack[this.stack.length - 1].selectRule();
+    };
+
+    Symbol.prototype.getActiveRules = function() {
+        if (this.stack.length === 0) {
+            return null;
+        }
+        return this.stack[this.stack.length - 1].selectRule();
+    };
+
+    Symbol.prototype.rulesToJSON = function() {
+        return JSON.stringify(this.rawRules);
+    };
+
+    var Grammar = function(raw, settings) {
+        this.modifiers = {};
+        this.loadFromRawObj(raw);
+    };
+
+    Grammar.prototype.clearState = function() {
+        var keys = Object.keys(this.symbols);
+        for (var i = 0; i < keys.length; i++) {
+            this.symbols[keys[i]].clearState();
+        }
+    };
+
+    Grammar.prototype.addModifiers = function(mods) {
+
+        // copy over the base modifiers
+        for (var key in mods) {
+            if (mods.hasOwnProperty(key)) {
+                this.modifiers[key] = mods[key];
+            }
+        };
+
+    };
+
+    Grammar.prototype.loadFromRawObj = function(raw) {
+
+        this.raw = raw;
+        this.symbols = {};
+        this.subgrammars = [];
+
+        if (this.raw) {
+            // Add all rules to the grammar
+            for (var key in this.raw) {
+                if (this.raw.hasOwnProperty(key)) {
+                    this.symbols[key] = new Symbol(this, key, this.raw[key]);
+                }
+            }
+        }
+    };
+
+    Grammar.prototype.createRoot = function(rule) {
+        // Create a node and subnodes
+        var root = new TraceryNode(this, 0, {
+            type : -1,
+            raw : rule,
+        });
+
+        return root;
+    };
+
+    Grammar.prototype.expand = function(rule, allowEscapeChars) {
+        var root = this.createRoot(rule);
+        root.expand();
+        if (!allowEscapeChars)
+            root.clearEscapeChars();
+
+        return root;
+    };
+
+    Grammar.prototype.flatten = function(rule, allowEscapeChars) {
+        var root = this.expand(rule, allowEscapeChars);
+
+        return root.finishedText;
+    };
+
+    Grammar.prototype.toJSON = function() {
+        var keys = Object.keys(this.symbols);
+        var symbolJSON = [];
+        for (var i = 0; i < keys.length; i++) {
+            var key = keys[i];
+            symbolJSON.push(' "' + key + '" : ' + this.symbols[key].rulesToJSON());
+        }
+        return "{\n" + symbolJSON.join(",\n") + "\n}";
+    };
+
+    // Create or push rules
+    Grammar.prototype.pushRules = function(key, rawRules, sourceAction) {
+
+        if (this.symbols[key] === undefined) {
+            this.symbols[key] = new Symbol(this, key, rawRules);
+            if (sourceAction)
+                this.symbols[key].isDynamic = true;
+        } else {
+            this.symbols[key].pushRules(rawRules);
+        }
+    };
+
+    Grammar.prototype.popRules = function(key) {
+        if (!this.symbols[key])
+            this.errors.push("Can't pop: no symbol for key " + key);
+        this.symbols[key].popRules();
+    };
+
+    Grammar.prototype.selectRule = function(key, node, errors) {
+        if (this.symbols[key]) {
+            var rule = this.symbols[key].selectRule(node, errors);
+
+            return rule;
+        }
+
+        // Failover to alternative subgrammars
+        for (var i = 0; i < this.subgrammars.length; i++) {
+
+            if (this.subgrammars[i].symbols[key])
+                return this.subgrammars[i].symbols[key].selectRule();
+        }
+
+        // No symbol?
+        errors.push("No symbol for '" + key + "'");
+        return "((" + key + "))";
+    };
+
+    // Parses a plaintext rule in the tracery syntax
+    tracery = {
+
+        createGrammar : function(raw) {
+            return new Grammar(raw);
+        },
+
+        // Parse the contents of a tag
+        parseTag : function(tagContents) {
+
+            var parsed = {
+                symbol : undefined,
+                preactions : [],
+                postactions : [],
+                modifiers : []
+            };
+            var sections = tracery.parse(tagContents);
+            var symbolSection = undefined;
+            for (var i = 0; i < sections.length; i++) {
+                if (sections[i].type === 0) {
+                    if (symbolSection === undefined) {
+                        symbolSection = sections[i].raw;
+                    } else {
+                        throw ("multiple main sections in " + tagContents);
+                    }
+                } else {
+                    parsed.preactions.push(sections[i]);
+                }
+            }
+
+            if (symbolSection === undefined) {
+                //   throw ("no main section in " + tagContents);
+            } else {
+                var components = symbolSection.split(".");
+                parsed.symbol = components[0];
+                parsed.modifiers = components.slice(1);
+            }
+            return parsed;
+        },
+
+        parse : function(rule) {
+            var depth = 0;
+            var inTag = false;
+            var sections = [];
+            var escaped = false;
+
+            var errors = [];
+            var start = 0;
+
+            var escapedSubstring = "";
+            var lastEscapedChar = undefined;
+
+            if (rule === null) {
+                var sections = [];
+                sections.errors = errors;
+
+                return sections;
+            }
+
+            function createSection(start, end, type) {
+                if (end - start < 1) {
+                    if (type === 1)
+                        errors.push(start + ": empty tag");
+                    if (type === 2)
+                        errors.push(start + ": empty action");
+
+                }
+                var rawSubstring;
+                if (lastEscapedChar !== undefined) {
+                    rawSubstring = escapedSubstring + "\\" + rule.substring(lastEscapedChar + 1, end);
+
+                } else {
+                    rawSubstring = rule.substring(start, end);
+                }
+                sections.push({
+                    type : type,
+                    raw : rawSubstring
+                });
+                lastEscapedChar = undefined;
+                escapedSubstring = "";
+            };
+
+            for (var i = 0; i < rule.length; i++) {
+
+                if (!escaped) {
+                    var c = rule.charAt(i);
+
+                    switch(c) {
+
+                    // Enter a deeper bracketed section
+                    case '[':
+                        if (depth === 0 && !inTag) {
+                            if (start < i)
+                                createSection(start, i, 0);
+                            start = i + 1;
+                        }
+                        depth++;
+                        break;
+
+                    case ']':
+                        depth--;
+
+                        // End a bracketed section
+                        if (depth === 0 && !inTag) {
+                            createSection(start, i, 2);
+                            start = i + 1;
+                        }
+                        break;
+
+                    // Hashtag
+                    //   ignore if not at depth 0, that means we are in a bracket
+                    case '#':
+                        if (depth === 0) {
+                            if (inTag) {
+                                createSection(start, i, 1);
+                                start = i + 1;
+                            } else {
+                                if (start < i)
+                                    createSection(start, i, 0);
+                                start = i + 1;
+                            }
+                            inTag = !inTag;
+                        }
+                        break;
+
+                    case '\\':
+                        escaped = true;
+                        escapedSubstring = escapedSubstring + rule.substring(start, i);
+                        start = i + 1;
+                        lastEscapedChar = i;
+                        break;
+                    }
+                } else {
+                    escaped = false;
+                }
+            }
+            if (start < rule.length)
+                createSection(start, rule.length, 0);
+
+            if (inTag) {
+                errors.push("Unclosed tag");
+            }
+            if (depth > 0) {
+                errors.push("Too many [");
+            }
+            if (depth < 0) {
+                errors.push("Too many ]");
+            }
+
+            // Strip out empty plaintext sections
+
+            sections = sections.filter(function(section) {
+                if (section.type === 0 && section.raw.length === 0)
+                    return false;
+                return true;
+            });
+            sections.errors = errors;
+            return sections;
+        },
+    };
+
+    function isVowel(c) {
+        var c2 = c.toLowerCase();
+        return (c2 === 'a') || (c2 === 'e') || (c2 === 'i') || (c2 === 'o') || (c2 === 'u');
+    };
+
+    function isAlphaNum(c) {
+        return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9');
+    };
+    function escapeRegExp(str) {
+        return str.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
+    }
+
+    var baseEngModifiers = {
+
+        replace : function(s, params) {
+            //http://stackoverflow.com/questions/1144783/replacing-all-occurrences-of-a-string-in-javascript
+            return s.replace(new RegExp(escapeRegExp(params[0]), 'g'), params[1]);
+        },
+
+        capitalizeAll : function(s) {
+            var s2 = "";
+            var capNext = true;
+            for (var i = 0; i < s.length; i++) {
+
+                if (!isAlphaNum(s.charAt(i))) {
+                    capNext = true;
+                    s2 += s.charAt(i);
+                } else {
+                    if (!capNext) {
+                        s2 += s.charAt(i);
+                    } else {
+                        s2 += s.charAt(i).toUpperCase();
+                        capNext = false;
+                    }
+
+                }
+            }
+            return s2;
+        },
+
+        capitalize : function(s) {
+            return s.charAt(0).toUpperCase() + s.substring(1);
+        },
+
+        a : function(s) {
+            if (s.length > 0) {
+                if (s.charAt(0).toLowerCase() === 'u') {
+                    if (s.length > 2) {
+                        if (s.charAt(2).toLowerCase() === 'i')
+                            return "a " + s;
+                    }
+                }
+
+                if (isVowel(s.charAt(0))) {
+                    return "an " + s;
+                }
+            }
+
+            return "a " + s;
+
+        },
+
+        firstS : function(s) {
+            console.log(s);
+            var s2 = s.split(" ");
+
+            var finished = baseEngModifiers.s(s2[0]) + " " + s2.slice(1).join(" ");
+            console.log(finished);
+            return finished;
+        },
+
+        s : function(s) {
+            switch (s.charAt(s.length -1)) {
+            case 's':
+                return s + "es";
+                break;
+            case 'h':
+                return s + "es";
+                break;
+            case 'x':
+                return s + "es";
+                break;
+            case 'y':
+                if (!isVowel(s.charAt(s.length - 2)))
+                    return s.substring(0, s.length - 1) + "ies";
+                else
+                    return s + "s";
+                break;
+            default:
+                return s + "s";
+            }
+        },
+        ed : function(s) {
+            switch (s.charAt(s.length -1)) {
+            case 's':
+                return s + "ed";
+                break;
+            case 'e':
+                return s + "d";
+                break;
+            case 'h':
+                return s + "ed";
+                break;
+            case 'x':
+                return s + "ed";
+                break;
+            case 'y':
+                if (!isVowel(s.charAt(s.length - 2)))
+                    return s.substring(0, s.length - 1) + "ied";
+                else
+                    return s + "d";
+                break;
+            default:
+                return s + "ed";
+            }
+        }
+    };
+
+    tracery.baseEngModifiers = baseEngModifiers; 
+    // Externalize
+    tracery.TraceryNode = TraceryNode;
+
+    tracery.Grammar = Grammar;
+    tracery.Symbol = Symbol;
+    tracery.RuleSet = RuleSet;
+    return tracery;
+}();
+
+module.exports = tracery; 
+},{}],"src/tracerygrammar/starnames.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _traceryGrammar = _interopRequireDefault(require("tracery-grammar"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+// with apologies to https://www.springhole.net/writing_roleplaying_randomators/greekyish-names.htm
+var grammar = _traceryGrammar.default.createGrammar({
+  'starname': ['#greek# #numseq#', '#greek# #numseq#', '#numbers# #greek#', '#numbers# #greek#', '#letters# #numseq#', '#numbers# #greek# #numseq#'],
+  'numseq': ['#numbers#', '#numbers#', '#numbers#', '#numbers# #letter#', '#numbers#-#letterorletters#', '#letterorletters# #numbers#', '#numbers##numbers#', '#numbers#-#letter##number#', '#numbers#-#number#'],
+  'letterorletters': ['#letter#', '#letter#', '#letter#', '#letter#', '#letters#', '#letters#'],
+  'letters': ['#letter##letter#', '#letter##letter##letter#'],
+  'numbers': ['#number#', '#number##number#', '#number##number#', '#number##number##number#'],
+  'letter': ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
+  'number': ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
+  'greek': ["#firstconsonant##ending-mv#", "#firstconsonant##ending-mv#", "#firstvowel##midletters##ending#", "#firstvowel##midletters##ending#", "#firstconsonant##vowel##midletters##ending#", "#firstconsonant##vowel##midletters##ending#", "#firstconsonant##vowel##midletters##ending#", "#firstvowel##midletters##vowel##midletters##ending#"],
+  'firstvowel': ["A", "Ae", "Ai", "E", "Eio", "Eu", "I", "Ia", "O", "Ou"],
+  'firstconsonant': ["B", "B", "B", "Br", "D", "D", "D", "Dr", "G", "G", "G", "Gl", "H", "H", "H", "K", "K", "K", "Kh", "Kh", "Kh", "Kl", "Kr", "L", "L", "L", "M", "M", "M", "N", "N", "N", "P", "P", "P", "Ph", "Ph", "Ph", "Phr", "Pr", "R", "R", "R", "Rh", "S", "S", "S", "T", "T", "T", "Th", "Th", "Th", "Tr", "X", "X", "X", "Z", "Z", "Z"],
+  'vowel': ["a", "a", "e", "e", "ei", "eo", "eu", "i", "io", "o", "ou", "y"],
+  'midletters': ["b", "b", "b", "g", "g", "g", "gn", "k", "k", "k", "kh", "kh", "kh", "kl", "kr", "l", "l", "l", "lk", "m", "m", "m", "mbr", "mn", "mp", "mph", "n", "n", "n", "nd", "ndr", "nt", "nth", "p", "p", "p", "p", "ph", "phr", "pp", "ps", "r", "r", "r", "rkh", "rg", "rm", "rrh", "rs", "s", "s", "s", "ss", "sp", "st", "sth", "t", "t", "t", "th", "th", "th", "tl", "tr", "x"],
+  'ending': ["#ending-1v#", "#ending-mv#", "#ending-mv#", "#ending-mv#"],
+  'ending-1v': ["a", "e", "o"],
+  'ending-mv': ["aos", "as", "aeus", "es", "ia", "ia", "ike", "ios", "on", "ys"]
+});
+
+var _default = grammar;
+exports.default = _default;
+},{"tracery-grammar":"../node_modules/tracery-grammar/tracery.js"}],"src/tracerygrammar/planetnames.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _traceryGrammar = _interopRequireDefault(require("tracery-grammar"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+// with apologies to https://www.springhole.net/writing_roleplaying_randomators/greekyish-names.htm
+var grammar = _traceryGrammar.default.createGrammar({
+  'root': ['#simple#'],
+  'simple': [// "#firstconsonant##ending#",
+  "#firstconsonant##maybesecondconsonant##ending#", "#firstconsonant##maybesecondconsonant##vowel##midletters##ending#", "#firstvowel##midletters##ending#", "#firstvowel##midletters##vowel##midletters##ending#"],
+  'firstvowel': ["A", "Ae", "Ai", "E", "Eio", "Eu", "I", "Ia", "O", "Ou", "U", "Uo", "Oo", "Ee", "Aa", "Uu", "Ii", "Ui"],
+  'firstconsonant': ["B", "C", "D", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Ph", "Ph", "Pr", "Q", "R", "R", "S", "Sc", "Sch", "Sh", "T", "Th", "V", "W", "X", "Y", "Z", "Zh"],
+  'maybesecondconsonant': ["", "", "", "", "", "", "", "", "", "", "l", "r"],
+  'vowel': ["a", "a", "e", "e", "ei", "eo", "eu", "i", "io", "o", "ou", "y"],
+  'midletters': ["b", "b", "b", "g", "g", "g", "gn", "k", "k", "k", "kh", "kh", "kh", "kl", "kr", "l", "l", "l", "lk", "m", "m", "m", "mbr", "mn", "mp", "mph", "n", "n", "n", "nd", "ndr", "nt", "nth", "p", "p", "p", "p", "ph", "phr", "pp", "ps", "r", "r", "r", "rkh", "rg", "rm", "rrh", "rs", "s", "s", "s", "ss", "sp", "st", "sth", "t", "t", "t", "th", "th", "th", "tl", "tr", "x"],
+  'ending': ['#endingvowels#', '#endingvowels##endingconsonants#'],
+  'endingconsonants': ['s', 's', 's', 's', 's', 's', 'rs', 'rs', 'don', 'd', 'f', 'g', 'j', 'k', 'ke', 'l', 'lk', 'ls', 'm', 'n', 'n', 'n', 'n', 'p', 'r', 'r', 'r', 'r', 't', 'te', 'v', 'w', 'x', 'y', 'z'],
+  'endingvowels': ["a", "e", "i", "o", "u", "ao", "ia", "io"],
+  'endingvowels-orig': ["a", "e", "i", "o", "aos", "as", "en", "es", "er", "ers", "ia", "idon", "ike", "ite", "ios", "olk", "ol", "ols", "on", "ons", "ul", "us", "ut", "ys"]
+});
+
+var _default = grammar;
+exports.default = _default;
+},{"tracery-grammar":"../node_modules/tracery-grammar/tracery.js"}],"src/util.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.patchingMathDotRandom = patchingMathDotRandom;
+exports.choiceIndex = choiceIndex;
+exports.star2tags = star2tags;
+exports.planet2tags = planet2tags;
+exports.precision = precision;
+exports.decimal = decimal;
+
+function patchingMathDotRandom(fn, code) {
+  var oldMR = Math.random;
+  Math.random = fn;
+  var ret = code();
+  Math.random = oldMR;
+  return ret;
+} // 0-indexed
+
+
+function choiceIndex(randVal, outOf) {
+  return Math.floor(randVal * outOf);
+}
+
+function star2tags(starSystem) {
+  if (starSystem.stars.length == 1) {
+    return [['numstars', '1'], ['star1type', starSystem.stars[0].starType]];
+  } else {
+    return [['numstars', '2'], ['star1type', starSystem.stars[0].starType], ['star2type', starSystem.stars[1].starType]];
+  }
+}
+
+function planet2tags(planet, hzMin, hzMax) {
+  var hz = 'cold';
+
+  if (planet.distance < hzMin) {
+    hz = 'hot';
+  } else if (planet.distance < hzMax) {
+    hz = 'habitable';
+  }
+
+  return [['planetType', planet.planetType], ['hz', hz], ['hasMoons', "".concat(planet.moons > 0)]];
+}
+
+function precision(n, val) {
+  return parseFloat(val.toPrecision(n));
+}
+
+function decimal(n, val) {
+  return parseFloat((Math.round(val * 100) / 100).toFixed(n));
+}
+},{}],"../node_modules/improv/dist/template.js":[function(require,module,exports) {
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -30898,1275 +32189,7 @@ Improv.filters = _filtersJs2['default'];
 
 exports['default'] = Improv;
 module.exports = exports['default'];
-},{"./template.js":"../node_modules/improv/dist/template.js","lodash":"../node_modules/lodash/lodash.js","./filters.js":"../node_modules/improv/dist/filters.js"}],"../node_modules/number-to-words/numberToWords.min.js":[function(require,module,exports) {
-var global = arguments[3];
-/*!
- * Number-To-Words util
- * @version v1.2.4
- * @link https://github.com/marlun78/number-to-words
- * @author Martin Eneqvist (https://github.com/marlun78)
- * @contributors Aleksey Pilyugin (https://github.com/pilyugin),Jeremiah Hall (https://github.com/jeremiahrhall),Adriano Melo (https://github.com/adrianomelo),dmrzn (https://github.com/dmrzn)
- * @license MIT
- */
-!function(){"use strict";var e="object"==typeof self&&self.self===self&&self||"object"==typeof global&&global.global===global&&global||this,t=9007199254740991;function f(e){return!("number"!=typeof e||e!=e||e===1/0||e===-1/0)}function l(e){return"number"==typeof e&&Math.abs(e)<=t}var n=/(hundred|thousand|(m|b|tr|quadr)illion)$/,r=/teen$/,o=/y$/,i=/(zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)$/,s={zero:"zeroth",one:"first",two:"second",three:"third",four:"fourth",five:"fifth",six:"sixth",seven:"seventh",eight:"eighth",nine:"ninth",ten:"tenth",eleven:"eleventh",twelve:"twelfth"};function h(e){return n.test(e)||r.test(e)?e+"th":o.test(e)?e.replace(o,"ieth"):i.test(e)?e.replace(i,a):e}function a(e,t){return s[t]}var u=10,d=100,p=1e3,v=1e6,b=1e9,y=1e12,c=1e15,g=9007199254740992,m=["zero","one","two","three","four","five","six","seven","eight","nine","ten","eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen"],w=["zero","ten","twenty","thirty","forty","fifty","sixty","seventy","eighty","ninety"];function x(e,t){var n,r=parseInt(e,10);if(!f(r))throw new TypeError("Not a finite number: "+e+" ("+typeof e+")");if(!l(r))throw new RangeError("Input is not a safe number, it’s either too large or too small.");return n=function e(t){var n,r,o=arguments[1];if(0===t)return o?o.join(" ").replace(/,$/,""):"zero";o||(o=[]);t<0&&(o.push("minus"),t=Math.abs(t));t<20?(n=0,r=m[t]):t<d?(n=t%u,r=w[Math.floor(t/u)],n&&(r+="-"+m[n],n=0)):t<p?(n=t%d,r=e(Math.floor(t/d))+" hundred"):t<v?(n=t%p,r=e(Math.floor(t/p))+" thousand,"):t<b?(n=t%v,r=e(Math.floor(t/v))+" million,"):t<y?(n=t%b,r=e(Math.floor(t/b))+" billion,"):t<c?(n=t%y,r=e(Math.floor(t/y))+" trillion,"):t<=g&&(n=t%c,r=e(Math.floor(t/c))+" quadrillion,");o.push(r);return e(n,o)}(r),t?h(n):n}var M={toOrdinal:function(e){var t=parseInt(e,10);if(!f(t))throw new TypeError("Not a finite number: "+e+" ("+typeof e+")");if(!l(t))throw new RangeError("Input is not a safe number, it’s either too large or too small.");var n=String(t),r=Math.abs(t%100),o=11<=r&&r<=13,i=n.charAt(n.length-1);return n+(o?"th":"1"===i?"st":"2"===i?"nd":"3"===i?"rd":"th")},toWords:x,toWordsOrdinal:function(e){return h(x(e))}};"undefined"!=typeof exports?("undefined"!=typeof module&&module.exports&&(exports=module.exports=M),exports.numberToWords=M):e.numberToWords=M}();
-},{}],"../node_modules/pluralize/pluralize.js":[function(require,module,exports) {
-var define;
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function (obj) { return typeof obj; }; } else { _typeof = function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
-/* global define */
-(function (root, pluralize) {
-  /* istanbul ignore else */
-  if (typeof require === 'function' && (typeof exports === "undefined" ? "undefined" : _typeof(exports)) === 'object' && (typeof module === "undefined" ? "undefined" : _typeof(module)) === 'object') {
-    // Node.
-    module.exports = pluralize();
-  } else if (typeof define === 'function' && define.amd) {
-    // AMD, registers as an anonymous module.
-    define(function () {
-      return pluralize();
-    });
-  } else {
-    // Browser global.
-    root.pluralize = pluralize();
-  }
-})(this, function () {
-  // Rule storage - pluralize and singularize need to be run sequentially,
-  // while other rules can be optimized using an object for instant lookups.
-  var pluralRules = [];
-  var singularRules = [];
-  var uncountables = {};
-  var irregularPlurals = {};
-  var irregularSingles = {};
-  /**
-   * Sanitize a pluralization rule to a usable regular expression.
-   *
-   * @param  {(RegExp|string)} rule
-   * @return {RegExp}
-   */
-
-  function sanitizeRule(rule) {
-    if (typeof rule === 'string') {
-      return new RegExp('^' + rule + '$', 'i');
-    }
-
-    return rule;
-  }
-  /**
-   * Pass in a word token to produce a function that can replicate the case on
-   * another word.
-   *
-   * @param  {string}   word
-   * @param  {string}   token
-   * @return {Function}
-   */
-
-
-  function restoreCase(word, token) {
-    // Tokens are an exact match.
-    if (word === token) return token; // Lower cased words. E.g. "hello".
-
-    if (word === word.toLowerCase()) return token.toLowerCase(); // Upper cased words. E.g. "WHISKY".
-
-    if (word === word.toUpperCase()) return token.toUpperCase(); // Title cased words. E.g. "Title".
-
-    if (word[0] === word[0].toUpperCase()) {
-      return token.charAt(0).toUpperCase() + token.substr(1).toLowerCase();
-    } // Lower cased words. E.g. "test".
-
-
-    return token.toLowerCase();
-  }
-  /**
-   * Interpolate a regexp string.
-   *
-   * @param  {string} str
-   * @param  {Array}  args
-   * @return {string}
-   */
-
-
-  function interpolate(str, args) {
-    return str.replace(/\$(\d{1,2})/g, function (match, index) {
-      return args[index] || '';
-    });
-  }
-  /**
-   * Replace a word using a rule.
-   *
-   * @param  {string} word
-   * @param  {Array}  rule
-   * @return {string}
-   */
-
-
-  function replace(word, rule) {
-    return word.replace(rule[0], function (match, index) {
-      var result = interpolate(rule[1], arguments);
-
-      if (match === '') {
-        return restoreCase(word[index - 1], result);
-      }
-
-      return restoreCase(match, result);
-    });
-  }
-  /**
-   * Sanitize a word by passing in the word and sanitization rules.
-   *
-   * @param  {string}   token
-   * @param  {string}   word
-   * @param  {Array}    rules
-   * @return {string}
-   */
-
-
-  function sanitizeWord(token, word, rules) {
-    // Empty string or doesn't need fixing.
-    if (!token.length || uncountables.hasOwnProperty(token)) {
-      return word;
-    }
-
-    var len = rules.length; // Iterate over the sanitization rules and use the first one to match.
-
-    while (len--) {
-      var rule = rules[len];
-      if (rule[0].test(word)) return replace(word, rule);
-    }
-
-    return word;
-  }
-  /**
-   * Replace a word with the updated word.
-   *
-   * @param  {Object}   replaceMap
-   * @param  {Object}   keepMap
-   * @param  {Array}    rules
-   * @return {Function}
-   */
-
-
-  function replaceWord(replaceMap, keepMap, rules) {
-    return function (word) {
-      // Get the correct token and case restoration functions.
-      var token = word.toLowerCase(); // Check against the keep object map.
-
-      if (keepMap.hasOwnProperty(token)) {
-        return restoreCase(word, token);
-      } // Check against the replacement map for a direct word replacement.
-
-
-      if (replaceMap.hasOwnProperty(token)) {
-        return restoreCase(word, replaceMap[token]);
-      } // Run all the rules against the word.
-
-
-      return sanitizeWord(token, word, rules);
-    };
-  }
-  /**
-   * Check if a word is part of the map.
-   */
-
-
-  function checkWord(replaceMap, keepMap, rules, bool) {
-    return function (word) {
-      var token = word.toLowerCase();
-      if (keepMap.hasOwnProperty(token)) return true;
-      if (replaceMap.hasOwnProperty(token)) return false;
-      return sanitizeWord(token, token, rules) === token;
-    };
-  }
-  /**
-   * Pluralize or singularize a word based on the passed in count.
-   *
-   * @param  {string}  word      The word to pluralize
-   * @param  {number}  count     How many of the word exist
-   * @param  {boolean} inclusive Whether to prefix with the number (e.g. 3 ducks)
-   * @return {string}
-   */
-
-
-  function pluralize(word, count, inclusive) {
-    var pluralized = count === 1 ? pluralize.singular(word) : pluralize.plural(word);
-    return (inclusive ? count + ' ' : '') + pluralized;
-  }
-  /**
-   * Pluralize a word.
-   *
-   * @type {Function}
-   */
-
-
-  pluralize.plural = replaceWord(irregularSingles, irregularPlurals, pluralRules);
-  /**
-   * Check if a word is plural.
-   *
-   * @type {Function}
-   */
-
-  pluralize.isPlural = checkWord(irregularSingles, irregularPlurals, pluralRules);
-  /**
-   * Singularize a word.
-   *
-   * @type {Function}
-   */
-
-  pluralize.singular = replaceWord(irregularPlurals, irregularSingles, singularRules);
-  /**
-   * Check if a word is singular.
-   *
-   * @type {Function}
-   */
-
-  pluralize.isSingular = checkWord(irregularPlurals, irregularSingles, singularRules);
-  /**
-   * Add a pluralization rule to the collection.
-   *
-   * @param {(string|RegExp)} rule
-   * @param {string}          replacement
-   */
-
-  pluralize.addPluralRule = function (rule, replacement) {
-    pluralRules.push([sanitizeRule(rule), replacement]);
-  };
-  /**
-   * Add a singularization rule to the collection.
-   *
-   * @param {(string|RegExp)} rule
-   * @param {string}          replacement
-   */
-
-
-  pluralize.addSingularRule = function (rule, replacement) {
-    singularRules.push([sanitizeRule(rule), replacement]);
-  };
-  /**
-   * Add an uncountable word rule.
-   *
-   * @param {(string|RegExp)} word
-   */
-
-
-  pluralize.addUncountableRule = function (word) {
-    if (typeof word === 'string') {
-      uncountables[word.toLowerCase()] = true;
-      return;
-    } // Set singular and plural references for the word.
-
-
-    pluralize.addPluralRule(word, '$0');
-    pluralize.addSingularRule(word, '$0');
-  };
-  /**
-   * Add an irregular word definition.
-   *
-   * @param {string} single
-   * @param {string} plural
-   */
-
-
-  pluralize.addIrregularRule = function (single, plural) {
-    plural = plural.toLowerCase();
-    single = single.toLowerCase();
-    irregularSingles[single] = plural;
-    irregularPlurals[plural] = single;
-  };
-  /**
-   * Irregular rules.
-   */
-
-
-  [// Pronouns.
-  ['I', 'we'], ['me', 'us'], ['he', 'they'], ['she', 'they'], ['them', 'them'], ['myself', 'ourselves'], ['yourself', 'yourselves'], ['itself', 'themselves'], ['herself', 'themselves'], ['himself', 'themselves'], ['themself', 'themselves'], ['is', 'are'], ['was', 'were'], ['has', 'have'], ['this', 'these'], ['that', 'those'], // Words ending in with a consonant and `o`.
-  ['echo', 'echoes'], ['dingo', 'dingoes'], ['volcano', 'volcanoes'], ['tornado', 'tornadoes'], ['torpedo', 'torpedoes'], // Ends with `us`.
-  ['genus', 'genera'], ['viscus', 'viscera'], // Ends with `ma`.
-  ['stigma', 'stigmata'], ['stoma', 'stomata'], ['dogma', 'dogmata'], ['lemma', 'lemmata'], ['schema', 'schemata'], ['anathema', 'anathemata'], // Other irregular rules.
-  ['ox', 'oxen'], ['axe', 'axes'], ['die', 'dice'], ['yes', 'yeses'], ['foot', 'feet'], ['eave', 'eaves'], ['goose', 'geese'], ['tooth', 'teeth'], ['quiz', 'quizzes'], ['human', 'humans'], ['proof', 'proofs'], ['carve', 'carves'], ['valve', 'valves'], ['looey', 'looies'], ['thief', 'thieves'], ['groove', 'grooves'], ['pickaxe', 'pickaxes'], ['passerby', 'passersby']].forEach(function (rule) {
-    return pluralize.addIrregularRule(rule[0], rule[1]);
-  });
-  /**
-   * Pluralization rules.
-   */
-
-  [[/s?$/i, 's'], [/[^\u0000-\u007F]$/i, '$0'], [/([^aeiou]ese)$/i, '$1'], [/(ax|test)is$/i, '$1es'], [/(alias|[^aou]us|t[lm]as|gas|ris)$/i, '$1es'], [/(e[mn]u)s?$/i, '$1s'], [/([^l]ias|[aeiou]las|[ejzr]as|[iu]am)$/i, '$1'], [/(alumn|syllab|vir|radi|nucle|fung|cact|stimul|termin|bacill|foc|uter|loc|strat)(?:us|i)$/i, '$1i'], [/(alumn|alg|vertebr)(?:a|ae)$/i, '$1ae'], [/(seraph|cherub)(?:im)?$/i, '$1im'], [/(her|at|gr)o$/i, '$1oes'], [/(agend|addend|millenni|dat|extrem|bacteri|desiderat|strat|candelabr|errat|ov|symposi|curricul|automat|quor)(?:a|um)$/i, '$1a'], [/(apheli|hyperbat|periheli|asyndet|noumen|phenomen|criteri|organ|prolegomen|hedr|automat)(?:a|on)$/i, '$1a'], [/sis$/i, 'ses'], [/(?:(kni|wi|li)fe|(ar|l|ea|eo|oa|hoo)f)$/i, '$1$2ves'], [/([^aeiouy]|qu)y$/i, '$1ies'], [/([^ch][ieo][ln])ey$/i, '$1ies'], [/(x|ch|ss|sh|zz)$/i, '$1es'], [/(matr|cod|mur|sil|vert|ind|append)(?:ix|ex)$/i, '$1ices'], [/\b((?:tit)?m|l)(?:ice|ouse)$/i, '$1ice'], [/(pe)(?:rson|ople)$/i, '$1ople'], [/(child)(?:ren)?$/i, '$1ren'], [/eaux$/i, '$0'], [/m[ae]n$/i, 'men'], ['thou', 'you']].forEach(function (rule) {
-    return pluralize.addPluralRule(rule[0], rule[1]);
-  });
-  /**
-   * Singularization rules.
-   */
-
-  [[/s$/i, ''], [/(ss)$/i, '$1'], [/(wi|kni|(?:after|half|high|low|mid|non|night|[^\w]|^)li)ves$/i, '$1fe'], [/(ar|(?:wo|[ae])l|[eo][ao])ves$/i, '$1f'], [/ies$/i, 'y'], [/\b([pl]|zomb|(?:neck|cross)?t|coll|faer|food|gen|goon|group|lass|talk|goal|cut)ies$/i, '$1ie'], [/\b(mon|smil)ies$/i, '$1ey'], [/\b((?:tit)?m|l)ice$/i, '$1ouse'], [/(seraph|cherub)im$/i, '$1'], [/(x|ch|ss|sh|zz|tto|go|cho|alias|[^aou]us|t[lm]as|gas|(?:her|at|gr)o|[aeiou]ris)(?:es)?$/i, '$1'], [/(analy|diagno|parenthe|progno|synop|the|empha|cri|ne)(?:sis|ses)$/i, '$1sis'], [/(movie|twelve|abuse|e[mn]u)s$/i, '$1'], [/(test)(?:is|es)$/i, '$1is'], [/(alumn|syllab|vir|radi|nucle|fung|cact|stimul|termin|bacill|foc|uter|loc|strat)(?:us|i)$/i, '$1us'], [/(agend|addend|millenni|dat|extrem|bacteri|desiderat|strat|candelabr|errat|ov|symposi|curricul|quor)a$/i, '$1um'], [/(apheli|hyperbat|periheli|asyndet|noumen|phenomen|criteri|organ|prolegomen|hedr|automat)a$/i, '$1on'], [/(alumn|alg|vertebr)ae$/i, '$1a'], [/(cod|mur|sil|vert|ind)ices$/i, '$1ex'], [/(matr|append)ices$/i, '$1ix'], [/(pe)(rson|ople)$/i, '$1rson'], [/(child)ren$/i, '$1'], [/(eau)x?$/i, '$1'], [/men$/i, 'man']].forEach(function (rule) {
-    return pluralize.addSingularRule(rule[0], rule[1]);
-  });
-  /**
-   * Uncountable rules.
-   */
-
-  [// Singular words with no plurals.
-  'adulthood', 'advice', 'agenda', 'aid', 'aircraft', 'alcohol', 'ammo', 'analytics', 'anime', 'athletics', 'audio', 'bison', 'blood', 'bream', 'buffalo', 'butter', 'carp', 'cash', 'chassis', 'chess', 'clothing', 'cod', 'commerce', 'cooperation', 'corps', 'debris', 'diabetes', 'digestion', 'elk', 'energy', 'equipment', 'excretion', 'expertise', 'firmware', 'flounder', 'fun', 'gallows', 'garbage', 'graffiti', 'hardware', 'headquarters', 'health', 'herpes', 'highjinks', 'homework', 'housework', 'information', 'jeans', 'justice', 'kudos', 'labour', 'literature', 'machinery', 'mackerel', 'mail', 'media', 'mews', 'moose', 'music', 'mud', 'manga', 'news', 'only', 'personnel', 'pike', 'plankton', 'pliers', 'police', 'pollution', 'premises', 'rain', 'research', 'rice', 'salmon', 'scissors', 'series', 'sewage', 'shambles', 'shrimp', 'software', 'species', 'staff', 'swine', 'tennis', 'traffic', 'transportation', 'trout', 'tuna', 'wealth', 'welfare', 'whiting', 'wildebeest', 'wildlife', 'you', /pok[eé]mon$/i, // Regexes.
-  /[^aeiou]ese$/i, // "chinese", "japanese"
-  /deer$/i, // "deer", "reindeer"
-  /fish$/i, // "fish", "blowfish", "angelfish"
-  /measles$/i, /o[iu]s$/i, // "carnivorous"
-  /pox$/i, // "chickpox", "smallpox"
-  /sheep$/i].forEach(pluralize.addUncountableRule);
-  return pluralize;
-});
-},{}],"../node_modules/tracery-grammar/tracery.js":[function(require,module,exports) {
-/**
- * @author Kate
- */
-
-var tracery = function() {
-
-    var TraceryNode = function(parent, childIndex, settings) {
-        this.errors = [];
-
-        // No input? Add an error, but continue anyways
-        if (settings.raw === undefined) {
-            this.errors.push("Empty input for node");
-            settings.raw = "";
-        }
-
-        // If the root node of an expansion, it will have the grammar passed as the 'parent'
-        //  set the grammar from the 'parent', and set all other values for a root node
-        if ( parent instanceof tracery.Grammar) {
-            this.grammar = parent;
-            this.parent = null;
-            this.depth = 0;
-            this.childIndex = 0;
-        } else {
-            this.grammar = parent.grammar;
-            this.parent = parent;
-            this.depth = parent.depth + 1;
-            this.childIndex = childIndex;
-        }
-
-        this.raw = settings.raw;
-        this.type = settings.type;
-        this.isExpanded = false;
-
-        if (!this.grammar) {
-            this.errors.push("No grammar specified for this node " + this);
-        }
-
-    };
-
-    TraceryNode.prototype.toString = function() {
-        return "Node('" + this.raw + "' " + this.type + " d:" + this.depth + ")";
-    };
-
-    // Expand the node (with the given child rule)
-    //  Make children if the node has any
-    TraceryNode.prototype.expandChildren = function(childRule, preventRecursion) {
-        this.children = [];
-        this.finishedText = "";
-
-        // Set the rule for making children,
-        // and expand it into section
-        this.childRule = childRule;
-        if (this.childRule !== undefined) {
-            var sections = tracery.parse(childRule);
-
-            // Add errors to this
-            if (sections.errors.length > 0) {
-                this.errors = this.errors.concat(sections.errors);
-
-            }
-
-            for (var i = 0; i < sections.length; i++) {
-                this.children[i] = new TraceryNode(this, i, sections[i]);
-                if (!preventRecursion)
-                    this.children[i].expand(preventRecursion);
-
-                // Add in the finished text
-                this.finishedText += this.children[i].finishedText;
-            }
-        } else {
-            // In normal operation, this shouldn't ever happen
-            this.errors.push("No child rule provided, can't expand children");
-        }
-    };
-
-    // Expand this rule (possibly creating children)
-    TraceryNode.prototype.expand = function(preventRecursion) {
-
-        if (!this.isExpanded) {
-            this.isExpanded = true;
-
-            this.expansionErrors = [];
-
-            // Types of nodes
-            // -1: raw, needs parsing
-            //  0: Plaintext
-            //  1: Tag ("#symbol.mod.mod2.mod3#" or "#[pushTarget:pushRule]symbol.mod")
-            //  2: Action ("[pushTarget:pushRule], [pushTarget:POP]", more in the future)
-
-            switch(this.type) {
-            // Raw rule
-            case -1:
-
-                this.expandChildren(this.raw, preventRecursion);
-                break;
-
-            // plaintext, do nothing but copy text into finsihed text
-            case 0:
-                this.finishedText = this.raw;
-                break;
-
-            // Tag
-            case 1:
-                // Parse to find any actions, and figure out what the symbol is
-                this.preactions = [];
-                this.postactions = [];
-
-                var parsed = tracery.parseTag(this.raw);
-
-                // Break into symbol actions and modifiers
-                this.symbol = parsed.symbol;
-                this.modifiers = parsed.modifiers;
-
-                // Create all the preactions from the raw syntax
-                for (var i = 0; i < parsed.preactions.length; i++) {
-                    this.preactions[i] = new NodeAction(this, parsed.preactions[i].raw);
-                }
-                for (var i = 0; i < parsed.postactions.length; i++) {
-                    //   this.postactions[i] = new NodeAction(this, parsed.postactions[i].raw);
-                }
-
-                // Make undo actions for all preactions (pops for each push)
-                for (var i = 0; i < this.preactions.length; i++) {
-                    if (this.preactions[i].type === 0)
-                        this.postactions.push(this.preactions[i].createUndo());
-                }
-
-                // Activate all the preactions
-                for (var i = 0; i < this.preactions.length; i++) {
-                    this.preactions[i].activate();
-                }
-
-                this.finishedText = this.raw;
-
-                // Expand (passing the node, this allows tracking of recursion depth)
-
-                var selectedRule = this.grammar.selectRule(this.symbol, this, this.errors);
-
-                this.expandChildren(selectedRule, preventRecursion);
-
-                // Apply modifiers
-                // TODO: Update parse function to not trigger on hashtags within parenthesis within tags,
-                //   so that modifier parameters can contain tags "#story.replace(#protagonist#, #newCharacter#)#"
-                for (var i = 0; i < this.modifiers.length; i++) {
-                    var modName = this.modifiers[i];
-                    var modParams = [];
-                    if (modName.indexOf("(") > 0) {
-                        var regExp = /\(([^)]+)\)/;
-
-                        // Todo: ignore any escaped commas.  For now, commas always split
-                        var results = regExp.exec(this.modifiers[i]);
-                        if (!results || results.length < 2) {
-                        } else {
-                            var modParams = results[1].split(",");
-                            modName = this.modifiers[i].substring(0, modName.indexOf("("));
-                        }
-
-                    }
-
-                    var mod = this.grammar.modifiers[modName];
-
-                    // Missing modifier?
-                    if (!mod) {
-                        this.errors.push("Missing modifier " + modName);
-                        this.finishedText += "((." + modName + "))";
-                    } else {
-                        this.finishedText = mod(this.finishedText, modParams);
-
-                    }
-
-                }
-
-                // Perform post-actions
-                for (var i = 0; i < this.postactions.length; i++) {
-                    this.postactions[i].activate();
-                }
-                break;
-            case 2:
-
-                // Just a bare action?  Expand it!
-                this.action = new NodeAction(this, this.raw);
-                this.action.activate();
-
-                // No visible text for an action
-                // TODO: some visible text for if there is a failure to perform the action?
-                this.finishedText = "";
-                break;
-
-            }
-
-        } else {
-            //console.warn("Already expanded " + this);
-        }
-
-    };
-
-    TraceryNode.prototype.clearEscapeChars = function() {
-
-        this.finishedText = this.finishedText.replace(/\\\\/g, "DOUBLEBACKSLASH").replace(/\\/g, "").replace(/DOUBLEBACKSLASH/g, "\\");
-    };
-
-    // An action that occurs when a node is expanded
-    // Types of actions:
-    // 0 Push: [key:rule]
-    // 1 Pop: [key:POP]
-    // 2 function: [functionName(param0,param1)] (TODO!)
-    function NodeAction(node, raw) {
-        /*
-         if (!node)
-         console.warn("No node for NodeAction");
-         if (!raw)
-         console.warn("No raw commands for NodeAction");
-         */
-
-        this.node = node;
-
-        var sections = raw.split(":");
-        this.target = sections[0];
-
-        // No colon? A function!
-        if (sections.length === 1) {
-            this.type = 2;
-
-        }
-
-        // Colon? It's either a push or a pop
-        else {
-            this.rule = sections[1];
-            if (this.rule === "POP") {
-                this.type = 1;
-            } else {
-                this.type = 0;
-            }
-        }
-    }
-
-
-    NodeAction.prototype.createUndo = function() {
-        if (this.type === 0) {
-            return new NodeAction(this.node, this.target + ":POP");
-        }
-        // TODO Not sure how to make Undo actions for functions or POPs
-        return null;
-    };
-
-    NodeAction.prototype.activate = function() {
-        var grammar = this.node.grammar;
-        switch(this.type) {
-        case 0:
-            // split into sections (the way to denote an array of rules)
-            this.ruleSections = this.rule.split(",");
-            this.finishedRules = [];
-            this.ruleNodes = [];
-            for (var i = 0; i < this.ruleSections.length; i++) {
-                var n = new TraceryNode(grammar, 0, {
-                    type : -1,
-                    raw : this.ruleSections[i]
-                });
-
-                n.expand();
-
-                this.finishedRules.push(n.finishedText);
-            }
-
-            // TODO: escape commas properly
-            grammar.pushRules(this.target, this.finishedRules, this);
-            break;
-        case 1:
-            grammar.popRules(this.target);
-            break;
-        case 2:
-            grammar.flatten(this.target, true);
-            break;
-        }
-
-    };
-
-    NodeAction.prototype.toText = function() {
-        switch(this.type) {
-        case 0:
-            return this.target + ":" + this.rule;
-        case 1:
-            return this.target + ":POP";
-        case 2:
-            return "((some function))";
-        default:
-            return "((Unknown Action))";
-        }
-    };
-
-    // Sets of rules
-    // Can also contain conditional or fallback sets of rulesets)
-    function RuleSet(grammar, raw) {
-        this.raw = raw;
-        this.grammar = grammar;
-        this.falloff = 1;
-
-        if (Array.isArray(raw)) {
-            this.defaultRules = raw;
-        } else if ( typeof raw === 'string' || raw instanceof String) {
-            this.defaultRules = [raw];
-        } else if (raw === 'object') {
-            // TODO: support for conditional and hierarchical rule sets
-        }
-
-    };
-
-    RuleSet.prototype.selectRule = function(errors) {
-        // console.log("Get rule", this.raw);
-        // Is there a conditional?
-        if (this.conditionalRule) {
-            var value = this.grammar.expand(this.conditionalRule, true);
-            // does this value match any of the conditionals?
-            if (this.conditionalValues[value]) {
-                var v = this.conditionalValues[value].selectRule(errors);
-                if (v !== null && v !== undefined)
-                    return v;
-            }
-            // No returned value?
-        }
-
-        // Is there a ranked order?
-        if (this.ranking) {
-            for (var i = 0; i < this.ranking.length; i++) {
-                var v = this.ranking.selectRule();
-                if (v !== null && v !== undefined)
-                    return v;
-            }
-
-            // Still no returned value?
-        }
-
-        if (this.defaultRules !== undefined) {
-            var index = 0;
-            // Select from this basic array of rules
-
-            // Get the distribution from the grammar if there is no other
-            var distribution = this.distribution;
-            if (!distribution)
-                distribution = this.grammar.distribution;
-
-            switch(distribution) {
-            case "shuffle":
-
-                // create a shuffle desk
-                if (!this.shuffledDeck || this.shuffledDeck.length === 0) {
-                    // make an array
-                    this.shuffledDeck = fyshuffle(Array.apply(null, {
-                        length : this.defaultRules.length
-                    }).map(Number.call, Number), this.falloff);
-
-                }
-
-                index = this.shuffledDeck.pop();
-
-                break;
-            case "weighted":
-                errors.push("Weighted distribution not yet implemented");
-                break;
-            case "falloff":
-                errors.push("Falloff distribution not yet implemented");
-                break;
-            default:
-
-                index = Math.floor(Math.pow(Math.random(), this.falloff) * this.defaultRules.length);
-                break;
-            }
-
-            if (!this.defaultUses)
-                this.defaultUses = [];
-            this.defaultUses[index] = ++this.defaultUses[index] || 1;
-            return this.defaultRules[index];
-        }
-
-        errors.push("No default rules defined for " + this);
-        return null;
-
-    };
-
-    RuleSet.prototype.clearState = function() {
-
-        if (this.defaultUses) {
-            this.defaultUses = [];
-        }
-    };
-
-    function fyshuffle(array, falloff) {
-        var currentIndex = array.length,
-            temporaryValue,
-            randomIndex;
-
-        // While there remain elements to shuffle...
-        while (0 !== currentIndex) {
-
-            // Pick a remaining element...
-            randomIndex = Math.floor(Math.random() * currentIndex);
-            currentIndex -= 1;
-
-            // And swap it with the current element.
-            temporaryValue = array[currentIndex];
-            array[currentIndex] = array[randomIndex];
-            array[randomIndex] = temporaryValue;
-        }
-
-        return array;
-    }
-
-    var Symbol = function(grammar, key, rawRules) {
-        // Symbols can be made with a single value, and array, or array of objects of (conditions/values)
-        this.key = key;
-        this.grammar = grammar;
-        this.rawRules = rawRules;
-
-        this.baseRules = new RuleSet(this.grammar, rawRules);
-        this.clearState();
-
-    };
-
-    Symbol.prototype.clearState = function() {
-
-        // Clear the stack and clear all ruleset usages
-        this.stack = [this.baseRules];
-
-        this.uses = [];
-        this.baseRules.clearState();
-    };
-
-    Symbol.prototype.pushRules = function(rawRules) {
-        var rules = new RuleSet(this.grammar, rawRules);
-        this.stack.push(rules);
-    };
-
-    Symbol.prototype.popRules = function() {
-        this.stack.pop();
-    };
-
-    Symbol.prototype.selectRule = function(node, errors) {
-        this.uses.push({
-            node : node
-        });
-
-        if (this.stack.length === 0) {
-            errors.push("The rule stack for '" + this.key + "' is empty, too many pops?");
-            return "((" + this.key + "))";
-        }
-
-        return this.stack[this.stack.length - 1].selectRule();
-    };
-
-    Symbol.prototype.getActiveRules = function() {
-        if (this.stack.length === 0) {
-            return null;
-        }
-        return this.stack[this.stack.length - 1].selectRule();
-    };
-
-    Symbol.prototype.rulesToJSON = function() {
-        return JSON.stringify(this.rawRules);
-    };
-
-    var Grammar = function(raw, settings) {
-        this.modifiers = {};
-        this.loadFromRawObj(raw);
-    };
-
-    Grammar.prototype.clearState = function() {
-        var keys = Object.keys(this.symbols);
-        for (var i = 0; i < keys.length; i++) {
-            this.symbols[keys[i]].clearState();
-        }
-    };
-
-    Grammar.prototype.addModifiers = function(mods) {
-
-        // copy over the base modifiers
-        for (var key in mods) {
-            if (mods.hasOwnProperty(key)) {
-                this.modifiers[key] = mods[key];
-            }
-        };
-
-    };
-
-    Grammar.prototype.loadFromRawObj = function(raw) {
-
-        this.raw = raw;
-        this.symbols = {};
-        this.subgrammars = [];
-
-        if (this.raw) {
-            // Add all rules to the grammar
-            for (var key in this.raw) {
-                if (this.raw.hasOwnProperty(key)) {
-                    this.symbols[key] = new Symbol(this, key, this.raw[key]);
-                }
-            }
-        }
-    };
-
-    Grammar.prototype.createRoot = function(rule) {
-        // Create a node and subnodes
-        var root = new TraceryNode(this, 0, {
-            type : -1,
-            raw : rule,
-        });
-
-        return root;
-    };
-
-    Grammar.prototype.expand = function(rule, allowEscapeChars) {
-        var root = this.createRoot(rule);
-        root.expand();
-        if (!allowEscapeChars)
-            root.clearEscapeChars();
-
-        return root;
-    };
-
-    Grammar.prototype.flatten = function(rule, allowEscapeChars) {
-        var root = this.expand(rule, allowEscapeChars);
-
-        return root.finishedText;
-    };
-
-    Grammar.prototype.toJSON = function() {
-        var keys = Object.keys(this.symbols);
-        var symbolJSON = [];
-        for (var i = 0; i < keys.length; i++) {
-            var key = keys[i];
-            symbolJSON.push(' "' + key + '" : ' + this.symbols[key].rulesToJSON());
-        }
-        return "{\n" + symbolJSON.join(",\n") + "\n}";
-    };
-
-    // Create or push rules
-    Grammar.prototype.pushRules = function(key, rawRules, sourceAction) {
-
-        if (this.symbols[key] === undefined) {
-            this.symbols[key] = new Symbol(this, key, rawRules);
-            if (sourceAction)
-                this.symbols[key].isDynamic = true;
-        } else {
-            this.symbols[key].pushRules(rawRules);
-        }
-    };
-
-    Grammar.prototype.popRules = function(key) {
-        if (!this.symbols[key])
-            this.errors.push("Can't pop: no symbol for key " + key);
-        this.symbols[key].popRules();
-    };
-
-    Grammar.prototype.selectRule = function(key, node, errors) {
-        if (this.symbols[key]) {
-            var rule = this.symbols[key].selectRule(node, errors);
-
-            return rule;
-        }
-
-        // Failover to alternative subgrammars
-        for (var i = 0; i < this.subgrammars.length; i++) {
-
-            if (this.subgrammars[i].symbols[key])
-                return this.subgrammars[i].symbols[key].selectRule();
-        }
-
-        // No symbol?
-        errors.push("No symbol for '" + key + "'");
-        return "((" + key + "))";
-    };
-
-    // Parses a plaintext rule in the tracery syntax
-    tracery = {
-
-        createGrammar : function(raw) {
-            return new Grammar(raw);
-        },
-
-        // Parse the contents of a tag
-        parseTag : function(tagContents) {
-
-            var parsed = {
-                symbol : undefined,
-                preactions : [],
-                postactions : [],
-                modifiers : []
-            };
-            var sections = tracery.parse(tagContents);
-            var symbolSection = undefined;
-            for (var i = 0; i < sections.length; i++) {
-                if (sections[i].type === 0) {
-                    if (symbolSection === undefined) {
-                        symbolSection = sections[i].raw;
-                    } else {
-                        throw ("multiple main sections in " + tagContents);
-                    }
-                } else {
-                    parsed.preactions.push(sections[i]);
-                }
-            }
-
-            if (symbolSection === undefined) {
-                //   throw ("no main section in " + tagContents);
-            } else {
-                var components = symbolSection.split(".");
-                parsed.symbol = components[0];
-                parsed.modifiers = components.slice(1);
-            }
-            return parsed;
-        },
-
-        parse : function(rule) {
-            var depth = 0;
-            var inTag = false;
-            var sections = [];
-            var escaped = false;
-
-            var errors = [];
-            var start = 0;
-
-            var escapedSubstring = "";
-            var lastEscapedChar = undefined;
-
-            if (rule === null) {
-                var sections = [];
-                sections.errors = errors;
-
-                return sections;
-            }
-
-            function createSection(start, end, type) {
-                if (end - start < 1) {
-                    if (type === 1)
-                        errors.push(start + ": empty tag");
-                    if (type === 2)
-                        errors.push(start + ": empty action");
-
-                }
-                var rawSubstring;
-                if (lastEscapedChar !== undefined) {
-                    rawSubstring = escapedSubstring + "\\" + rule.substring(lastEscapedChar + 1, end);
-
-                } else {
-                    rawSubstring = rule.substring(start, end);
-                }
-                sections.push({
-                    type : type,
-                    raw : rawSubstring
-                });
-                lastEscapedChar = undefined;
-                escapedSubstring = "";
-            };
-
-            for (var i = 0; i < rule.length; i++) {
-
-                if (!escaped) {
-                    var c = rule.charAt(i);
-
-                    switch(c) {
-
-                    // Enter a deeper bracketed section
-                    case '[':
-                        if (depth === 0 && !inTag) {
-                            if (start < i)
-                                createSection(start, i, 0);
-                            start = i + 1;
-                        }
-                        depth++;
-                        break;
-
-                    case ']':
-                        depth--;
-
-                        // End a bracketed section
-                        if (depth === 0 && !inTag) {
-                            createSection(start, i, 2);
-                            start = i + 1;
-                        }
-                        break;
-
-                    // Hashtag
-                    //   ignore if not at depth 0, that means we are in a bracket
-                    case '#':
-                        if (depth === 0) {
-                            if (inTag) {
-                                createSection(start, i, 1);
-                                start = i + 1;
-                            } else {
-                                if (start < i)
-                                    createSection(start, i, 0);
-                                start = i + 1;
-                            }
-                            inTag = !inTag;
-                        }
-                        break;
-
-                    case '\\':
-                        escaped = true;
-                        escapedSubstring = escapedSubstring + rule.substring(start, i);
-                        start = i + 1;
-                        lastEscapedChar = i;
-                        break;
-                    }
-                } else {
-                    escaped = false;
-                }
-            }
-            if (start < rule.length)
-                createSection(start, rule.length, 0);
-
-            if (inTag) {
-                errors.push("Unclosed tag");
-            }
-            if (depth > 0) {
-                errors.push("Too many [");
-            }
-            if (depth < 0) {
-                errors.push("Too many ]");
-            }
-
-            // Strip out empty plaintext sections
-
-            sections = sections.filter(function(section) {
-                if (section.type === 0 && section.raw.length === 0)
-                    return false;
-                return true;
-            });
-            sections.errors = errors;
-            return sections;
-        },
-    };
-
-    function isVowel(c) {
-        var c2 = c.toLowerCase();
-        return (c2 === 'a') || (c2 === 'e') || (c2 === 'i') || (c2 === 'o') || (c2 === 'u');
-    };
-
-    function isAlphaNum(c) {
-        return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9');
-    };
-    function escapeRegExp(str) {
-        return str.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
-    }
-
-    var baseEngModifiers = {
-
-        replace : function(s, params) {
-            //http://stackoverflow.com/questions/1144783/replacing-all-occurrences-of-a-string-in-javascript
-            return s.replace(new RegExp(escapeRegExp(params[0]), 'g'), params[1]);
-        },
-
-        capitalizeAll : function(s) {
-            var s2 = "";
-            var capNext = true;
-            for (var i = 0; i < s.length; i++) {
-
-                if (!isAlphaNum(s.charAt(i))) {
-                    capNext = true;
-                    s2 += s.charAt(i);
-                } else {
-                    if (!capNext) {
-                        s2 += s.charAt(i);
-                    } else {
-                        s2 += s.charAt(i).toUpperCase();
-                        capNext = false;
-                    }
-
-                }
-            }
-            return s2;
-        },
-
-        capitalize : function(s) {
-            return s.charAt(0).toUpperCase() + s.substring(1);
-        },
-
-        a : function(s) {
-            if (s.length > 0) {
-                if (s.charAt(0).toLowerCase() === 'u') {
-                    if (s.length > 2) {
-                        if (s.charAt(2).toLowerCase() === 'i')
-                            return "a " + s;
-                    }
-                }
-
-                if (isVowel(s.charAt(0))) {
-                    return "an " + s;
-                }
-            }
-
-            return "a " + s;
-
-        },
-
-        firstS : function(s) {
-            console.log(s);
-            var s2 = s.split(" ");
-
-            var finished = baseEngModifiers.s(s2[0]) + " " + s2.slice(1).join(" ");
-            console.log(finished);
-            return finished;
-        },
-
-        s : function(s) {
-            switch (s.charAt(s.length -1)) {
-            case 's':
-                return s + "es";
-                break;
-            case 'h':
-                return s + "es";
-                break;
-            case 'x':
-                return s + "es";
-                break;
-            case 'y':
-                if (!isVowel(s.charAt(s.length - 2)))
-                    return s.substring(0, s.length - 1) + "ies";
-                else
-                    return s + "s";
-                break;
-            default:
-                return s + "s";
-            }
-        },
-        ed : function(s) {
-            switch (s.charAt(s.length -1)) {
-            case 's':
-                return s + "ed";
-                break;
-            case 'e':
-                return s + "d";
-                break;
-            case 'h':
-                return s + "ed";
-                break;
-            case 'x':
-                return s + "ed";
-                break;
-            case 'y':
-                if (!isVowel(s.charAt(s.length - 2)))
-                    return s.substring(0, s.length - 1) + "ied";
-                else
-                    return s + "d";
-                break;
-            default:
-                return s + "ed";
-            }
-        }
-    };
-
-    tracery.baseEngModifiers = baseEngModifiers; 
-    // Externalize
-    tracery.TraceryNode = TraceryNode;
-
-    tracery.Grammar = Grammar;
-    tracery.Symbol = Symbol;
-    tracery.RuleSet = RuleSet;
-    return tracery;
-}();
-
-module.exports = tracery; 
-},{}],"src/tracerygrammar/starnames.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _traceryGrammar = _interopRequireDefault(require("tracery-grammar"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-// with apologies to https://www.springhole.net/writing_roleplaying_randomators/greekyish-names.htm
-var grammar = _traceryGrammar.default.createGrammar({
-  'starname': ['#greek# #numseq#', '#greek# #numseq#', '#numbers# #greek#', '#numbers# #greek#', '#letters# #numseq#', '#numbers# #greek# #numseq#'],
-  'numseq': ['#numbers#', '#numbers#', '#numbers#', '#numbers# #letter#', '#numbers#-#letterorletters#', '#letterorletters# #numbers#', '#numbers##numbers#', '#numbers#-#letter##number#', '#numbers#-#number#'],
-  'letterorletters': ['#letter#', '#letter#', '#letter#', '#letter#', '#letters#', '#letters#'],
-  'letters': ['#letter##letter#', '#letter##letter##letter#'],
-  'numbers': ['#number#', '#number##number#', '#number##number#', '#number##number##number#'],
-  'letter': ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
-  'number': ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
-  'greek': ["#firstconsonant##ending-mv#", "#firstconsonant##ending-mv#", "#firstvowel##midletters##ending#", "#firstvowel##midletters##ending#", "#firstconsonant##vowel##midletters##ending#", "#firstconsonant##vowel##midletters##ending#", "#firstconsonant##vowel##midletters##ending#", "#firstvowel##midletters##vowel##midletters##ending#"],
-  'firstvowel': ["A", "Ae", "Ai", "E", "Eio", "Eu", "I", "Ia", "O", "Ou"],
-  'firstconsonant': ["B", "B", "B", "Br", "D", "D", "D", "Dr", "G", "G", "G", "Gl", "H", "H", "H", "K", "K", "K", "Kh", "Kh", "Kh", "Kl", "Kr", "L", "L", "L", "M", "M", "M", "N", "N", "N", "P", "P", "P", "Ph", "Ph", "Ph", "Phr", "Pr", "R", "R", "R", "Rh", "S", "S", "S", "T", "T", "T", "Th", "Th", "Th", "Tr", "X", "X", "X", "Z", "Z", "Z"],
-  'vowel': ["a", "a", "e", "e", "ei", "eo", "eu", "i", "io", "o", "ou", "y"],
-  'midletters': ["b", "b", "b", "g", "g", "g", "gn", "k", "k", "k", "kh", "kh", "kh", "kl", "kr", "l", "l", "l", "lk", "m", "m", "m", "mbr", "mn", "mp", "mph", "n", "n", "n", "nd", "ndr", "nt", "nth", "p", "p", "p", "p", "ph", "phr", "pp", "ps", "r", "r", "r", "rkh", "rg", "rm", "rrh", "rs", "s", "s", "s", "ss", "sp", "st", "sth", "t", "t", "t", "th", "th", "th", "tl", "tr", "x"],
-  'ending': ["#ending-1v#", "#ending-mv#", "#ending-mv#", "#ending-mv#"],
-  'ending-1v': ["a", "e", "o"],
-  'ending-mv': ["aos", "as", "aeus", "es", "ia", "ia", "ike", "ios", "on", "ys"]
-});
-
-var _default = grammar;
-exports.default = _default;
-},{"tracery-grammar":"../node_modules/tracery-grammar/tracery.js"}],"src/tracerygrammar/speciesnames.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _traceryGrammar = _interopRequireDefault(require("tracery-grammar"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-// with apologies to https://www.springhole.net/writing_roleplaying_randomators/greekyish-names.htm
-var grammar = _traceryGrammar.default.createGrammar({
-  'root': ['#simple#'],
-  'simple': [// "#firstconsonant##ending#",
-  "#firstconsonant##maybesecondconsonant##ending#", "#firstconsonant##maybesecondconsonant##vowel##midletters##ending#", "#firstvowel##midletters##ending#", "#firstvowel##midletters##vowel##midletters##ending#"],
-  'firstvowel': ["A", "Ae", "Ai", "E", "Eio", "Eu", "I", "Ia", "O", "Ou", "U", "Uo", "Oo", "Ee", "Aa", "Uu", "Ii", "Ui"],
-  'firstconsonant': ["B", "C", "D", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Ph", "Ph", "Pr", "Q", "R", "R", "S", "Sc", "Sch", "Sh", "T", "Th", "V", "W", "X", "Y", "Z", "Zh"],
-  'maybesecondconsonant': ["", "", "", "", "", "", "", "", "", "", "l", "r"],
-  'vowel': ["a", "a", "e", "e", "ei", "eo", "eu", "i", "io", "o", "ou", "y"],
-  'midletters': ["b", "b", "b", "g", "g", "g", "gn", "k", "k", "k", "kh", "kh", "kh", "kl", "kr", "l", "l", "l", "lk", "m", "m", "m", "mbr", "mn", "mp", "mph", "n", "n", "n", "nd", "ndr", "nt", "nth", "p", "p", "p", "p", "ph", "phr", "pp", "ps", "r", "r", "r", "rkh", "rg", "rm", "rrh", "rs", "s", "s", "s", "ss", "sp", "st", "sth", "t", "t", "t", "th", "th", "th", "tl", "tr", "x"],
-  'ending': ['#endingvowels#', '#endingvowels##endingconsonants#'],
-  'endingconsonants': ['lite', 's', 's', 's', 's', 's', 's', 'rs', 'rs', 'folk', 'morph', 'don', 'd', 'f', 'g', 'j', 'k', 'ke', 'l', 'lk', 'ls', 'm', 'n', 'n', 'n', 'n', 'p', 'r', 'r', 'r', 'r', 't', 'te', 'v', 'w', 'x', 'y', 'z'],
-  'endingvowels': ["a", "e", "i", "o", "u", "ao", "ia", "io"],
-  'endingvowels-orig': ["a", "e", "i", "o", "aos", "as", "en", "es", "er", "ers", "ia", "idon", "ike", "ite", "ios", "olk", "ol", "ols", "on", "ons", "ul", "us", "ut", "ys"]
-});
-
-var _default = grammar;
-exports.default = _default;
-},{"tracery-grammar":"../node_modules/tracery-grammar/tracery.js"}],"src/tracerygrammar/planetnames.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _traceryGrammar = _interopRequireDefault(require("tracery-grammar"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-// with apologies to https://www.springhole.net/writing_roleplaying_randomators/greekyish-names.htm
-var grammar = _traceryGrammar.default.createGrammar({
-  'root': ['#simple#'],
-  'simple': [// "#firstconsonant##ending#",
-  "#firstconsonant##maybesecondconsonant##ending#", "#firstconsonant##maybesecondconsonant##vowel##midletters##ending#", "#firstvowel##midletters##ending#", "#firstvowel##midletters##vowel##midletters##ending#"],
-  'firstvowel': ["A", "Ae", "Ai", "E", "Eio", "Eu", "I", "Ia", "O", "Ou", "U", "Uo", "Oo", "Ee", "Aa", "Uu", "Ii", "Ui"],
-  'firstconsonant': ["B", "C", "D", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Ph", "Ph", "Pr", "Q", "R", "R", "S", "Sc", "Sch", "Sh", "T", "Th", "V", "W", "X", "Y", "Z", "Zh"],
-  'maybesecondconsonant': ["", "", "", "", "", "", "", "", "", "", "l", "r"],
-  'vowel': ["a", "a", "e", "e", "ei", "eo", "eu", "i", "io", "o", "ou", "y"],
-  'midletters': ["b", "b", "b", "g", "g", "g", "gn", "k", "k", "k", "kh", "kh", "kh", "kl", "kr", "l", "l", "l", "lk", "m", "m", "m", "mbr", "mn", "mp", "mph", "n", "n", "n", "nd", "ndr", "nt", "nth", "p", "p", "p", "p", "ph", "phr", "pp", "ps", "r", "r", "r", "rkh", "rg", "rm", "rrh", "rs", "s", "s", "s", "ss", "sp", "st", "sth", "t", "t", "t", "th", "th", "th", "tl", "tr", "x"],
-  'ending': ['#endingvowels#', '#endingvowels##endingconsonants#'],
-  'endingconsonants': ['s', 's', 's', 's', 's', 's', 'rs', 'rs', 'don', 'd', 'f', 'g', 'j', 'k', 'ke', 'l', 'lk', 'ls', 'm', 'n', 'n', 'n', 'n', 'p', 'r', 'r', 'r', 'r', 't', 'te', 'v', 'w', 'x', 'y', 'z'],
-  'endingvowels': ["a", "e", "i", "o", "u", "ao", "ia", "io"],
-  'endingvowels-orig': ["a", "e", "i", "o", "aos", "as", "en", "es", "er", "ers", "ia", "idon", "ike", "ite", "ios", "olk", "ol", "ols", "on", "ons", "ul", "us", "ut", "ys"]
-});
-
-var _default = grammar;
-exports.default = _default;
-},{"tracery-grammar":"../node_modules/tracery-grammar/tracery.js"}],"src/improvgrammar/starSystem.yaml":[function(require,module,exports) {
+},{"./template.js":"../node_modules/improv/dist/template.js","lodash":"../node_modules/lodash/lodash.js","./filters.js":"../node_modules/improv/dist/filters.js"}],"src/improvgrammar/starSystem.yaml":[function(require,module,exports) {
 module.exports = {
   root: {
     groups: [{
@@ -32250,13 +32273,13 @@ module.exports = {
   root: {
     groups: [{
       tags: [["planetType", "Neptunian"]],
-      phrases: ["The [ordinal planet.number] planet is [a :planetdesc] with [planet.pluralizedMoons]. [:maybeName]"]
+      phrases: ["The [ordinal planet.number] planet is [a :planetdesc] with [planet.pluralizedMoons] orbiting at [precision2 distance] AU. [:maybeName]"]
     }, {
       tags: [["planetType", "Jovian"]],
-      phrases: ["The [ordinal planet.number] planet is [a :planetdesc] with [planet.pluralizedMoons]. [:maybeName]"]
+      phrases: ["The [ordinal planet.number] planet is [a :planetdesc] with [planet.pluralizedMoons] orbiting at [precision2 distance] AU. [:maybeName]"]
     }, {
       tags: [["planetType", "Terran"]],
-      phrases: ["The [ordinal planet.number] planet is [a :planetdesc] with [planet.pluralizedMoons]. [:terranHzDesc]"]
+      phrases: ["The [ordinal planet.number] planet is [a :planetdesc] with [planet.pluralizedMoons] orbiting at [precision2 distance] AU. [:terranHzDesc]"]
     }]
   },
   planetName: {
@@ -32327,20 +32350,25 @@ module.exports = {
 };
 },{}],"src/improvgrammar/life.yaml":[function(require,module,exports) {
 module.exports = {
-  root: {
-    groups: [{
-      tags: [["hasColonizablePlanet", "false"]],
-      phrases: ["The [ordinal planet.number] planet was populated long ago by the [>speciesName:output] species, who called the planet [planetName]. They thrived for [num #50000-200000] years until [:death]"]
-    }, {
-      tags: [["hasColonizablePlanet", "true"]],
-      phrases: ["The [ordinal planet.number] planet was populated long ago by the\n[>speciesName:output] species, who called the planet [planetName]. They\nthrived for [num #50000-200000] years until [:death]\n\nBefore the fall of their civilization, they colonized [colonizablePlanetName].\nThe colony limped along until [:death]\n"]
-    }]
-  },
   moonName: {
     bind: true,
     groups: [{
       tags: [],
       phrases: ["[>planetName:output]"]
+    }]
+  },
+  speciesName: {
+    bind: true,
+    groups: [{
+      tags: [],
+      phrases: ["[>speciesName:output]"]
+    }]
+  },
+  planetName: {
+    bind: true,
+    groups: [{
+      tags: [],
+      phrases: ["[planetName]"]
     }]
   },
   output: {
@@ -32349,26 +32377,164 @@ module.exports = {
       phrases: ["[output]"]
     }]
   },
+  root: {
+    groups: [{
+      tags: [],
+      phrases: ["The [ordinal planet.number] planet was populated long ago by the\n[:speciesName], who called the planet [:planetName].\n\n[:originOfSpecies]\n\n[:artifacts]\n\n[:death]\n"]
+    }]
+  },
+  lifespan: {
+    groups: [{
+      tags: [["lifespanLength", "short"]],
+      phrases: ["[num #50000-100000]"]
+    }, {
+      tags: [["lifespanLength", "medium"]],
+      phrases: ["[num #100000-500000]"]
+    }, {
+      tags: [["lifespanLength", "long"]],
+      phrases: ["[num #500000-2000000]"]
+    }]
+  },
+  originOfSpecies: {
+    groups: [{
+      tags: [],
+      phrases: ["Life based on [:biochemistry] arose on [planetName] [lifeBeginTime].\nThe [:speciesName] developed [speciesBeginTime]. Their civilization lasted for\n[num lifespanYears] years.\n\n[:evolution]\n\n[:discoveries]\n"]
+    }]
+  },
+  evolution: {
+    groups: [{
+      tags: [],
+      phrases: ["Evolving from [:ancestry], they [:sentienceEvent] that elevated them to sentience."]
+    }]
+  },
+  biochemistry: {
+    bind: true,
+    groups: [{
+      tags: [],
+      phrases: ["Earthlike biochemistry", "alternative-chirality Earthlike biochemistry", "carbon and heteropoly acid biochemistry", "carbon and hydrogen sulfide biochemistry", "methane biochemistry"]
+    }, {
+      tags: [["atmosphere", "reducing"]],
+      phrases: ["carbon and ammonia biochemistry", "Borane biochemistry"]
+    }]
+  },
+  ancestry: {
+    bind: true,
+    groups: [{
+      tags: [["habitat", "ocean"], ["individualism", "solo"]],
+      phrases: ["a long, finned aquatic species"]
+    }, {
+      tags: [["habitat", "ocean"], ["individualism", "collective"]],
+      phrases: ["a small fish-like creature", "networked plankton"]
+    }, {
+      tags: [["habitat", "ocean"], ["individualism", "colonyWithQueen"]],
+      phrases: ["tiny, hard-shelled organisms with pincers"]
+    }, {
+      tags: [["habitat", "land"], ["individualism", "colonyWithQueen"]],
+      phrases: ["insect-like creatures"]
+    }, {
+      tags: [["habitat", "land"], ["individualism", "solo"]],
+      phrases: ["insect-like creatures"]
+    }, {
+      tags: [["habitat", "land"], ["individualism", "collective"]],
+      phrases: ["insect-like creatures"]
+    }]
+  },
+  sentienceEvent: {
+    groups: [{
+      tags: [["individualism", "solo"]],
+      phrases: ["developed a hunter-gatherer culture"]
+    }, {
+      tags: [["individualism", "colonyWithQueen"]],
+      phrases: ["developed complex inter-colony competition and cooperation"]
+    }, {
+      tags: [["individualism", "collective"]],
+      phrases: ["developed complex inter-colony competition and cooperation"]
+    }]
+  },
+  discoveries: {
+    groups: [{
+      tags: [["power", "none"]],
+      phrases: ["They never made significant technological progress."]
+    }, {
+      tags: [["power", "technological"]],
+      phrases: ["They made rapid technological progress.", "They made slow but steady technological progress.", "They made steady technological progress."]
+    }, {
+      tags: [["power", "mystical"]],
+      phrases: ["They quickly connected with [:gods]."]
+    }]
+  },
+  gods: {
+    bind: true,
+    groups: [{
+      tags: [],
+      phrases: ["the gods of creation", "the gods of life"]
+    }]
+  },
+  artifacts: {
+    groups: [{
+      tags: [["hasArtifacts", "false"]],
+      phrases: ["The [:speciesName] left no great signs of their existence besides their dwellings."]
+    }, {
+      tags: [["hasArtifacts", "true"], ["power", "technological"]],
+      phrases: ["[cap numberword #1-10] space probes originating on [planetName] are still on their way toward nearby stars. [:artifacts]", "A few light years out, you received frequency-modulated radio waves [:message]. [:artifacts]"]
+    }, {
+      tags: [["hasColonizablePlanet", "true"], ["power", "technological"]],
+      phrases: ["Remains of a lost colony can be found on [colonizablePlanetName]. [:artifacts]"]
+    }, {
+      tags: [["hasArtifacts", "true"]],
+      phrases: [""]
+    }]
+  },
+  message: {
+    groups: [{
+      tags: [],
+      phrases: ["describing the basic molecules of life on [planetName], the planets of the [name] system, and a graphic representation of [a :speciesName] individual", "containing a set of symbols describing basic scientific facts, such as the age of the universe ([:messageCorrectness]), and a few theories ([:messageCorrectness])", "warning against coming near the system under threat of violence"]
+    }]
+  },
+  messageCorrectness: {
+    groups: [{
+      tags: [],
+      phrases: ["spot on", "just right", "very accurate", "exactly correct", "nearly correct", "almost right", "just a little bit off", "subtly wrong", "egregiously wrong", "slightly off", "embarrassingly inaccurate"]
+    }]
+  },
   death: {
     groups: [{
       tags: [],
-      phrases: ["a meteor struck [planetName].", "a supervolcano erupted and clouded the sky with ash.", "gamma ray bursts from a merged neutron star pair wiped out all life in the system.", "they found that they had answered all their questions about existence and the universe, and euthanized themselves.", "alien organisms carried by a passing comet wiped out all life in the system.", "a coronal mass ejection burned away [planetName]'s atmosphere.", "a solar flare burned away [planetName]'s atmosphere.", "a Space Crystal released Death Spores into [planetName]'s atmosphere."]
+      phrases: ["Ultimately, [:deathReason], ending the [:speciesName] civilization.\n\nLife never emerged again in [name].\n", "The [:speciesName] civilization fell when [:deathReason].\n\nLife never emerged again in [name].\n", "After [:deathReason], life in [name] never recovered.\n"]
+    }]
+  },
+  deathReason: {
+    groups: [{
+      tags: [],
+      phrases: ["a meteor struck [planetName]", "a supervolcano erupted and clouded the sky with ash", "gamma ray bursts from a merged neutron star pair wiped out all life in the system", "they found that they had answered all their questions about existence and the universe, and euthanized themselves", "alien organisms carried by a passing comet wiped out all life in the system", "a coronal mass ejection burned away [planetName]'s atmosphere", "a solar flare burned away [planetName]'s atmosphere", "a Space Crystal released Death Spores into [planetName]'s atmosphere", "a famine destroyed their food supply, and the resulting wars wiped out the rest of the remaining species"]
+    }, {
+      tags: [["power", "technological"], ["hasAI", "true"]],
+      phrases: ["they created a self-improving AI that killed them all"]
+    }, {
+      tags: [["hasSea", "true"], ["power", "technological"]],
+      phrases: ["industrial activity poisoned their atmosphere, making the planet hostile to life except in near deep-sea vents"]
     }, {
       tags: [["hasMoons", "true"]],
-      phrases: ["The moon [:moonName] was struck by an asteroid and broke apart, falling down upon [planetName], filling the atmosphere with bolides and heating the atmosphere to incandescence."]
+      phrases: ["the moon [:moonName] was struck by an asteroid and broke apart, falling down upon [planetName], filling the atmosphere with bolides and heating the atmosphere to incandescence"]
     }, {
       tags: [["hasMoons", "true"], ["power", "technological"]],
-      phrases: ["a mad scientist built a laser on the moon [:moonName] and beamed a hole through the planet's core."]
+      phrases: ["a mad scientist built a laser on the moon [:moonName] and beamed a hole through the planet's core", "colonists on the moon [:moonName] secured their independence by orbital bombardment of [planetName], then died themselves [:moonDemise]"]
     }, {
       tags: [["power", "technological"]],
-      phrases: ["their weather machines constructively interfered with climatological patterns, leaving the planet thrashed by neverending dust storms.", "their planet's ecosystems collapsed due to industrial activity.", "a runaway greenhouse effect caused by industrial activity made the planet uninhabitable.", "nuclear war broke out, leaving no survivors.", "long-dormant weapons of mass destruction were activated by extremist factions.", "self-replicating nanomachines consumed all resources on [planetName].", "an experiment with the nature of life went horribly wrong.", "an \"agricultural aid\" worked a little too well, covering [planetName] in something resembling soybeans.", "an army of deadly robots was misprogrammed and hunted down every living thing.", "an electromagnetic pulse destroyed their entertainment and they died of boredom."]
+      phrases: ["their weather machines constructively interfered with climatological patterns, leaving the planet thrashed by neverending dust storms", "their planet's ecosystems collapsed due to industrial activity", "a runaway greenhouse effect caused by industrial activity made the planet uninhabitable", "nuclear war broke out, leaving no survivors", "long-dormant weapons of mass destruction were activated by extremist factions", "self-replicating nanomachines consumed all resources on [planetName]", "an experiment with the nature of life went horribly wrong", "an \"agricultural aid\" worked a little too well, covering [planetName] in something resembling soybeans", "an army of deadly robots was misprogrammed and hunted down every living thing", "an electromagnetic pulse destroyed their electronic entertainment and they  all died of boredom"]
     }, {
       tags: [["power", "mystical"]],
-      phrases: ["they awoke an ancient evil from the deep and succumbed to its hunger.", "their gods had had enough of them and called the whole thing off.", "a foolish apprentice spoke the Deplorable Word."]
+      phrases: ["they awoke an ancient evil from the deep and succumbed to its hunger", "their gods had had enough of them and called the whole thing off", "a foolish apprentice spoke the Deplorable Word", "they developed telekenesis, and a super-strong telepath destroyed everything", "a cabal of sorcerers summoned an endless winter to appease a god that didn't really exist"]
+    }]
+  },
+  moonDemise: {
+    groups: [{
+      tags: [],
+      phrases: ["due to infrastructure issues", "due to lack of herd immunity", "in a great fire", "following a nuclear reactor meltdown"]
     }]
   }
 };
-},{}],"src/LiterateStarSystem.js":[function(require,module,exports) {
+},{}],"src/tracerygrammar/speciesnames.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -32376,82 +32542,47 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
-var _stellardream = require("stellardream");
+var _traceryGrammar = _interopRequireDefault(require("tracery-grammar"));
 
-var _alea = _interopRequireDefault(require("alea"));
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var _improv = _interopRequireDefault(require("improv"));
+// with apologies to https://www.springhole.net/writing_roleplaying_randomators/greekyish-names.htm
+var grammar = _traceryGrammar.default.createGrammar({
+  'root': ['#simple#'],
+  'simple': [// "#firstconsonant##ending#",
+  "#firstconsonant##maybesecondconsonant##ending#", "#firstconsonant##maybesecondconsonant##vowel##midletters##ending#", "#firstvowel##midletters##ending#", "#firstvowel##midletters##vowel##midletters##ending#"],
+  'firstvowel': ["A", "Ae", "Ai", "E", "Eio", "Eu", "I", "Ia", "O", "Ou", "U", "Uo", "Oo", "Ee", "Aa", "Uu", "Ii", "Ui"],
+  'firstconsonant': ["B", "C", "D", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Ph", "Ph", "Pr", "Q", "R", "R", "S", "Sc", "Sch", "Sh", "T", "Th", "V", "W", "X", "Y", "Z", "Zh"],
+  'maybesecondconsonant': ["", "", "", "", "", "", "", "", "", "", "l", "r"],
+  'vowel': ["a", "a", "e", "e", "ei", "eo", "eu", "i", "io", "o", "ou", "y"],
+  'midletters': ["b", "b", "b", "g", "g", "g", "gn", "k", "k", "k", "kh", "kh", "kh", "kl", "kr", "l", "l", "l", "lk", "m", "m", "m", "mbr", "mn", "mp", "mph", "n", "n", "n", "nd", "ndr", "nt", "nth", "p", "p", "p", "p", "ph", "phr", "pp", "ps", "r", "r", "r", "rkh", "rg", "rm", "rrh", "rs", "s", "s", "s", "ss", "sp", "st", "sth", "t", "t", "t", "th", "th", "th", "tl", "tr", "x"],
+  'ending': ['#endingvowels#', '#endingvowels##endingconsonants#'],
+  'endingconsonants': ['lite', 's', 's', 's', 's', 's', 's', 'rs', 'rs', 'folk', 'morph', 'don', 'd', 'f', 'g', 'j', 'k', 'ke', 'l', 'lk', 'ls', 'm', 'n', 'n', 'n', 'n', 'p', 'r', 'r', 'r', 'r', 't', 'te', 'v', 'w', 'x', 'y', 'z'],
+  'endingvowels': ["a", "e", "i", "o", "u", "ao", "ia", "io"],
+  'endingvowels-orig': ["a", "e", "i", "o", "aos", "as", "en", "es", "er", "ers", "ia", "idon", "ike", "ite", "ios", "olk", "ol", "ols", "on", "ons", "ul", "us", "ut", "ys"]
+});
 
-var _numberToWords = _interopRequireDefault(require("number-to-words"));
+var _default = grammar;
+exports.default = _default;
+},{"tracery-grammar":"../node_modules/tracery-grammar/tracery.js"}],"src/makeSubmodeler.js":[function(require,module,exports) {
+"use strict";
 
-var _pluralize = _interopRequireDefault(require("pluralize"));
-
-var _starnames = _interopRequireDefault(require("./tracerygrammar/starnames"));
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.makeSubmodeler = makeSubmodeler;
 
 var _speciesnames = _interopRequireDefault(require("./tracerygrammar/speciesnames"));
 
 var _planetnames = _interopRequireDefault(require("./tracerygrammar/planetnames"));
 
-var _starSystem = _interopRequireDefault(require("./improvgrammar/starSystem.yaml"));
-
-var _planet = _interopRequireDefault(require("./improvgrammar/planet.yaml"));
-
-var _nolife = _interopRequireDefault(require("./improvgrammar/nolife.yaml"));
-
-var _life = _interopRequireDefault(require("./improvgrammar/life.yaml"));
+var _util = require("./util");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function patchingMathDotRandom(fn, code) {
-  var oldMR = Math.random;
-  Math.random = fn;
-  var ret = code();
-  Math.random = oldMR;
-  return ret;
-} // 0-indexed
-
-
-function choiceIndex(randVal, outOf) {
-  return Math.floor(randVal * outOf);
-}
-
-function star2tags(starSystem) {
-  if (starSystem.stars.length == 1) {
-    return [['numstars', '1'], ['star1type', starSystem.stars[0].starType]];
-  } else {
-    return [['numstars', '2'], ['star1type', starSystem.stars[0].starType], ['star2type', starSystem.stars[1].starType]];
-  }
-}
-
-function planet2tags(planet, hzMin, hzMax) {
-  var hz = 'cold';
-
-  if (planet.distance < hzMin) {
-    hz = 'hot';
-  } else if (planet.distance < hzMax) {
-    hz = 'habitable';
-  }
-
-  return [['planetType', planet.planetType], ['hz', hz], ['hasMoons', "".concat(planet.moons > 0)]];
-}
-
-var LiterateStarSystem = function LiterateStarSystem(seed) {
-  var _this = this;
-
-  _classCallCheck(this, LiterateStarSystem);
-
-  this.seed = seed || Date.now();
-  this.starSystem = new _stellardream.StarSystem(this.seed);
-  this.alea = new _alea.default(this.seed);
-  this.name = patchingMathDotRandom(this.alea, function () {
-    return _starnames.default.flatten('#starname#');
-  });
-  /* tools */
-
-  var submodeler = function submodeler(supermodel, name) {
-    return patchingMathDotRandom(_this.alea, function () {
+function makeSubmodeler(alea) {
+  return function (supermodel, name) {
+    return (0, _util.patchingMathDotRandom)(alea, function () {
       if (name.startsWith('>planetName')) {
         return {
           output: _planetnames.default.flatten('#root#')
@@ -32467,186 +32598,364 @@ var LiterateStarSystem = function LiterateStarSystem(seed) {
       return {};
     });
   };
+}
+},{"./tracerygrammar/speciesnames":"src/tracerygrammar/speciesnames.js","./tracerygrammar/planetnames":"src/tracerygrammar/planetnames.js","./util":"src/util.js"}],"src/makeImprovGenerators.js":[function(require,module,exports) {
+"use strict";
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = makeImprovGenerators;
+
+var _improv = _interopRequireDefault(require("improv"));
+
+var _starSystem = _interopRequireDefault(require("./improvgrammar/starSystem.yaml"));
+
+var _planet = _interopRequireDefault(require("./improvgrammar/planet.yaml"));
+
+var _nolife = _interopRequireDefault(require("./improvgrammar/nolife.yaml"));
+
+var _life = _interopRequireDefault(require("./improvgrammar/life.yaml"));
+
+var _makeSubmodeler = require("./makeSubmodeler");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function dryness() {
+  return function (group) {
+    var self = this;
+    var newPhrases = group.phrases.filter(function (phrase) {
+      if (!phrase) return true;
+      return self.history.indexOf(phrase) === -1;
+    });
+    var newGroup = Object.create(group);
+    newGroup.phrases = newPhrases;
+    return [0, newGroup];
+  };
+}
+
+function makeImprovGenerators(alea) {
+  var submodeler = (0, _makeSubmodeler.makeSubmodeler)(alea);
   var starSystemTextGenerator = new _improv.default(_starSystem.default, {
-    filters: [_improv.default.filters.mismatchFilter(), _improv.default.filters.partialBonus(), _improv.default.filters.fullBonus() // Improv.filters.dryness(),
-    ],
+    filters: [_improv.default.filters.mismatchFilter(), _improv.default.filters.partialBonus(), _improv.default.filters.fullBonus()],
     reincorporate: true,
     // audit: true,
     persistence: false,
     submodeler: submodeler,
-    rng: this.alea
+    rng: alea
   });
   var planetTextGenerator = new _improv.default(_planet.default, {
-    filters: [_improv.default.filters.mismatchFilter(), _improv.default.filters.partialBonus(), _improv.default.filters.fullBonus() // Improv.filters.dryness(),
-    ],
+    filters: [_improv.default.filters.mismatchFilter(), _improv.default.filters.partialBonus(), _improv.default.filters.fullBonus()],
     reincorporate: true,
     // audit: true,
     persistence: false,
     submodeler: submodeler,
-    rng: this.alea
+    rng: alea
   });
   var noLifeTextGenerator = new _improv.default(_nolife.default, {
-    filters: [_improv.default.filters.mismatchFilter(), _improv.default.filters.partialBonus(), _improv.default.filters.fullBonus() // Improv.filters.dryness(),
-    ],
+    filters: [_improv.default.filters.mismatchFilter(), _improv.default.filters.partialBonus(), _improv.default.filters.fullBonus()],
     reincorporate: true,
     // audit: true,
     persistence: false,
     submodeler: submodeler,
-    rng: this.alea
+    rng: alea
   });
   var lifeTextGenerator = new _improv.default(_life.default, {
-    filters: [_improv.default.filters.mismatchFilter() // Improv.filters.partialBonus(),
-    // Improv.filters.fullBonus(),
-    // Improv.filters.dryness(),
-    ],
+    filters: [_improv.default.filters.mismatchFilter(), _improv.default.filters.partialBonus(), _improv.default.filters.fullBonus(), dryness()],
     reincorporate: true,
     // audit: true,
     persistence: false,
     submodeler: submodeler,
-    rng: this.alea
+    rng: alea
   });
-  /* values */
-
-  var planets = this.starSystem.planets;
-  var planetMinAU = 0;
-  var planetMaxAU = 0;
-
-  if (planets.length) {
-    planetMinAU = planets[0].distance.toPrecision(2);
-    planetMaxAU = planets[planets.length - 1].distance.toPrecision(2);
-  }
-
-  var planetsAmount = 'none';
-  if (planets.length == 1) planetsAmount = 'one';
-  if (planets.length > 1) planetsAmount = 'many';
-  /* system model + text */
-
-  var improvModel = {
-    // starSystem: this.starSystem,
-    name: this.name,
-    numPlanets: planets.length,
-    planetMinAU: planetMinAU,
-    planetMaxAU: planetMaxAU,
-    tags: [['planetsAmount', planetsAmount]].concat(star2tags(this.starSystem)),
-    numberword: _numberToWords.default.toWords,
-    ordinal: _numberToWords.default.toWordsOrdinal,
-    num: function num(n) {
-      return parseInt(n, 10).toLocaleString();
-    }
+  return {
+    starSystemTextGenerator: starSystemTextGenerator,
+    lifeTextGenerator: lifeTextGenerator,
+    noLifeTextGenerator: noLifeTextGenerator,
+    planetTextGenerator: planetTextGenerator
   };
-  this.systemText = starSystemTextGenerator.gen('root', improvModel);
-  /* planet model + text */
-  // TODO: order planets interestingly
+}
+},{"improv":"../node_modules/improv/dist/index.js","./improvgrammar/starSystem.yaml":"src/improvgrammar/starSystem.yaml","./improvgrammar/planet.yaml":"src/improvgrammar/planet.yaml","./improvgrammar/nolife.yaml":"src/improvgrammar/nolife.yaml","./improvgrammar/life.yaml":"src/improvgrammar/life.yaml","./makeSubmodeler":"src/makeSubmodeler.js"}],"src/LiterateStarSystem.js":[function(require,module,exports) {
+"use strict";
 
-  this.planetTexts = [];
-  var originalTags = improvModel.tags;
-  var lifePlanets = [];
-  var planetImprovModels = [];
-  var lifePlanetIndex = -1;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
 
-  var _loop = function _loop(i) {
-    var planet = planets[i];
-    planet.planetName = patchingMathDotRandom(_this.alea, function () {
-      return _planetnames.default.flatten('#root#');
+var _stellardream = require("stellardream");
+
+var _alea = _interopRequireDefault(require("alea"));
+
+var _numberToWords = _interopRequireDefault(require("number-to-words"));
+
+var _pluralize = _interopRequireDefault(require("pluralize"));
+
+var _starnames = _interopRequireDefault(require("./tracerygrammar/starnames"));
+
+var _planetnames = _interopRequireDefault(require("./tracerygrammar/planetnames"));
+
+var _util = require("./util");
+
+var _makeImprovGenerators2 = _interopRequireDefault(require("./makeImprovGenerators"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var LiterateStarSystem =
+/*#__PURE__*/
+function () {
+  function LiterateStarSystem(seed) {
+    _classCallCheck(this, LiterateStarSystem);
+
+    this.seed = seed || Date.now();
+    this.starSystem = new _stellardream.StarSystem(this.seed);
+    this.alea = new _alea.default(this.seed);
+    this.name = (0, _util.patchingMathDotRandom)(this.alea, function () {
+      return _starnames.default.flatten('#starname#');
     });
-    var pluralizedMoons = "".concat(planet.moons.length, " ").concat((0, _pluralize.default)('moon', planet.moons.length));
-    if (pluralizedMoons === '0 moons') pluralizedMoons = 'no moons';
-    var planetImprovModel = Object.assign({}, improvModel, {
-      tags: planet2tags(planet, _this.starSystem.habitableZoneMin, _this.starSystem.habitableZoneMax).concat(originalTags),
-      planet: Object.assign({
-        number: i + 1,
-        pluralizedMoons: pluralizedMoons,
-        earthMasses: parseFloat(planet.mass.toPrecision(2)),
-        jupiterMasses: parseFloat((planet.mass / 10.96).toPrecision(2)),
-        neptuneMasses: parseFloat((planet.mass / 3.86).toPrecision(2))
-      }),
-      nonLifeInhabitablePlanets: []
-    }, planet);
-    planetImprovModels.push(planetImprovModel);
-    var isHz = planet.distance >= _this.starSystem.habitableZoneMin && planet.distance <= _this.starSystem.habitableZoneMax;
+    /* tools */
 
-    if (isHz && planet.planetType === 'Terran') {
-      // by end of loop, each habitable planet has a 1/n chance of being chosen.
-      // TODO: prefer planets with moons
-      if (_this.alea() < 1 / (lifePlanets.length + 1)) {
-        lifePlanetIndex = lifePlanets.length;
+    var _makeImprovGenerators = (0, _makeImprovGenerators2.default)(this.alea),
+        starSystemTextGenerator = _makeImprovGenerators.starSystemTextGenerator,
+        lifeTextGenerator = _makeImprovGenerators.lifeTextGenerator,
+        noLifeTextGenerator = _makeImprovGenerators.noLifeTextGenerator,
+        planetTextGenerator = _makeImprovGenerators.planetTextGenerator;
+    /* values */
+
+
+    var planets = this.starSystem.planets;
+    var improvModel = this.makeImprovModel();
+    this.systemText = starSystemTextGenerator.gen('root', improvModel);
+    /* planet model + text */
+
+    var _this$makePlanetModel = this.makePlanetModels(improvModel, planets),
+        planetImprovModels = _this$makePlanetModel.planetImprovModels,
+        lifePlanets = _this$makePlanetModel.lifePlanets,
+        lifePlanetIndex = _this$makePlanetModel.lifePlanetIndex;
+    /* life */
+
+
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+      for (var _iterator = planetImprovModels[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+        var m = _step.value;
+        m.tags.push(['isNamed', "".concat(lifePlanets.length > 0)]);
       }
-
-      lifePlanets.forEach(function (_ref) {
-        var planetImprovModel = _ref.planetImprovModel;
-        planetImprovModel.planet.colonizablePlanetName = planet.name;
-      });
-      lifePlanets.push({
-        planet: planet,
-        planetImprovModel: planetImprovModel
-      });
+    } catch (err) {
+      _didIteratorError = true;
+      _iteratorError = err;
+    } finally {
+      try {
+        if (!_iteratorNormalCompletion && _iterator.return != null) {
+          _iterator.return();
+        }
+      } finally {
+        if (_didIteratorError) {
+          throw _iteratorError;
+        }
+      }
     }
-  };
 
-  for (var i = 0; i < planets.length; i++) {
-    _loop(i);
-  }
-  /* life */
-
-
-  for (var _i = 0, _planetImprovModels = planetImprovModels; _i < _planetImprovModels.length; _i++) {
-    var _m = _planetImprovModels[_i];
-
-    _m.tags.push(['isNamed', "".concat(lifePlanets.length > 0)]);
-  }
-
-  if (lifePlanetIndex >= 0) {
-    var planetImprovModel = lifePlanets[lifePlanetIndex].planetImprovModel;
-    lifePlanets.forEach(function (p, i) {
-      if (i === lifePlanetIndex) {
-        return;
-      }
-
-      p.planetImprovModel.tags.push(['hasColonizablePlanet', 'true']);
-      p.planetImprovModel.tags.push(['isColonized', 'false']);
-      planetImprovModel.colonizablePlanetName = p.planetImprovModel.planetName;
-    });
-
-    if (lifePlanets.length > 1) {
-      planetImprovModel.tags.push(['hasColonizablePlanet', 'true']);
-      planetImprovModel.tags.push(['isColonized', 'true']);
+    if (lifePlanetIndex >= 0) {
+      this.hasLife = true;
+      this.lifePlanetName = lifePlanets[lifePlanetIndex].planetImprovModel.planetName;
+      this.lifeTexts = this.makeLifeText(lifePlanets, lifePlanetIndex, lifeTextGenerator);
     } else {
-      planetImprovModel.tags.push(['hasColonizablePlanet', 'false']);
-      planetImprovModel.tags.push(['isColonized', 'true']);
+      this.hasLife = false;
+      this.lifeTexts = [noLifeTextGenerator.gen('root', improvModel)];
     }
 
-    this.lifeTexts = lifeTextGenerator.gen('root', planetImprovModel) // .join('\n\n')
-    .split('\n\n').filter(function (i) {
-      return i;
-    });
-    console.log(this.lifeTexts);
-  } else {
-    console.log('lifeless', improvModel);
-    this.lifeTexts = [noLifeTextGenerator.gen('root', improvModel)];
+    this.planetTexts = this.makePlanetTexts(lifePlanetIndex, lifePlanets, planetTextGenerator, planetImprovModels);
+    console.log('system', improvModel); // for (let i=0; i<100; i++) {
+    //   console.log(speciesnames.flatten('#root#'));
+    // }
   }
 
-  if (lifePlanetIndex >= 0) {
-    var m = lifePlanets[lifePlanetIndex].planetImprovModel;
-    m.alreadyGone = true;
-    this.planetTexts.push(planetTextGenerator.gen('root', m));
-    console.log('planet', m.planetName, m);
-  }
+  _createClass(LiterateStarSystem, [{
+    key: "makeImprovModel",
+    value: function makeImprovModel() {
+      /* values */
+      var planets = this.starSystem.planets;
+      var planetMinAU = 0;
+      var planetMaxAU = 0;
 
-  planetImprovModels.forEach(function (m) {
-    if (m.alreadyGone) return;
+      if (planets.length) {
+        planetMinAU = (0, _util.precision)(2, planets[0].distance);
+        planetMaxAU = (0, _util.precision)(2, planets[planets.length - 1].distance);
+      }
 
-    _this.planetTexts.push(planetTextGenerator.gen('root', m));
+      var planetsAmount = 'none';
+      if (planets.length == 1) planetsAmount = 'one';
+      if (planets.length > 1) planetsAmount = 'many';
+      /* system model + text */
 
-    console.log('planet', m.planetName, m);
-  });
-  console.log('system', improvModel); // for (let i=0; i<100; i++) {
-  //   console.log(speciesnames.flatten('#root#'));
-  // }
-};
+      var speciesEndGa = (0, _util.precision)(3, 0.2 + this.alea() * 3);
+      var lifespanLength = ['short', 'medium', 'long'][(0, _util.choiceIndex)(this.alea(), 3)];
+      var lifespanMin = {
+        short: 50000,
+        medium: 100000,
+        long: 500000
+      }[lifespanLength];
+      var lifespanMax = {
+        short: 100000,
+        medium: 500000,
+        long: 2000000
+      }[lifespanLength];
+      var lifespanYears = Math.floor(lifespanMin + this.alea() * (lifespanMax - lifespanMin));
+      var lifespanGa = (0, _util.decimal)(2, lifespanYears / 1000000000);
+      var speciesBeginGa = (0, _util.decimal)(2, speciesEndGa - lifespanGa);
+      var lifeBeginGa = (0, _util.decimal)(2, speciesBeginGa + 1 + this.alea() * 3);
+      return {
+        // starSystem: this.starSystem,
+        name: this.name,
+        numPlanets: planets.length,
+        planetMinAU: planetMinAU,
+        planetMaxAU: planetMaxAU,
+        lifeBeginTime: "".concat(lifeBeginGa, " billion years ago"),
+        speciesBeginTime: "".concat(speciesBeginGa, " billion years ago"),
+        speciesEndTime: "".concat(speciesEndGa, " billion years ago"),
+        lifespanYears: lifespanYears,
+        tags: [['planetsAmount', planetsAmount], ['lifespanLength', lifespanLength]].concat((0, _util.star2tags)(this.starSystem)),
+        numberword: _numberToWords.default.toWords,
+        ordinal: _numberToWords.default.toWordsOrdinal,
+        num: function num(n) {
+          return parseInt(n, 10).toLocaleString();
+        },
+        precision2: function precision2(n) {
+          return parseFloat(parseFloat(n).toPrecision(2));
+        }
+      };
+    }
+  }, {
+    key: "makeLifeText",
+    value: function makeLifeText(lifePlanets, lifePlanetIndex, lifeTextGenerator) {
+      var planetImprovModel = lifePlanets[lifePlanetIndex].planetImprovModel;
+      lifePlanets.forEach(function (p, i) {
+        if (i === lifePlanetIndex) {
+          return;
+        }
+
+        p.planetImprovModel.tags.push(['hasColonizablePlanet', 'true']);
+        p.planetImprovModel.tags.push(['isColonized', 'false']);
+        planetImprovModel.colonizablePlanetName = p.planetImprovModel.planetName;
+      });
+
+      if (lifePlanets.length > 1) {
+        planetImprovModel.tags.push(['hasColonizablePlanet', 'true']);
+        planetImprovModel.tags.push(['isColonized', 'true']);
+      } else {
+        planetImprovModel.tags.push(['hasColonizablePlanet', 'false']);
+        planetImprovModel.tags.push(['isColonized', 'true']);
+      }
+
+      return lifeTextGenerator.gen('root', planetImprovModel) // .join('\n\n')
+      .split('\n\n').filter(function (i) {
+        return i;
+      });
+    }
+  }, {
+    key: "makePlanetModels",
+    value: function makePlanetModels(improvModel, planets) {
+      var _this = this;
+
+      // TODO: order planets interestingly
+      var originalTags = improvModel.tags;
+      var lifePlanets = [];
+      var planetImprovModels = [];
+      var lifePlanetIndex = -1;
+
+      var _loop = function _loop(i) {
+        var planet = planets[i];
+        planet.planetName = (0, _util.patchingMathDotRandom)(_this.alea, function () {
+          return _planetnames.default.flatten('#root#');
+        });
+        var pluralizedMoons = "".concat(planet.moons.length, " ").concat((0, _pluralize.default)('moon', planet.moons.length));
+        if (pluralizedMoons === '0 moons') pluralizedMoons = 'no moons';
+        var planetImprovModel = Object.assign({}, improvModel, {
+          tags: (0, _util.planet2tags)(planet, _this.starSystem.habitableZoneMin, _this.starSystem.habitableZoneMax).concat(originalTags),
+          planet: Object.assign({
+            number: i + 1,
+            pluralizedMoons: pluralizedMoons,
+            earthMasses: (0, _util.precision)(2, planet.mass),
+            jupiterMasses: (0, _util.precision)(2, planet.mass / 10.96),
+            neptuneMasses: (0, _util.precision)(2, planet.mass / 3.86)
+          }),
+          nonLifeInhabitablePlanets: []
+        }, planet);
+        planetImprovModels.push(planetImprovModel);
+        var isHz = planet.distance >= _this.starSystem.habitableZoneMin && planet.distance <= _this.starSystem.habitableZoneMax;
+
+        if (isHz && planet.planetType === 'Terran') {
+          // by end of loop, each habitable planet has a 1/n chance of being chosen.
+          // TODO: prefer planets with moons
+          if (_this.alea() < 1 / (lifePlanets.length + 1)) {
+            lifePlanetIndex = lifePlanets.length;
+          }
+
+          lifePlanets.forEach(function (_ref) {
+            var planetImprovModel = _ref.planetImprovModel;
+            planetImprovModel.planet.colonizablePlanetName = planet.name;
+          });
+          lifePlanets.push({
+            planet: planet,
+            planetImprovModel: planetImprovModel
+          });
+        }
+      };
+
+      for (var i = 0; i < planets.length; i++) {
+        _loop(i);
+      }
+
+      return {
+        planetImprovModels: planetImprovModels,
+        lifePlanets: lifePlanets,
+        lifePlanetIndex: lifePlanetIndex
+      };
+    }
+  }, {
+    key: "makePlanetTexts",
+    value: function makePlanetTexts(lifePlanetIndex, lifePlanets, planetTextGenerator, planetImprovModels) {
+      var planetTexts = [];
+
+      if (lifePlanetIndex >= 0) {
+        var m = lifePlanets[lifePlanetIndex].planetImprovModel;
+        m.hasLife = true;
+        m.alreadyGone = true;
+        planetTexts.push({
+          model: m,
+          text: planetTextGenerator.gen('root', m)
+        });
+        console.log('planet', m.planetName, m);
+      }
+
+      planetImprovModels.forEach(function (m) {
+        if (m.alreadyGone) return;
+        m.hasLife = false;
+        planetTexts.push({
+          model: m,
+          text: planetTextGenerator.gen('root', m)
+        });
+        console.log('planet', m.planetName, m);
+      });
+      return planetTexts;
+    }
+  }]);
+
+  return LiterateStarSystem;
+}();
 
 exports.default = LiterateStarSystem;
-},{"stellardream":"../node_modules/stellardream/lib/index.js","alea":"../node_modules/alea/alea.js","improv":"../node_modules/improv/dist/index.js","number-to-words":"../node_modules/number-to-words/numberToWords.min.js","pluralize":"../node_modules/pluralize/pluralize.js","./tracerygrammar/starnames":"src/tracerygrammar/starnames.js","./tracerygrammar/speciesnames":"src/tracerygrammar/speciesnames.js","./tracerygrammar/planetnames":"src/tracerygrammar/planetnames.js","./improvgrammar/starSystem.yaml":"src/improvgrammar/starSystem.yaml","./improvgrammar/planet.yaml":"src/improvgrammar/planet.yaml","./improvgrammar/nolife.yaml":"src/improvgrammar/nolife.yaml","./improvgrammar/life.yaml":"src/improvgrammar/life.yaml"}],"../node_modules/vue-hot-reload-api/dist/index.js":[function(require,module,exports) {
+},{"stellardream":"../node_modules/stellardream/lib/index.js","alea":"../node_modules/alea/alea.js","number-to-words":"../node_modules/number-to-words/numberToWords.min.js","pluralize":"../node_modules/pluralize/pluralize.js","./tracerygrammar/starnames":"src/tracerygrammar/starnames.js","./tracerygrammar/planetnames":"src/tracerygrammar/planetnames.js","./util":"src/util.js","./makeImprovGenerators":"src/makeImprovGenerators.js"}],"../node_modules/vue-hot-reload-api/dist/index.js":[function(require,module,exports) {
 var Vue // late bind
 var version
 var map = Object.create(null)
@@ -33000,6 +33309,38 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 var defer = function defer(fn) {
   setTimeout(fn, 0);
 };
@@ -33010,9 +33351,12 @@ var _default = {
     var parsedHash = _queryString.default.parse(window.location.hash);
 
     var seed = (0, _compositionApi.ref)(null);
+    var keplverseURL = (0, _compositionApi.computed)(function () {
+      return "https://steveasleep.com/keplverse/#seed=".concat(seed.value);
+    });
     var system = (0, _compositionApi.ref)(null);
     var systemText = (0, _compositionApi.ref)(null);
-    var traveledSystemsCount = (0, _compositionApi.ref)(0); // While traveling, may visit many systems without stopping
+    var traveledSystemsCount = (0, _compositionApi.ref)(parseInt(localStorage.traveledSystemsCount || '0', 10) || 0); // While traveling, may visit many systems without stopping
 
     var isStopped = (0, _compositionApi.ref)(true);
 
@@ -33020,22 +33364,27 @@ var _default = {
       isStopped.value = true;
     }
 
-    function deriveSystem() {
+    function deriveSystem(inc) {
       system.value = new _LiterateStarSystem.default(seed.value);
-      traveledSystemsCount.value += 1;
+
+      if (inc) {
+        traveledSystemsCount.value += 1;
+        localStorage.traveledSystemsCount = "".concat(traveledSystemsCount.value);
+      }
+
       window.location.hash = "seed=".concat(seed.value);
     }
 
     function travel() {
       seed.value = Date.now();
       console.log("Traveling to", seed.value);
-      deriveSystem();
+      deriveSystem(true);
     }
 
     function _iterateSearch(baseSeed) {
       if (isStopped.value) {
         seed.value = baseSeed;
-        deriveSystem();
+        deriveSystem(true);
         return;
       }
 
@@ -33052,7 +33401,7 @@ var _default = {
         seed.value = s;
         console.log("Traveling to", seed.value);
         isStopped.value = true;
-        deriveSystem();
+        deriveSystem(true);
         return;
       };
 
@@ -33119,7 +33468,7 @@ var _default = {
       }
 
       if (seed.value) {
-        deriveSystem();
+        deriveSystem(false);
       } else {
         travel();
       }
@@ -33135,7 +33484,8 @@ var _default = {
       travel: travel,
       search: search,
       stop: stop,
-      isStopped: isStopped
+      isStopped: isStopped,
+      keplverseURL: keplverseURL
     };
   }
 };
@@ -33175,27 +33525,94 @@ exports.default = _default;
       ? _c(
           "article",
           [
+            _c("div", { staticClass: "GraphicalStar" }, [
+              _c("div", { staticClass: "GraphicalStar__Content" }, [
+                _c("div", {
+                  staticClass: "GraphicalStar__Graphic",
+                  style: {
+                    backgroundColor: _vm.system.starSystem.stars[0].color
+                  }
+                })
+              ])
+            ]),
+            _vm._v(" "),
             _c("h1", [_vm._v(_vm._s(_vm.system.name))]),
+            _vm._v(" "),
+            _c("p", [
+              _c("a", { attrs: { target: "_blank", href: _vm.keplverseURL } }, [
+                _vm._v("View in telescope")
+              ])
+            ]),
             _vm._v(" "),
             _c("p", [_vm._v(_vm._s(_vm.system.systemText))]),
             _vm._v(" "),
             _vm._l(_vm.system.planetTexts, function(planetText, i) {
+              var _obj
               return _c("section", { key: i }, [
-                _c("p", [_vm._v(_vm._s(planetText))])
+                _c("div", { staticClass: "GraphicalPlanet" }, [
+                  _c("div", { staticClass: "GraphicalPlanet__Content" }, [
+                    _c("div", {
+                      staticClass: "GraphicalPlanet__Graphic",
+                      class: ((_obj = {}),
+                      (_obj[planetText.model.planetType] =
+                        planetText.model.planetType),
+                      (_obj.hasLife = planetText.model.hasLife),
+                      _obj)
+                    }),
+                    _vm._v(" "),
+                    _vm.system.hasLife
+                      ? _c("div", { staticClass: "GraphicalPlanet__Name" }, [
+                          _vm._v(
+                            "\n            " +
+                              _vm._s(planetText.model.planetName) +
+                              "\n          "
+                          )
+                        ])
+                      : _vm._e(),
+                    _vm._v(" "),
+                    !_vm.system.hasLife
+                      ? _c("div", { staticClass: "GraphicalPlanet__Name" }, [
+                          _vm._v(
+                            "\n            #" +
+                              _vm._s(planetText.model.planet.number) +
+                              "\n          "
+                          )
+                        ])
+                      : _vm._e()
+                  ])
+                ]),
+                _vm._v(" "),
+                _c("p", [
+                  _vm._v("\n        " + _vm._s(planetText.text) + "\n      ")
+                ])
               ])
             }),
             _vm._v(" "),
-            _c(
-              "section",
-              [
-                _c("h2", [_vm._v("Life")]),
-                _vm._v(" "),
-                _vm._l(_vm.system.lifeTexts, function(t, i) {
-                  return _c("p", { key: i }, [_vm._v(_vm._s(t))])
-                })
-              ],
-              2
-            )
+            _vm.system.hasLife
+              ? _c(
+                  "section",
+                  [
+                    _c("h2", [
+                      _vm._v("Life on " + _vm._s(_vm.system.lifePlanetName))
+                    ]),
+                    _vm._v(" "),
+                    _vm._l(_vm.system.lifeTexts, function(t, i) {
+                      return _c("p", { key: i }, [_vm._v(_vm._s(t))])
+                    })
+                  ],
+                  2
+                )
+              : _vm._e(),
+            _vm._v(" "),
+            !_vm.system.hasLife
+              ? _c(
+                  "section",
+                  _vm._l(_vm.system.lifeTexts, function(t, i) {
+                    return _c("p", { key: i }, [_vm._v(_vm._s(t))])
+                  }),
+                  0
+                )
+              : _vm._e()
           ],
           2
         )
@@ -33340,7 +33757,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49494" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63670" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
