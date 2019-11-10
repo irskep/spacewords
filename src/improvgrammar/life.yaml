@@ -16,9 +16,9 @@ root:
           
           [:originOfSpecies]
           
-          [:artifacts]
-          
           [:death]
+          
+          [:artifacts]
 
 lifespan:
   groups:
@@ -37,20 +37,14 @@ originOfSpecies:
       phrases:
       - |
         Life based on [:biochemistry] arose on [planetName] [lifeBeginTime].
-        The [:speciesName] developed [speciesBeginTime]. Their civilization lasted for
-        [num lifespanYears] years.
+        The [:speciesName] developed [speciesBeginTime], evolving from [:ancestryDescription].
         
-        [:evolution]
+        They lived [:habitat] and [:ancestryGroupDynamics], communicating primarily
+        through [:communicationMethod]. [:sentienceEvent]
+        
+        Their civilization lasted for [num lifespanYears] years.
         
         [:discoveries]
-        
-evolution:
-  groups:
-    - tags: []
-      phrases:
-      - >-
-        Evolving from [:ancestry], they [:sentienceEvent] that elevated them to sentience.
-        
 biochemistry:
   bind: true
   groups:
@@ -72,41 +66,151 @@ biochemistry:
       - 'carbon and ammonia biochemistry'
       - 'Borane biochemistry' # requires a reducing atmosphere (removing oxygen))
 
-ancestry:
+habitat:
   bind: true
   groups:
-    - tags: [['habitat', 'ocean'], ['individualism', 'solo']]
+    - tags: [['habitat', 'ocean']]
       phrases:
-      - 'a long, finned aquatic species'
-    - tags: [['habitat', 'ocean'], ['individualism', 'collective']]
+        - 'in the ocean'
+    - tags: [['habitat', 'land']]
       phrases:
-      - 'a small fish-like creature'
-      - 'networked plankton'
-    - tags: [['habitat', 'ocean'], ['individualism', 'colonyWithQueen']]
-      phrases:
-      - 'tiny, hard-shelled organisms with pincers'
+        - 'on land'
 
-    - tags: [['habitat', 'land'], ['individualism', 'colonyWithQueen']]
+ancestryDescription:
+  bind: true
+  groups:
+    - tags: []
       phrases:
-      - 'insect-like creatures'
-    - tags: [['habitat', 'land'], ['individualism', 'solo']]
-      phrases:
-      - 'insect-like creatures'
-    - tags: [['habitat', 'land'], ['individualism', 'collective']]
-      phrases:
-      - 'insect-like creatures'
+        - >-
+          [an :ancestrySize] [:ancestrySkin] species with [:ancestryAppendages]
 
+ancestrySize:
+  bind: true
+  groups:
+    - tags: []
+      phrases:
+        - 'tiny'
+        - 'small'
+        - 'human-sized'
+        - 'large'
+        - 'enormous'
+
+ancestrySkin:
+  bind: true
+  groups:
+    - tags: []
+      phrases:
+        - 'spiny'
+        - 'scaly'
+        - 'chitinous'
+        - 'hard-shelled'
+        - 'rubbery'
+        - 'slimy'
+        - 'leathery'
+    - tags: [['habitat', 'ocean']]
+      phrases:
+        - 'scale-covered'
+        - 'scaly'
+    - tags: [['habitat', 'land']]
+      phrases:
+        - 'furry'
+        - 'feathered'
+        - 'hairy'
+
+ancestryAppendages:
+  bind: true
+  groups:
+    - tags: []
+      phrases:
+        - 'tentacles'
+        - 'claws'
+    - tags: [['habitat', 'ocean']]
+      phrases:
+        - 'fins'
+        - 'minutely articulated fins'
+    - tags: [['habitat', 'land']]
+      phrases:
+        - 'arms and legs'
+        - 'legs'
+    - tags: [['habitat', 'land'], ['flying', 'true']]
+      phrases:
+        - 'wings and [:ancestryAppendages]'
+
+ancestryGroupDynamics:
+  bind: true
+  groups:
+    - tags: [['individualism', 'solo']]
+      phrases:
+        - 'hunted in groups'
+    - tags: [['individualism', 'colonyWithQueen']]
+      phrases:
+        - 'served massive colonies controlled by queens'
+    - tags: [['individualism', 'solo']]
+      phrases:
+        - 'mostly fended for themselves'
+    - tags: [['individualism', 'solo']]
+      phrases:
+        - 'traveled in flocks'
+    - tags: [['individualism', 'collective']]
+      phrases:
+        - 'formed large groups that acted nearly as one being'
+
+ancestryBodyPlan:
+  bind: true
+  groups:
+    - tags: []
+      phrases:
+        - 'bilateral'
+        - 'trilateral'
+        - 'trilateral'
+        - 'quadrilateral'
+        - 'pentalateral'
+        - 'hexalateral'
+        
+communicationMethod:
+  bind: true
+  groups:
+    - tags: []
+      phrases:
+        - 'sound'
+        - 'visual body language'
+        - 'scent'
+        - 'complex chemical transfers'
+        - 'patterns of physical contact'
+        - 'combat'
+
+eventually:
+  groups:
+    - tags: []
+      phrases: ['Over time', 'Eventually']
+madeThemSentient:
+  groups:
+    - tags: []
+      phrases: ['elevated them to sentience', 'brought them up to the level of sentience']
 sentienceEvent:
   groups:
     - tags: [['individualism', 'solo']]
       phrases:
-      - 'developed a hunter-gatherer culture'
+      - >-
+        [cap :eventually], they developed complex social interactions that [:madeThemSentient].
+      - >-
+        [cap :eventually], competition for resources and mates [:madeThemSentient].
     - tags: [['individualism', 'colonyWithQueen']]
       phrases:
-      - 'developed complex inter-colony competition and cooperation'
+      - >-
+        [cap :eventually], they developed complex inter-colony competition and cooperation
+        that [:madeThemSentient].
+      - >-
+        [cap :eventually], individuals within colonies became sophisticated enough to
+        achieve sentience.
     - tags: [['individualism', 'collective']]
       phrases:
-      - 'developed complex inter-colony competition and cooperation'
+      - >-
+        [cap :eventually], they developed complex inter-group competition and cooperation
+        that [:madeThemSentient].
+      - >-
+        [cap :eventually], communication within groups became so rapid and complex that
+        sentience emerged.
 
 discoveries:
   groups:
@@ -151,7 +255,8 @@ artifacts:
         [cap numberword #1-10] space probes originating on [planetName] are still on their
         way toward nearby stars. [:artifacts]
       - >-
-        A few light years out, you received frequency-modulated radio waves [:message]. [:artifacts]
+        As you approached the system, you picked up frequency-modulated radio waves
+        [:message]. [:artifacts]
     - tags: [['hasColonizablePlanet', 'true'], ['power', 'technological']]
       phrases:
       - >-
@@ -252,7 +357,7 @@ deathReason:
       phrases:
         - >-
           industrial activity poisoned their atmosphere, making the planet hostile to
-          life except in near deep-sea vents
+          life except near deep-sea vents
       
 
     - tags: [['hasMoons', 'true']]
