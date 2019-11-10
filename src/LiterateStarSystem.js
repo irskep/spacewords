@@ -1,6 +1,5 @@
 import { StarSystem } from 'stellardream';
 import Alea from 'alea';
-import Improv from 'improv';
 import numberToWords from 'number-to-words';
 import pluralize from 'pluralize';
 
@@ -95,7 +94,7 @@ export default class LiterateStarSystem {
     const lifespanGa = decimal(2, lifespanYears / 1000000000);
     const speciesBeginGa = decimal(2, speciesEndGa - lifespanGa);
     const lifeBeginGa = decimal(2, speciesBeginGa + 1 + this.alea() * 3);
-    
+
     return {
       // starSystem: this.starSystem,
       name: this.name,
@@ -157,6 +156,7 @@ export default class LiterateStarSystem {
       let pluralizedMoons = (`${planet.moons.length} ${pluralize('moon', planet.moons.length)}`);
       if (pluralizedMoons === '0 moons')
         pluralizedMoons = 'no moons';
+
       const planetImprovModel = Object.assign({}, improvModel, {
         tags: planet2tags(planet, this.starSystem.habitableZoneMin, this.starSystem.habitableZoneMax).concat(originalTags),
         planet: Object.assign({
@@ -169,6 +169,7 @@ export default class LiterateStarSystem {
         nonLifeInhabitablePlanets: [],
       }, planet);
       planetImprovModels.push(planetImprovModel);
+
       const isHz = planet.distance >= this.starSystem.habitableZoneMin &&
         planet.distance <= this.starSystem.habitableZoneMax;
       if (isHz && planet.planetType === 'Terran') {
@@ -190,14 +191,15 @@ export default class LiterateStarSystem {
     const planetTexts = [];
     if (lifePlanetIndex >= 0) {
       const m = lifePlanets[lifePlanetIndex].planetImprovModel;
+      m.hasLife = true;
       m.alreadyGone = true;
-      planetTexts.push(planetTextGenerator.gen('root', m));
+      planetTexts.push({model: m, text: planetTextGenerator.gen('root', m)});
       console.log('planet', m.planetName, m);
     }
     planetImprovModels.forEach((m) => {
-      if (m.alreadyGone)
-        return;
-      planetTexts.push(planetTextGenerator.gen('root', m));
+      if (m.alreadyGone) return;
+      m.hasLife = false;
+      planetTexts.push({model: m, text: planetTextGenerator.gen('root', m)});
       console.log('planet', m.planetName, m);
     });
     return planetTexts;

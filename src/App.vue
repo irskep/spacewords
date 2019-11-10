@@ -7,17 +7,42 @@
       <button @click="travel">Travel</button>
       <button @click="search">Search for life</button>
       <button v-if="!isStopped">Stop</button>
-      <p>
-        <a target="_blank" :href="keplverseURL">View in telescope</a>
-      </p>
     </nav>
 
     <article v-if="system">
+      <div class="GraphicalStar">
+        <div class="GraphicalStar__Content">
+          <div
+            class="GraphicalStar__Graphic"
+            v-bind:style="{ backgroundColor: system.starSystem.stars[0].color }"></div>
+        </div>
+      </div>
+
       <h1>{{ system.name }}</h1>
+
+      <p>
+        <a target="_blank" :href="keplverseURL">View in telescope</a>
+      </p>
+
       <p>{{ system.systemText }}</p>
 
       <section v-for="(planetText, i) in system.planetTexts" v-bind:key="i">
-        <p>{{ planetText }}</p>
+        <div class="GraphicalPlanet">
+          <div class="GraphicalPlanet__Content">
+            <div
+              class="GraphicalPlanet__Graphic"
+              v-bind:class="{ [planetText.model.planetType]: planetText.model.planetType, hasLife: planetText.model.hasLife }"></div>
+            <div class="GraphicalPlanet__Name" v-if="system.hasLife">
+              {{ planetText.model.planetName }}
+            </div>
+            <div class="GraphicalPlanet__Name" v-if="!system.hasLife">
+              #{{ planetText.model.planet.number }}
+            </div>
+          </div>
+        </div>
+        <p>
+          {{ planetText.text }}
+        </p>
       </section>
 
       <section v-if="system.hasLife">
@@ -87,28 +112,31 @@ export default {
 
     const system = ref(null);
     const systemText = ref(null);
-    const traveledSystemsCount = ref(0);
+    const traveledSystemsCount = ref(parseInt(localStorage.traveledSystemsCount || '0', 10) || 0);
 
     // While traveling, may visit many systems without stopping
     const isStopped = ref(true);
     function stop() { isStopped.value = true; }
 
-    function deriveSystem() {
+    function deriveSystem(inc) {
       system.value = new LiterateStarSystem(seed.value);
-      traveledSystemsCount.value += 1;
+      if (inc) {
+        traveledSystemsCount.value += 1;
+        localStorage.traveledSystemsCount = `${traveledSystemsCount.value}`;
+      }
       window.location.hash = `seed=${seed.value}`;
     }
 
     function travel() {
       seed.value = Date.now();
       console.log("Traveling to", seed.value);
-      deriveSystem();
+      deriveSystem(true);
     }
 
     function _iterateSearch(baseSeed) {
       if (isStopped.value) {
         seed.value = baseSeed;
-        deriveSystem();
+        deriveSystem(true);
         return;
       }
 
@@ -125,7 +153,7 @@ export default {
         seed.value = s;
         console.log("Traveling to", seed.value);
         isStopped.value = true;
-        deriveSystem();
+        deriveSystem(true);
         return;
       }
 
@@ -166,7 +194,7 @@ export default {
         console.log("Set seed:", seed.value);
       }
       if (seed.value) {
-        deriveSystem();
+        deriveSystem(false);
       } else {
         travel();
       }
