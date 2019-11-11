@@ -90,7 +90,7 @@ export default class LiterateStarSystem {
       medium: 500000,
       long: 2000000,
     }[lifespanLength];
-    const lifespanYears = Math.floor(lifespanMin + this.alea() * (lifespanMax - lifespanMin));
+    const lifespanYears = precision(2, Math.floor(lifespanMin + this.alea() * (lifespanMax - lifespanMin)));
     const lifespanGa = decimal(2, lifespanYears / 1000000000);
     const speciesBeginGa = decimal(2, speciesEndGa - lifespanGa);
     const lifeBeginGa = decimal(2, speciesBeginGa + 1 + this.alea() * 3);

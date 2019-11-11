@@ -1,5 +1,30 @@
 <template>
   <main>
+    <article v-if="!system">
+      <h1>Space Words</h1>
+      <h2>by <a href="https://steveasleep.com">Steve Landey</h2>
+
+      <p>
+        The <a href="https://en.wikipedia.org/wiki/Drake_equation">Drake equation</a> suggests that life in the universe ought to be fairly
+        abundant. But even if it is, the limits of lightspeed and the cosmic
+        time scale make it effectively impossible for two sentient species
+        to meet.
+      </p>
+
+      <p>
+        This project imagines that you are an immortal being with infinite
+        patience, traveling between stars at lightspeed, with the ability to
+        read the history of each star system perfectly.
+      </p>
+
+      <p>
+        The <i>Travel</i> button takes you to a random star system. Because 
+        most star systems cannot support life, that means you'll rarely come
+        across anything interesting. The <i>Search for life</i> button
+        guarantees that life once existed in the system you visit.
+      </p>
+    </article>
+
     <nav>
       <div>
         Visited {{ traveledSystemsCount }} {{ traveledSystemsCount == 1 ? 'system' : 'systems' }}
@@ -195,8 +220,8 @@ export default {
       }
       if (seed.value) {
         deriveSystem(false);
-      } else {
-        travel();
+      // } else {
+      //   travel();
       }
     });
 
