@@ -32880,7 +32880,7 @@ function () {
         medium: 500000,
         long: 2000000
       }[lifespanLength];
-      var lifespanYears = Math.floor(lifespanMin + this.alea() * (lifespanMax - lifespanMin));
+      var lifespanYears = (0, _util.precision)(2, Math.floor(lifespanMin + this.alea() * (lifespanMax - lifespanMin)));
       var lifespanGa = (0, _util.decimal)(2, lifespanYears / 1000000000);
       var speciesBeginGa = (0, _util.decimal)(2, speciesEndGa - lifespanGa);
       var lifeBeginGa = (0, _util.decimal)(2, speciesBeginGa + 1 + this.alea() * 3);
@@ -33827,7 +33827,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49304" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50344" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
