@@ -33411,6 +33411,31 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 var defer = function defer(fn) {
   setTimeout(fn, 0);
 };
@@ -33538,9 +33563,8 @@ var _default = {
       }
 
       if (seed.value) {
-        deriveSystem(false);
-      } else {
-        travel();
+        deriveSystem(false); // } else {
+        //   travel();
       }
     });
     return {
@@ -33573,6 +33597,24 @@ exports.default = _default;
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("main", [
+    !_vm.system
+      ? _c("article", [
+          _c("h1", [_vm._v("Space Words")]),
+          _vm._v(" "),
+          _vm._m(0),
+          _vm._v(" "),
+          _vm._m(1),
+          _vm._v(" "),
+          _c("p", [
+            _vm._v(
+              "\n      This project imagines that you are an immortal being with infinite\n      patience, traveling between stars at lightspeed, with the ability to\n      read the history of each star system perfectly.\n    "
+            )
+          ]),
+          _vm._v(" "),
+          _vm._m(2)
+        ])
+      : _vm._e(),
+    _vm._v(" "),
     _c("nav", [
       _c("div", [
         _vm._v(
@@ -33688,10 +33730,53 @@ exports.default = _default;
         )
       : _vm._e(),
     _vm._v(" "),
-    _vm._m(0)
+    _vm._m(3)
   ])
 }
 var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("h2", [
+      _vm._v("by "),
+      _c("a", { attrs: { href: "https://steveasleep.com" } }, [
+        _vm._v("Steve Landey")
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("p", [
+      _vm._v("\n      The "),
+      _c(
+        "a",
+        { attrs: { href: "https://en.wikipedia.org/wiki/Drake_equation" } },
+        [_vm._v("Drake equation")]
+      ),
+      _vm._v(
+        " suggests that life in the universe ought to be fairly\n      abundant. But even if it is, the limits of lightspeed and the cosmic\n      time scale make it effectively impossible for two sentient species\n      to meet.\n    "
+      )
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("p", [
+      _vm._v("\n      The "),
+      _c("i", [_vm._v("Travel")]),
+      _vm._v(
+        " button takes you to a random star system. Because \n      most star systems cannot support life, that means you'll rarely come\n      across anything interesting. The "
+      ),
+      _c("i", [_vm._v("Search for life")]),
+      _vm._v(
+        " button\n      guarantees that life once existed in the system you visit.\n    "
+      )
+    ])
+  },
   function() {
     var _vm = this
     var _h = _vm.$createElement
@@ -33827,7 +33912,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50344" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55956" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
