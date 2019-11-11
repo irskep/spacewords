@@ -5,7 +5,8 @@
   "private": true,
   "scripts": {
     "dev": "parcel index.html",
-    "deploy": "parcel build index.html --public-url ./ && gh-pages -d dist"
+    "deploy": "parcel build index.html --public-url ./ && gh-pages -d dist",
+    "butler": "parcel build index.html --public-url ./ && butler push dist irskep/space-words:dev"
   },
   "dependencies": {
     "@vue/composition-api": "^0.3.2",
